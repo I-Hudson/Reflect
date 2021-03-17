@@ -18,6 +18,7 @@ project "Reflect"
     includedirs 
     {
 		"$(ProjectDir)src",
+        "%{IncludeDir.dirent}",
 	}
 
     filter "system:windows"

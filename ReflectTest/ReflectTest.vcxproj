@@ -136,15 +136,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\TestStrcuts.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reflect\Reflect.vcxproj">
       <Project>{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\TestStrcuts.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,19 +4,37 @@
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FileParser">
+      <UniqueIdentifier>{D223D4E3-BEDB-1531-27E3-EE8C13BAB021}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Core.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Reflect.h" />
-    <ClInclude Include="src\FileParser\File Parser.h" />
+    <ClInclude Include="src\Core\Enums.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Compiler.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Util.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileParser\FileParser.h">
+      <Filter>FileParser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Type.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\FileParser\FileParser.cpp" />
-    <ClCompile Include="src\FileParser\File Parser.cpp" />
+    <ClCompile Include="src\FileParser\FileParser.cpp">
+      <Filter>FileParser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Enums.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

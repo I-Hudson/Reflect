@@ -2,8 +2,9 @@
 
 #include "Reflect.h"
 
-STRUCT() Person
+REFLECT_CLASS(Person, Public, Private)
 {
 	int x;
 	int y;
+	const char* TestString;
 };

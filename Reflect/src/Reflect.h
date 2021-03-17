@@ -1,4 +1,5 @@
 #pragma once
 
 #include "Core/Core.h"
-#include "FileParser/File Parser.h"
+#include "Core/Enums.h"
+#include "FileParser/FileParser.h"
