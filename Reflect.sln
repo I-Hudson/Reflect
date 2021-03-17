@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReflectTest", "ReflectTest\ReflectTest.vcxproj", "{AA83AD9E-1639-2694-9F2D-206B0BE21C98}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Reflect", "Reflect\Reflect.vcxproj", "{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Dist|x64 = Dist|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AA83AD9E-1639-2694-9F2D-206B0BE21C98}.Debug|x64.ActiveCfg = Debug|x64
+		{AA83AD9E-1639-2694-9F2D-206B0BE21C98}.Debug|x64.Build.0 = Debug|x64
+		{AA83AD9E-1639-2694-9F2D-206B0BE21C98}.Dist|x64.ActiveCfg = Dist|x64
+		{AA83AD9E-1639-2694-9F2D-206B0BE21C98}.Dist|x64.Build.0 = Dist|x64
+		{AA83AD9E-1639-2694-9F2D-206B0BE21C98}.Release|x64.ActiveCfg = Release|x64
+		{AA83AD9E-1639-2694-9F2D-206B0BE21C98}.Release|x64.Build.0 = Release|x64
+		{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}.Debug|x64.ActiveCfg = Debug|x64
+		{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}.Debug|x64.Build.0 = Debug|x64
+		{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}.Dist|x64.ActiveCfg = Dist|x64
+		{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}.Dist|x64.Build.0 = Dist|x64
+		{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}.Release|x64.ActiveCfg = Release|x64
+		{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
