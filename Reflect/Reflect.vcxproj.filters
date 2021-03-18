@@ -25,6 +25,7 @@
     <ClInclude Include="src\FileParser\FileParser.h">
       <Filter>FileParser</Filter>
     </ClInclude>
+    <ClInclude Include="src\ReflectStructs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Type.cpp">

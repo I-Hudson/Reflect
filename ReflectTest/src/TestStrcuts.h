@@ -4,7 +4,12 @@
 
 REFLECT_CLASS(Person, Public, Private)
 {
+	REFLECT_PROPERTY(Friend, private,		)
 	int x;
-	int y;
-	const char* TestString;
+};
+
+REFLECT_CLASS(House, Public, Private)
+{
+	REFLECT_PROPERTY(Friend, )
+		int width;
 };

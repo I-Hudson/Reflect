@@ -6,7 +6,7 @@
 
 NAMESPACE_START
 
-enum class ReflectContainerProps
+enum class ReflectFlags
 {
 	Invalid,
 
@@ -16,7 +16,7 @@ enum class ReflectContainerProps
 
 	Count
 };
-ReflectContainerProps StringToReflectContainerProps(const std::string& str);
+ReflectFlags StringToReflectFlags(const std::string& str);
 
 enum class ReflectType
 {

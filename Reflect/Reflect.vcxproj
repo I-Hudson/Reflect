@@ -139,6 +139,7 @@
     <ClInclude Include="src\Core\Util.h" />
     <ClInclude Include="src\FileParser\FileParser.h" />
     <ClInclude Include="src\Reflect.h" />
+    <ClInclude Include="src\ReflectStructs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Enums.cpp" />

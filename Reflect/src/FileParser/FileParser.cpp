@@ -4,8 +4,11 @@
 #include <iostream>
 #include <filesystem>
 #include <stack>
+#include <assert.h>
 
 NAMESPACE_START
+
+constexpr int DEFAULT_TYPE_SIZE = 0;
 
 FileParser::FileParser()
 { }
@@ -20,15 +23,15 @@ void FileParser::ParseDirectory(const std::string& directory)
 		std::string filePath = f.path().u8string();
 		std::cout << filePath << std::endl;
 
-		if ((f.is_regular_file() || f.is_character_file()) && 
-			CheckExtension(filePath, {".h", ".hpp"}))
+		if ((f.is_regular_file() || f.is_character_file()) &&
+			CheckExtension(filePath, { ".h", ".hpp" }))
 		{
 			// TODO thread this. We could load files on more than one thread to speed
 			// this up.
 			std::cout << f.file_size() << std::endl;
 			std::ifstream file = OpenFile(filePath);
 			FileParsedData data = LoadFile(file);
-			m_filesParsed[filePath] = data;
+			m_filesParsed.push_back(data);
 			CloseFile(file);
 		}
 	}
@@ -37,9 +40,9 @@ void FileParser::ParseDirectory(const std::string& directory)
 	// All files have been loaded.
 	// Now we need to parse them to find all the information we want from them.
 	// TODO this could also be threaded.
-	for (const auto& kvp : m_filesParsed)
+	for (auto& file : m_filesParsed)
 	{
-		ParseFile(m_filesParsed.at(kvp.first));
+		ParseFile(file);
 	}
 }
 
@@ -49,6 +52,7 @@ std::ifstream FileParser::OpenFile(const std::string& filePath)
 	if (!file.is_open())
 	{
 		//todo assert.
+		assert(false && "[FileParser::OpenFile] File is not open.");
 	}
 	return std::move(file);
 }
@@ -90,167 +94,177 @@ FileParsedData FileParser::LoadFile(std::ifstream& file)
 
 void FileParser::ParseFile(FileParsedData& fileData)
 {
-	if (!ReflectContainer(fileData, RefectStructKey, ReflectType::Struct) && !ReflectContainer(fileData, RefectClassKey, ReflectType::Class))
+	while (ReflectContainerHeader(fileData, RefectStructKey, ReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, ReflectType::Class))
 	{
-		return;
-	}
-
-	// Good, we have a reflected container class/struct.
-	// First find out which it is and verify that we are inheriting from "ReflectObject".
-	std::stack<char> bracketStack;
-	bool findStart = true;
-
-	std::string type;
-	bool typeFound = false;
-	std::string name;
-	bool nameFound = false;
-
-	auto reset = [&type, &typeFound, &name, &nameFound]()
-	{
-		type = "";
-		typeFound = false;
-		name = "";
-		nameFound = false;
-	};
-
-	while (true)
-	{
-		char c = fileData.Data[fileData.Cursor];
-		if (findStart)
-		{
-			if (c == '{')
-			{
-				bracketStack.push('{');
-				findStart = false;
-			}
-		}
-		else
-		{
-			if (c == '{')
-			{
-				bracketStack.push('{');
-			}
-			else if (c == '}')
-			{
-				bracketStack.pop();
-			}
-
-			if (bracketStack.empty())
-			{
-				// Class/Struct has finished
-				break;
-			}
-
-			if (RefectCheckForEndOfLine(fileData))
-			{
-				if (ReflectTypeCheck(type))
-				{
-					type += ' ';
-					++fileData.Cursor;
-					continue;
-				}
-
-				if (!typeFound)
-				{
-					typeFound = true;
-				}
-				else if (!nameFound)
-				{
-					nameFound = true;
-				}
-
-				// if c == '(' start of a function. Call a new function to handle this.
-
-				if (c == ';')
-				{
-					// We have found a member variable 
-					fileData.ReflectData.Members.push_back(
-						{
-							type, 
-							name,
-							0
-						});
-
-					reset();
-				}
-			}
-			else if(c != '\n' && c != '\t') /*if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')*/
-			{
-				if (!typeFound)
-				{
-					type += c;
-				}
-				else if (!nameFound)
-				{
-					name += c;
-				}
-			}
-		}
-		++fileData.Cursor;
+		ReflectContainer(fileData);
 	}
 }
 
-bool FileParser::ReflectContainer(FileParsedData& fileData, const std::string& keyword, const ReflectType type)
+bool FileParser::ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const ReflectType type)
 {
 	// Check if we can reflect this class/struct. 
-	int reflectStart = static_cast<int>(fileData.Data.find(keyword));
+	int reflectStart = static_cast<int>(fileData.Data.find(keyword, fileData.Cursor));
 	if (reflectStart == std::string::npos)
 	{
 		// Can't reflect this class. Return.
 		return false;
 	}
 
-	fileData.ReflectData.Type = type;
-	fileData.Cursor = reflectStart + keyword.length() + 1;
-	
+	ReflectContainerData containerData = {};
+
+	containerData.ReflectType = type;
+	fileData.Cursor = reflectStart + static_cast<int>(keyword.length()) + 1;
+
+	// Get the flags passed though the REFLECT macro.
+	std::string containerName;
+	bool foundContainerName = false;
+
+	while (fileData.Data[fileData.Cursor] != ',')
+	{
+		if (fileData.Data[fileData.Cursor] != ' ')
+		{
+			containerName += fileData.Data[fileData.Cursor];
+		}
+		++fileData.Cursor;
+	}
+	containerData.Name = containerName;
+	containerData.Type = containerName;
+	containerData.TypeSize = DEFAULT_TYPE_SIZE;
+	containerData.ContainerProps = ReflectFlags(fileData);
+	fileData.ReflectData.push_back(containerData);
+
+	return true;
+}
+
+void FileParser::ReflectContainer(FileParsedData& fileData)
+{
+	int endOfContainerCursor = FindEndOfConatiner(fileData);
+
+	// Good, we have a reflected container class/struct.
+	// First find out which it is and verify that we are inheriting from "ReflectObject".
+	std::stack<char> bracketStack;
+	bool findStart = true;
+	ReflectContainerData& conatinerData = fileData.ReflectData.back();
+
+	while (true)
+	{
+		int reflectStart = static_cast<int>(fileData.Data.find(PropertyKey, fileData.Cursor));
+		if (reflectStart == std::string::npos || reflectStart > endOfContainerCursor)
+		{
+			// There are no more properties to reflect or we have found a new container to reflect.
+			break;
+		}
+		fileData.Cursor = reflectStart + static_cast<int>(strlen(PropertyKey));
+
+		// Get the reflect flags.
+		auto propFlags = ReflectFlags(fileData);
+
+		// Get the type and name of the property to reflect.
+		auto [type, name] = ReflectTypeAndName(fileData, {});
+
+		char c = FindNextChar(fileData, { ' ' });
+		// Find out if the property is a function or member variable.
+		if (c == ';')
+		{
+			// Member
+			// We have found a member variable 
+			ReflectMemberData memberData = {};
+			memberData.Type = type;
+			memberData.Name = name;
+			memberData.TypeSize = DEFAULT_TYPE_SIZE;
+			memberData.ContainerProps = propFlags;
+			conatinerData.Members.push_back(memberData);
+		}
+		else if (c == '(')
+		{
+			ReflectFunctionData funcData = {};
+			funcData.Type = type;
+			funcData.Name = name;
+			funcData.TypeSize = DEFAULT_TYPE_SIZE;
+			funcData.ContainerProps = propFlags;
+			conatinerData.Functions.push_back(funcData);
+
+			// Function
+			ReflectGetFunctionParameters(fileData);
+		}
+		else
+		{
+			assert(false && "[FileParser::ParseFile] Unknown reflect type. This must be a member variable or function.");
+		}
+
+		++fileData.Cursor;
+	}
+}
+
+int FileParser::FindEndOfConatiner(const FileParsedData& fileData)
+{
+	int cursor = fileData.Cursor;
+	char lastCharacter = '\0';
+	char c = '\0';
+	while (true)
+	{
+		if (lastCharacter == '}' && c == ';')
+		{
+			break;
+		}
+
+		if (c != '\t' && c != '\n')
+		{
+			lastCharacter = c;
+		}
+		++cursor;
+		c = fileData.Data[cursor];
+	}
+	return cursor;
+}
+
+std::vector<ReflectFlags> FileParser::ReflectFlags(FileParsedData& fileData)
+{
 	// Get the flags passed though the REFLECT macro.
 	std::string flag;
-	bool foundContainerName = false;
+	std::vector<Reflect::ReflectFlags> flags;
+
+	if (fileData.Data[fileData.Cursor] == '(')
+	{
+		++fileData.Cursor;
+	}
 
 	while (fileData.Data[fileData.Cursor] != ')')
 	{
-		if (fileData.Data[fileData.Cursor] == ',')
+		char c = fileData.Data[fileData.Cursor];
+		if (c == ',')
 		{
 			if (!flag.empty())
 			{
-				if (!foundContainerName)
-				{
-					foundContainerName = true;
-					fileData.ReflectData.Name = flag;
-				}
-				else
-				{
-					fileData.ReflectData.ContainerProps.push_back(
-						StringToReflectContainerProps(flag));
-				}
+				flags.push_back(StringToReflectFlags(flag));
 			}
 			flag = "";
 		}
 		else
 		{
-			if (fileData.Data[fileData.Cursor] != ' ')
+			if (c != ' ' && c != '\t')
 			{
-				flag += fileData.Data[fileData.Cursor];
+				flag += c;
 			}
 		}
 		++fileData.Cursor;
 	}
 	++fileData.Cursor;
+	if (!flag.empty())
+	{
+		flags.push_back(StringToReflectFlags(flag));
+	}
 
-	if (!foundContainerName)
+	return flags;
+}
+
+char FileParser::FindNextChar(FileParsedData& fileData, const std::vector<char>& ingoreChars)
+{
+	while (std::find(ingoreChars.begin(), ingoreChars.end(), fileData.Data[fileData.Cursor]) != ingoreChars.end())
 	{
-		foundContainerName = true;
-		fileData.ReflectData.Name = flag;
+		++fileData.Cursor;
 	}
-	else
-	{
-		if (!flag.empty())
-		{
-			fileData.ReflectData.ContainerProps.push_back(
-				StringToReflectContainerProps(flag));
-		}
-	}
-	return true;
+	return fileData.Data[fileData.Cursor];
 }
 
 bool FileParser::RefectCheckForEndOfLine(const FileParsedData& fileData)
@@ -272,6 +286,87 @@ bool FileParser::ReflectTypeCheck(const std::string& type)
 	}
 
 	return false;
+}
+
+void FileParser::ReflectGetFunctionParameters(FileParsedData& fileData)
+{
+	fileData.Cursor = static_cast<int>(fileData.Data.find('(', fileData.Cursor));
+	++fileData.Cursor;
+
+	ReflectFunctionData& funcData = fileData.ReflectData.back().Functions.back();
+
+	while (fileData.Data[fileData.Cursor] != ')')
+	{
+		auto [type, name] = ReflectTypeAndName(fileData, { ',', ')' });
+		funcData.Parameters.push_back(
+			{
+				type, 
+				name, 
+				DEFAULT_TYPE_SIZE
+			});
+	}
+}
+
+std::tuple<std::string, std::string> FileParser::ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters)
+{
+	std::string type;
+	bool typeFound = false;
+	std::string name;
+	bool nameFound = false;
+
+	while (true)
+	{
+		char c = fileData.Data[fileData.Cursor];
+		if (c == '}')
+		{
+			// Break here if we have finished
+			break;
+		}
+
+		if (RefectCheckForEndOfLine(fileData) || (std::find(endOfLineCharacters.begin(), endOfLineCharacters.end(), c) != endOfLineCharacters.end()))
+		{
+			if (ReflectTypeCheck(type))
+			{
+				type += ' ';
+				++fileData.Cursor;
+				continue;
+			}
+
+			if (!typeFound)
+			{
+				if (!type.empty())
+				{
+					typeFound = true;
+				}
+			}
+			else if (!nameFound)
+			{
+				if (!name.empty())
+				{
+					nameFound = true;
+				}
+			}
+		}
+		else if (c != '\n' && c != '\t') /*if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')*/
+		{
+			if (!typeFound)
+			{
+				type += c;
+			}
+			else if (!nameFound)
+			{
+				name += c;
+			}
+		}
+
+		if ((typeFound && nameFound))
+		{
+			break;
+		}
+		++fileData.Cursor;
+	}
+
+	return std::make_tuple<std::string, std::string>(type.c_str(), name.c_str());
 }
 
 NAMESPACE_END
