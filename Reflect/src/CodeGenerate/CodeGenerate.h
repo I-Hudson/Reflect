@@ -7,6 +7,33 @@
 
 NAMESPACE_START
 
+class CodeGenerateHeader
+{
+public:
+	CodeGenerateHeader() { }
+	~CodeGenerateHeader() { }
+
+	void GenerateHeader(const FileParsedData& data, std::ofstream& file);
+
+private:
+	void WriteHeader(const ReflectContainerData& data, std::ofstream& file);
+	void WriteFooter(const ReflectContainerData& data, std::ofstream& file);
+
+	void WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file);
+};
+
+class  CodeGenerateSource
+{
+public:
+	CodeGenerateSource() { }
+	~CodeGenerateSource() { }
+
+	void GenerateSource(const FileParsedData& data, std::ofstream& file);
+
+private:
+	void WriteConstructor(const ReflectContainerData& data, std::ofstream& file);
+};
+
 /// <summary>
 /// Generate a new file and place the reflect code there.
 /// </summary>
@@ -17,17 +44,11 @@ public:
 	~CodeGenerate();
 
 	void Reflect(const FileParsedData& data);
+	static void IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude = false);
 
 private:
 	std::ofstream OpenFile(const std::string& filePath);
 	void CloseFile(std::ofstream& file);
-
-	void WriteHeader(const ReflectContainerData& data, std::ofstream& file);
-	void WriteFooter(const ReflectContainerData& data, std::ofstream& file);
-
-	void WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file);
-
-private:
 };
 
 NAMESPACE_END

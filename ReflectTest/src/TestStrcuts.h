@@ -5,6 +5,9 @@
 
 REFLECT_CLASS(Person, Public, Private)
 {
+public:
+	Person() { }
+
 	REFLECT_PROPERTY(Friend, private)
 	int x;
 };

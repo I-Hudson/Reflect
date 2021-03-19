@@ -14,5 +14,13 @@ int main(int argc, char* arg[])
 		}
 	}
 
+#if DEBUG
+	parser.ParseDirectory("F:/Users/Documents/SourceControl/Github/C++ Porjects/Reflect/ReflectTest/src");
+	for (auto& file : parser.GetAllFileParsedData())
+	{
+		codeGenerate.Reflect(file);
+	}
+#endif
+
 	return 0;
 }

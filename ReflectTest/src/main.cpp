@@ -8,6 +8,7 @@ int main(void)
 	ReflectObject* reflect = &p;
 
 	std::cout << "Compiled" << std::endl;
+	std::cout << p.Verify() << std::endl;
 	std::cout << reflect->Verify() << std::endl;
 
 	return 0;

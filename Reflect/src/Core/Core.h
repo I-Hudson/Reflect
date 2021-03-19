@@ -15,10 +15,6 @@
 
 #define REFLECT_PROPERTY(Flags)
 
-// TODO make sure all reflect files use this #define and include the generated file.
-#define REFLECT_STRUCT(Name, Flags) struct Name : public Name##ReflectObject
-#define REFLECT_CLASS(Name, Flags) class Name : public Name##ReflectObject
-
 constexpr const char* RefectStructKey = "REFLECT_STRUCT";
 constexpr const char* RefectClassKey = "REFLECT_CLASS";
 constexpr const char* PropertyKey = "REFLECT_PROPERTY"; 
