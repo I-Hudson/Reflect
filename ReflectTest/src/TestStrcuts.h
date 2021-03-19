@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Reflect.h"
-#include "TestStrcuts_reflect_generated.h"
+#include "Generated/TestStrcuts_reflect_generated.h"
+
 
 REFLECT_CLASS(Person, Public, Private)
 {
 public:
-	Person() { }
+	Person() { ReflectInit(); }
 
 	REFLECT_PROPERTY(Friend, private)
 	int x;

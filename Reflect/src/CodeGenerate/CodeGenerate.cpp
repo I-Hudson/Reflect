@@ -1,5 +1,6 @@
 #include "CodeGenerate.h"
 #include <assert.h>
+#include <filesystem>
 
 NAMESPACE_START
 
@@ -16,11 +17,16 @@ void CodeGenerate::Reflect(const FileParsedData& data)
 	CodeGenerateHeader header;
 	CodeGenerateSource source;
 
-	std::ofstream file = OpenFile(data.FilePath + "/" + data.FileName + ReflectFileGeneratePrefix + ".h");
+	if (!std::filesystem::exists(data.FilePath + "/Generated"))
+	{
+		std::filesystem::create_directory(data.FilePath + "/Generated");
+	}
+
+	std::ofstream file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h");
 	header.GenerateHeader(data, file);
 	CloseFile(file);
 
-	file = OpenFile(data.FilePath + "/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
+	file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
 	source.GenerateSource(data, file);
 	CloseFile(file);
 }
@@ -51,6 +57,7 @@ void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstrea
 	{
 		WriteHeader(reflectData, file);
 
+		WriteBaseFunctions(reflectData, file);
 		WriteOverrideFunctions(reflectData, file);
 
 		WriteFooter(reflectData, file);
@@ -59,7 +66,15 @@ void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstrea
 
 void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstream& file)
 {
-	CodeGenerate::IncludeHeader(data.FileName + ReflectFileGeneratePrefix + ".h", file);
+	//CodeGenerate::IncludeHeader(data.FileName + ReflectFileGeneratePrefix + ".h", file);
+	CodeGenerate::IncludeHeader("../" + data.FileName + ".h", file);
+
+	for (auto& reflectData : data.ReflectData)
+	{
+		WriteConstructor(reflectData, file);
+		WriteBaseFunctions(reflectData, file);
+		WriteOverrideFunctions(reflectData, file);
+	}
 }
 
 void CodeGenerateHeader::WriteHeader(const ReflectContainerData& data, std::ofstream& file)
@@ -77,9 +92,10 @@ void CodeGenerateHeader::WriteHeader(const ReflectContainerData& data, std::ofst
 		assert(false && "[CodeGenerate::WriteHeader] Container type not supported.");
 	}
 
-	file << data.Name + ContainerPrefix +" : public ReflectObject" +
-		"\n{\n\t" +
-		data.Name + ContainerPrefix + "();\n";
+	file << data.Name + ContainerPrefix + " : ReflectObject" +
+		"\n{\npublic:\n\t" +
+		data.Name + ContainerPrefix + "();\n" +
+		"\t~" + data.Name + ContainerPrefix + "();\n";
 }
 
 void CodeGenerateHeader::WriteFooter(const ReflectContainerData& data, std::ofstream& file)
@@ -89,12 +105,49 @@ void CodeGenerateHeader::WriteFooter(const ReflectContainerData& data, std::ofst
 
 void CodeGenerateSource::WriteConstructor(const ReflectContainerData& data, std::ofstream& file)
 {
-	file << "\t\tint x = 10;\n";
+	file << data.Name + ContainerPrefix + "::" + data.Name + ContainerPrefix + "()\n{";
+	file << "}\n\n";
+	file << data.Name + ContainerPrefix + "::~" + data.Name + ContainerPrefix + "()\n{";
+	file << "}\n\n";
+}
+
+void CodeGenerateSource::WriteBaseFunctions(const ReflectContainerData& data, std::ofstream& file)
+{
+	file << "void " + data.Name + ContainerPrefix + "::" + "ReflectInit()\n{";
+	file << "}\n\n";
+}
+
+void CodeGenerateSource::WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file)
+{
+	file << "void " + data.Name + ContainerPrefix + "::" + "SetupReflectBindings()\n{\n";
+	file << "\tif (m_reflectInit)\n";
+	file << "\t{\n";
+	file << "\t\treturn;\n";
+	file << "\t}\n";
+	file << "\tm_reflectInit = true;\n";
+	file << "}\n\n";
+
+	file << "ReflectFunction " + data.Name + ContainerPrefix + "::" + "GetFunction(const char* name)\n{\n";
+	file << "\treturn __super::GetFunctionBase(name);\n";
+	file << "}\n\n";
+	file << "ReflectMember " + data.Name + ContainerPrefix + "::" + "GetMember(const char* name)\n{\n";
+	file << "\treturn __super::GetMemberBase(name);\n";
+	file << "}\n\n";
+}
+
+void CodeGenerateHeader::WriteBaseFunctions(const ReflectContainerData& data, std::ofstream& file)
+{
+	file << "\tvoid ReflectInit();\n";
 }
 
 void CodeGenerateHeader::WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file)
 {
 	file << "\tvirtual const char* Verify() override { return \"" + data.Name + "\"; } \n";
+	file << "\tvirtual ReflectFunction GetFunction(const char* name) override;\n";
+	file << "\tvirtual ReflectMember GetMember(const char* name) override;\n";
+
+	file << "protected:\n";
+	file << "\tvirtual void SetupReflectBindings() override;\n";
 }
 
 void CodeGenerate::IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude)

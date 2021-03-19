@@ -19,6 +19,7 @@ private:
 	void WriteHeader(const ReflectContainerData& data, std::ofstream& file);
 	void WriteFooter(const ReflectContainerData& data, std::ofstream& file);
 
+	void WriteBaseFunctions(const ReflectContainerData& data, std::ofstream& file);
 	void WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file);
 };
 
@@ -32,6 +33,9 @@ public:
 
 private:
 	void WriteConstructor(const ReflectContainerData& data, std::ofstream& file);
+	void WriteBaseFunctions(const ReflectContainerData& data, std::ofstream& file);
+	void WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file);
+
 };
 
 /// <summary>

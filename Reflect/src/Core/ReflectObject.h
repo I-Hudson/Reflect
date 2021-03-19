@@ -12,21 +12,27 @@ struct ReflectMember
 	const char* Name;
 };
 
-struct ReflectObject
+class  ReflectObject
 {
-	ReflectFunction GetFunction(const char* name);
-	ReflectMember GetMember(const char* name);
+public:
+	ReflectObject();
+	~ReflectObject();
+
+	virtual ReflectFunction GetFunction(const char* name) = 0;
+	virtual ReflectMember GetMember(const char* name) = 0;
 
 	virtual const char* Verify() = 0;
 
 protected:
+	ReflectFunction GetFunctionBase(const char* name);
+	ReflectMember GetMemberBase(const char* name);
+
 	void AddFunction(const char* functionName, void* functionPtr);
 	void AddMember(const char* memberName, void* memberPtr);
+	virtual void SetupReflectBindings() = 0;
 
-private:
+protected:
+	bool m_reflectInit;
 	// function map
 	// member variables map
 };
-
-#define REFLECT_STRUCT(Name, Flags) struct Name : public Name##ReflectObject
-#define REFLECT_CLASS(Name, Flags) class Name : public Name##ReflectObject

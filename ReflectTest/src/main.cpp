@@ -4,12 +4,11 @@
 
 int main(void)
 {
-	Person p;
-	ReflectObject* reflect = &p;
-
 	std::cout << "Compiled" << std::endl;
+
+	Person p;
 	std::cout << p.Verify() << std::endl;
-	std::cout << reflect->Verify() << std::endl;
+	auto func = p.GetFunction("");
 
 	return 0;
 }
