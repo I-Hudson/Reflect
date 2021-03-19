@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="CodeGenerate">
+      <UniqueIdentifier>{2B64B771-17C7-4616-C04C-7FCCAC8E1299}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
     </Filter>
@@ -9,14 +12,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\CodeGenerate\CodeGenerate.h">
+      <Filter>CodeGenerate</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Compiler.h">
+      <Filter>Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Core.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Reflect.h" />
     <ClInclude Include="src\Core\Enums.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Compiler.h">
+    <ClInclude Include="src\Core\ReflectObject.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Util.h">
@@ -25,17 +33,21 @@
     <ClInclude Include="src\FileParser\FileParser.h">
       <Filter>FileParser</Filter>
     </ClInclude>
+    <ClInclude Include="src\Reflect.h" />
     <ClInclude Include="src\ReflectStructs.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\CodeGenerate\CodeGenerate.cpp">
+      <Filter>CodeGenerate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Enums.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
     <ClCompile Include="src\Core\Type.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="src\FileParser\FileParser.cpp">
       <Filter>FileParser</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Enums.cpp">
-      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

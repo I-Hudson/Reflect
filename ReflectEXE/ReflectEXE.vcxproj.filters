@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Reflect">
+      <UniqueIdentifier>{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reflect\src">
+      <UniqueIdentifier>{0175999E-6D2A-1294-F61E-0C6B62D30898}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reflect\src\CodeGenerate">
+      <UniqueIdentifier>{F62C5710-E251-A690-0B9D-8B20F720A5AE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reflect\src\Core">
+      <UniqueIdentifier>{F9E19897-E5DA-B7E9-0E0D-9D6EFA6497F5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reflect\src\FileParser">
+      <UniqueIdentifier>{DD3DC541-C937-EE93-B2A4-84A49E3D5400}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerate.h">
+      <Filter>Reflect\src\CodeGenerate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Reflect\src\Core\Compiler.h">
+      <Filter>Reflect\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Reflect\src\Core\Core.h">
+      <Filter>Reflect\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Reflect\src\Core\Enums.h">
+      <Filter>Reflect\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Reflect\src\Core\ReflectObject.h">
+      <Filter>Reflect\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Reflect\src\Core\Util.h">
+      <Filter>Reflect\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Reflect\src\FileParser\FileParser.h">
+      <Filter>Reflect\src\FileParser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Reflect\src\Reflect.h">
+      <Filter>Reflect\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Reflect\src\ReflectStructs.h">
+      <Filter>Reflect\src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Reflect\src\CodeGenerate\CodeGenerate.cpp">
+      <Filter>Reflect\src\CodeGenerate</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Reflect\src\Core\Enums.cpp">
+      <Filter>Reflect\src\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Reflect\src\Core\Type.cpp">
+      <Filter>Reflect\src\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Reflect\src\FileParser\FileParser.cpp">
+      <Filter>Reflect\src\FileParser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

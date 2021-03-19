@@ -38,6 +38,8 @@ struct FileParsedData
 {
 	std::string Data;
 	int Cursor;
+	std::string FilePath;
+	std::string FileName;
 
 	std::vector<ReflectContainerData> ReflectData;
 };

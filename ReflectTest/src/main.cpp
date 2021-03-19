@@ -4,10 +4,11 @@
 
 int main(void)
 {
-	Reflect::FileParser parser;
-	parser.ParseDirectory("F:/Users/Documents/SourceControl/Github/C++ Porjects/Reflect/ReflectTest/src");
+	Person p;
+	ReflectObject* reflect = &p;
 
-	const auto& fileData = parser.GetFileParsedData(0);
+	std::cout << "Compiled" << std::endl;
+	std::cout << reflect->Verify() << std::endl;
 
 	return 0;
 }

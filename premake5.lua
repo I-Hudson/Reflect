@@ -30,4 +30,5 @@ group "Dependencies"
 group ""
 
 include "Reflect"
+include "ReflectEXE"
 include "ReflectTest"
