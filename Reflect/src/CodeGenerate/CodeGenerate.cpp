@@ -6,6 +6,11 @@ NAMESPACE_START
 
 constexpr const char* ContainerPrefix = "ReflectObject";
 
+std::string GetCurrentFileID(const std::string& fileName, const std::string& extension)
+{
+	return  fileName + "_Source_" + extension;
+}
+
 CodeGenerate::CodeGenerate()
 { }
 
@@ -27,7 +32,7 @@ void CodeGenerate::Reflect(const FileParsedData& data)
 	CloseFile(file);
 
 	file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
-	source.GenerateSource(data, file);
+	//source.GenerateSource(data, file);
 	CloseFile(file);
 }
 
@@ -50,9 +55,8 @@ void CodeGenerate::CloseFile(std::ofstream& file)
 void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file)
 {
 	file << " // This file is auto generated please don't modify.\n";
+
 	CodeGenerate::IncludeHeader("Core/ReflectObject.h", file);
-	CodeGenerate::IncludeHeader("assert.h", file, true);
-	CodeGenerate::IncludeHeader(data.FileName + ".h", file);
 
 	file << "\n";
 	file << "#ifdef " + data.FileName + ReflectFileGeneratePrefix + "_h\n";
@@ -62,15 +66,15 @@ void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstrea
 
 	WriteMacros(data, file);
 
-	for (auto& reflectData : data.ReflectData)
-	{
-		WriteHeader(reflectData, file);
-
-		WriteBaseFunctions(reflectData, file);
-		WriteOverrideFunctions(reflectData, file);
-
-		WriteFooter(reflectData, file);
-	}
+	//for (auto& reflectData : data.ReflectData)
+	//{
+	//	WriteHeader(reflectData, file);
+	//
+	//	WriteBaseFunctions(reflectData, file);
+	//	WriteOverrideFunctions(reflectData, file);
+	//
+	//	WriteFooter(reflectData, file);
+	//}
 }
 
 void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstream& file)
@@ -90,14 +94,46 @@ void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstrea
 
 void CodeGenerateHeader::WriteMacros(const FileParsedData& data, std::ofstream& file)
 {
-	file << "#define REFLECT_GET_FUNCTION(ObjectType, FuncName, ObjectPtr)\\\n";
-	file << "if(name == \"FuncName\")\\\n";
-	file << "{\\\n";
-	file << "\tauto FuncBind = std::bind(&ObjectType::FuncName, ObjectPtr);\\\n";
-	file << "\tReflect::FuncWrapper FuncWrapper(FuncBind);\\\n";
-	file << "\tReflectFunction FunctionPtr(FuncWrapper);\\\n";
-	file << "\treturn FunctionPtr;\\\n";
-	file << "}\n\n";
+	for (const auto& reflectData :data.ReflectData)
+	{
+		const std::string CurrentFileId = GetCurrentFileID(data.FileName, "h") + "_" + std::to_string(reflectData.ReflectGenerateBodyLine);
+		WriteMemberProperties(reflectData, file, CurrentFileId);
+		WriteMemberGet(reflectData, file, CurrentFileId);
+
+		file << "#define " + CurrentFileId + "_GENERATED_BODY \\\n";
+		file << CurrentFileId + "_PROPERTIES_OFFSET \\\n";
+		file << CurrentFileId + "_PROPERTIES_GET";
+
+		file << "\n\n";
+	}
+
+	file << "#undef CURRENT_FILE_ID\n";
+	file << "#define CURRENT_FILE_ID " + GetCurrentFileID(data.FileName, "h") + "\n";
+}
+
+void CodeGenerateHeader::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId)
+{
+	file << "#define " + currentFileId + "_PROPERTIES_OFFSET \\\n";
+	for (const auto& member :data.Members)
+	{
+		file << "\tstatic int __REFLECT__" + member.Name + "() { return offsetof(" + data.Name + ", " + member.Name + "); }; \\\n";
+	}
+	file << "\n";
+}
+
+void CodeGenerateHeader::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId)
+{
+	file << "#define " + currentFileId + "_PROPERTIES_GET \\\n";
+	file << "public:\\\n";
+	file << "ReflectMember GetMember(const char* memberName)\\\n{\\\n";
+	for (const auto& member : data.Members)
+	{
+		file << "\tif(memberName == \"" + member.Name + "\")\\\n";
+		file << "\t{\\\n";
+		file << "\t\treturn ReflectMember(&" + member.Name + ");\\\n";
+		file << "\t}\\\n";
+	}
+	file << "}\\\nprivate:\n\n";
 }
 
 void CodeGenerateHeader::WriteHeader(const ReflectContainerData& data, std::ofstream& file)

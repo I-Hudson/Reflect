@@ -47,6 +47,8 @@ private:
 
 	std::tuple<std::string, std::string> ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters);
 
+	int CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character);
+
 private:
 	std::vector<FileParsedData> m_filesParsed;
 };

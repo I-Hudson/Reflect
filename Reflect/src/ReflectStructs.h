@@ -74,6 +74,7 @@ struct ReflectContainerData : public ReflectTypeNameData
 {
 	std::string Name;
 	ReflectType ReflectType;
+	int ReflectGenerateBodyLine;
 
 	std::vector<ReflectMemberData> Members;
 	std::vector<ReflectFunctionData> Functions;
@@ -85,6 +86,7 @@ struct FileParsedData
 	int Cursor;
 	std::string FilePath;
 	std::string FileName;
+	int GeneratedBodyLineOffset;
 
 	std::vector<ReflectContainerData> ReflectData;
 };

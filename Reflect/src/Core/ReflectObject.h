@@ -17,7 +17,15 @@ struct ReflectFunction
 
 struct ReflectMember
 {
+	ReflectMember(void* memberPtr)
+		: MemberPtr(memberPtr)
+	{}
 	const char* Name;
+	void* MemberPtr;
+
+	template<typename T>
+	T ConvertToType()
+	{ return reinterpret_cast<T>(MemberPtr); }
 };
 
 class ReflectObject

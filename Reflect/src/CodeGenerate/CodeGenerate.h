@@ -17,6 +17,8 @@ public:
 
 private:
 	void WriteMacros(const FileParsedData& data, std::ofstream& file);
+	void WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId);
+	void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId);
 
 	void WriteHeader(const ReflectContainerData& data, std::ofstream& file);
 	void WriteFooter(const ReflectContainerData& data, std::ofstream& file);

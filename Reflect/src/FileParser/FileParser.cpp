@@ -160,6 +160,11 @@ void FileParser::ReflectContainer(FileParsedData& fileData)
 	bool findStart = true;
 	ReflectContainerData& conatinerData = fileData.ReflectData.back();
 
+	int generatedBodyLine = fileData.Data.find(ReflectGeneratedBodykey, fileData.GeneratedBodyLineOffset);
+	assert(generatedBodyLine != -1 && "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a container.");
+	fileData.GeneratedBodyLineOffset = generatedBodyLine + strlen(ReflectGeneratedBodykey);
+	conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1;
+
 	while (true)
 	{
 		int reflectStart = static_cast<int>(fileData.Data.find(PropertyKey, fileData.Cursor));
@@ -381,6 +386,21 @@ std::tuple<std::string, std::string> FileParser::ReflectTypeAndName(FileParsedDa
 	}
 
 	return std::make_tuple<std::string, std::string>(type.c_str(), name.c_str());
+}
+
+int FileParser::CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character)
+{
+	int count = 0;
+	while (cursorStart > 0)
+	{
+		//TODO Out of bounds checks.
+		if (fileData.Data[cursorStart] == character)
+		{
+			++count;
+		}
+		--cursorStart;
+	}
+	return count;
 }
 
 NAMESPACE_END
