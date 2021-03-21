@@ -52,6 +52,15 @@ void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstrea
 	file << " // This file is auto generated please don't modify.\n";
 	CodeGenerate::IncludeHeader("Core/ReflectObject.h", file);
 	CodeGenerate::IncludeHeader("assert.h", file, true);
+	CodeGenerate::IncludeHeader(data.FileName + ".h", file);
+
+	file << "\n";
+	file << "#ifdef " + data.FileName + ReflectFileGeneratePrefix + "_h\n";
+	file << "#error \"" + data.FileName + ReflectFileGeneratePrefix + ".h" + " already included, missing 'pragma once' in " + data.FileName + ".h\"\n";
+	file << "#endif " + data.FileName + ReflectFileGeneratePrefix + "_h\n";
+	file << "#define " + data.FileName + ReflectFileGeneratePrefix + "_h\n\n";
+
+	WriteMacros(data, file);
 
 	for (auto& reflectData : data.ReflectData)
 	{
@@ -68,6 +77,8 @@ void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstrea
 {
 	//CodeGenerate::IncludeHeader(data.FileName + ReflectFileGeneratePrefix + ".h", file);
 	CodeGenerate::IncludeHeader("../" + data.FileName + ".h", file);
+	CodeGenerate::IncludeHeader("assert.h", file, true);
+	CodeGenerate::IncludeHeader("functional", file, true);
 
 	for (auto& reflectData : data.ReflectData)
 	{
@@ -75,6 +86,18 @@ void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstrea
 		WriteBaseFunctions(reflectData, file);
 		WriteOverrideFunctions(reflectData, file);
 	}
+}
+
+void CodeGenerateHeader::WriteMacros(const FileParsedData& data, std::ofstream& file)
+{
+	file << "#define REFLECT_GET_FUNCTION(ObjectType, FuncName, ObjectPtr)\\\n";
+	file << "if(name == \"FuncName\")\\\n";
+	file << "{\\\n";
+	file << "\tauto FuncBind = std::bind(&ObjectType::FuncName, ObjectPtr);\\\n";
+	file << "\tReflect::FuncWrapper FuncWrapper(FuncBind);\\\n";
+	file << "\tReflectFunction FunctionPtr(FuncWrapper);\\\n";
+	file << "\treturn FunctionPtr;\\\n";
+	file << "}\n\n";
 }
 
 void CodeGenerateHeader::WriteHeader(const ReflectContainerData& data, std::ofstream& file)
@@ -119,35 +142,76 @@ void CodeGenerateSource::WriteBaseFunctions(const ReflectContainerData& data, st
 
 void CodeGenerateSource::WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file)
 {
-	file << "void " + data.Name + ContainerPrefix + "::" + "SetupReflectBindings()\n{\n";
-	file << "\tif (m_reflectInit)\n";
-	file << "\t{\n";
-	file << "\t\treturn;\n";
-	file << "\t}\n";
-	file << "\tm_reflectInit = true;\n";
-	file << "}\n\n";
+	//file << "void " + data.Name + ContainerPrefix + "::" + "SetupReflectBindings()\n{\n";
+	//file << "\tif (m_reflectInit)\n";
+	//file << "\t{\n";
+	//file << "\t\treturn;\n";
+	//file << "\t}\n";
+	//file << "\tm_reflectInit = true;\n";
+	////WriteFunctionBindings(data, file);
+	//file << "}\n\n";
 
-	file << "ReflectFunction " + data.Name + ContainerPrefix + "::" + "GetFunction(const char* name)\n{\n";
-	file << "\treturn __super::GetFunctionBase(name);\n";
-	file << "}\n\n";
+	//file << "ReflectFunction " + data.Name + ContainerPrefix + "::" + "GetFunction(const char* name)\n{\n";
+	////file << "\treturn ReflectFunction();\n";
+	//file << "\t" + data.Name << "* ptr = dynamic_cast<" + data.Name + "*>(this);\n";
+	//file << "\tassert(ptr != nullptr && \"[" + data.Name + ContainerPrefix + "::" + "GetFunction] 'ptr' should not be null.\");\n\n";
+	//for (auto& func : data.Functions)
+	//{
+	//	file << "\tif (\"" + func.Name + "\")\n\t{\n";
+	//	file << "\t\tauto " + func.Name + "Func = std::bind(&" + data.Name + "::" + func.Name + ", ptr);\n";
+	//	file << "\t\tReflect::FuncWrapper " + func.Name + "Wrapper(" + func.Name + "Func);\n";
+	//	file << "\t}\n";
+	//}
+	//file << "}\n\n";
+
 	file << "ReflectMember " + data.Name + ContainerPrefix + "::" + "GetMember(const char* name)\n{\n";
-	file << "\treturn __super::GetMemberBase(name);\n";
+	file << "\treturn ReflectMember();\n";
 	file << "}\n\n";
+}
+
+void CodeGenerateSource::WriteFunctionBindings(const ReflectContainerData& data, std::ofstream& file)
+{
+	file << "\t" + data.Name << "* ptr = dynamic_cast<" + data.Name + "*>(this);\n";
+	file << "\tassert(ptr != nullptr && \"[" + data.Name + ContainerPrefix + "::" + "SetupReflectBindings()] 'ptr' should not be null.\");\n\n";
+	for (auto& func : data.Functions)
+	{
+		// Write to the auto generated file binding a function then setting up a "FuncWrapper" for which we can then call the function from.
+		file << "\tauto " + func.Name + "Func = std::bind(&" + data.Name + "::" + func.Name + ", ptr);\n";
+		file << "\tReflect::FuncWrapper " + func.Name + "Wrapper(" + func.Name + "Func);\n";
+		file << "\t__super::AddFunction(" + func.Name + ", " + func.Name + "Wrapper);\n";
+	}
+	file << "\n";
 }
 
 void CodeGenerateHeader::WriteBaseFunctions(const ReflectContainerData& data, std::ofstream& file)
 {
 	file << "\tvoid ReflectInit();\n";
+	file << "\tauto GetFunction(const char* name)\n\t{\n";
+	file << "\t\t" + data.Name << "* ptr = dynamic_cast<" + data.Name + "*>(this);\n";
+	file << "\t\tassert(ptr != nullptr && \"[" + data.Name + ContainerPrefix + "::" + "GetFunction] 'ptr' should not be null.\");\n\n";
+
+	bool first = true;
+	for (const auto& func : data.Functions)
+	{
+		file << "\t\t";
+		if (!first)
+		{
+			file << "else";
+		}
+		file << "REFLECT_GET_FUNCTION(" + data.Name + ", " + func.Name + ", ptr)\n";
+		first = false;
+	}
+	file << "\t\tassert(false && \"\");\n";
+	file << "\t}\n";
+	file << "\tReflectMember GetMember(const char* name);\n";
 }
 
 void CodeGenerateHeader::WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file)
 {
 	file << "\tvirtual const char* Verify() override { return \"" + data.Name + "\"; } \n";
-	file << "\tvirtual ReflectFunction GetFunction(const char* name) override;\n";
-	file << "\tvirtual ReflectMember GetMember(const char* name) override;\n";
 
 	file << "protected:\n";
-	file << "\tvirtual void SetupReflectBindings() override;\n";
+	//file << "\tvirtual void SetupReflectBindings() override;\n";
 }
 
 void CodeGenerate::IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude)

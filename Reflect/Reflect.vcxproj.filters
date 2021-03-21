@@ -43,12 +43,11 @@
     <ClCompile Include="src\Core\Enums.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Type.cpp">
+    <ClCompile Include="src\Core\ReflectObject.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="src\FileParser\FileParser.cpp">
       <Filter>FileParser</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\ReflectObject.cpp" />
   </ItemGroup>
 </Project>

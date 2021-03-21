@@ -149,7 +149,7 @@
   <ItemGroup>
     <ClCompile Include="..\Reflect\src\CodeGenerate\CodeGenerate.cpp" />
     <ClCompile Include="..\Reflect\src\Core\Enums.cpp" />
-    <ClCompile Include="..\Reflect\src\Core\Type.cpp" />
+    <ClCompile Include="..\Reflect\src\Core\ReflectObject.cpp" />
     <ClCompile Include="..\Reflect\src\FileParser\FileParser.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>

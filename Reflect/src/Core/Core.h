@@ -13,10 +13,18 @@
 #define NAMESPACE_START namespace Reflect {
 #define NAMESPACE_END }
 
-#define REFLECT_PROPERTY(Flags)
+#define REFLECT_PROPERTY(...)
 
-#define REFLECT_STRUCT(Name, Flags) struct Name : public Name##ReflectObject
-#define REFLECT_CLASS(Name, Flags) class Name : public Name##ReflectObject
+#define BODY_MACRO_COMBINE_INNER(A, B, C, D) A##B##C##D
+#define BODY_MACRO_COMBINE(A, B, C, D) BODY_MACRO_COMBINE_INNER(A, B, C, D)
+
+#define REFLECT_GENERATED_BODY(...) BODY_MACRO_COMBINE(CURRENT_FILE_ID, _, __LINE__, _GENERATED_BODY);
+
+#define REFLECT_HEADER(Name) Name
+
+#define REFLECT_STRUCT(Name, ...) struct REFLECT_HEADER(Name)
+
+#define REFLECT_CLASS(Name, ...) class REFLECT_HEADER(Name)
 
 constexpr const char* RefectStructKey = "REFLECT_STRUCT";
 constexpr const char* RefectClassKey = "REFLECT_CLASS";

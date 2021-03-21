@@ -16,6 +16,8 @@ public:
 	void GenerateHeader(const FileParsedData& data, std::ofstream& file);
 
 private:
+	void WriteMacros(const FileParsedData& data, std::ofstream& file);
+
 	void WriteHeader(const ReflectContainerData& data, std::ofstream& file);
 	void WriteFooter(const ReflectContainerData& data, std::ofstream& file);
 
@@ -36,6 +38,7 @@ private:
 	void WriteBaseFunctions(const ReflectContainerData& data, std::ofstream& file);
 	void WriteOverrideFunctions(const ReflectContainerData& data, std::ofstream& file);
 
+	void WriteFunctionBindings(const ReflectContainerData& data, std::ofstream& file);
 };
 
 /// <summary>

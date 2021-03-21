@@ -5,6 +5,7 @@
 #include <algorithm>
 
 NAMESPACE_START
+
 namespace Util
 {
 	std::string ToLower(std::string str)
@@ -17,4 +18,5 @@ namespace Util
 		return str;
 	}
 }
+
 NAMESPACE_END

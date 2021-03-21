@@ -147,7 +147,6 @@
     <ClCompile Include="src\CodeGenerate\CodeGenerate.cpp" />
     <ClCompile Include="src\Core\Enums.cpp" />
     <ClCompile Include="src\Core\ReflectObject.cpp" />
-    <ClCompile Include="src\Core\Type.cpp" />
     <ClCompile Include="src\FileParser\FileParser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

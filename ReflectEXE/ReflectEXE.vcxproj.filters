@@ -56,7 +56,7 @@
     <ClCompile Include="..\Reflect\src\Core\Enums.cpp">
       <Filter>Reflect\src\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Reflect\src\Core\Type.cpp">
+    <ClCompile Include="..\Reflect\src\Core\ReflectObject.cpp">
       <Filter>Reflect\src\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Reflect\src\FileParser\FileParser.cpp">
