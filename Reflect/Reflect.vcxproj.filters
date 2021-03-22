@@ -15,6 +15,12 @@
     <ClInclude Include="src\CodeGenerate\CodeGenerate.h">
       <Filter>CodeGenerate</Filter>
     </ClInclude>
+    <ClInclude Include="src\CodeGenerate\CodeGenerateHeader.h">
+      <Filter>CodeGenerate</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CodeGenerate\CodeGenerateSource.h">
+      <Filter>CodeGenerate</Filter>
+    </ClInclude>
     <ClInclude Include="src\Core\Compiler.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -38,6 +44,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CodeGenerate\CodeGenerate.cpp">
+      <Filter>CodeGenerate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CodeGenerate\CodeGenerateHeader.cpp">
+      <Filter>CodeGenerate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CodeGenerate\CodeGenerateSource.cpp">
       <Filter>CodeGenerate</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Enums.cpp">

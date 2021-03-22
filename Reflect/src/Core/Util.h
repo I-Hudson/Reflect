@@ -8,7 +8,7 @@ NAMESPACE_START
 
 namespace Util
 {
-	std::string ToLower(std::string str)
+	static std::string ToLower(std::string str)
 	{
 		std::transform(str.begin(), str.end(), str.begin(), [](char c)
 			{
@@ -16,6 +16,18 @@ namespace Util
 			});
 
 		return str;
+	}
+
+	template<typename T>
+	constexpr const char* GetTypeName()
+	{
+		return typeid(T).name();
+	}
+
+	template<typename T>
+	constexpr const char* GetTypeName(const T& type)
+	{
+		return GetTypeName<T>();
 	}
 }
 

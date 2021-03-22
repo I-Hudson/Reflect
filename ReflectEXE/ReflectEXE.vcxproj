@@ -137,6 +137,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerate.h" />
+    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerateHeader.h" />
+    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerateSource.h" />
     <ClInclude Include="..\Reflect\src\Core\Compiler.h" />
     <ClInclude Include="..\Reflect\src\Core\Core.h" />
     <ClInclude Include="..\Reflect\src\Core\Enums.h" />
@@ -148,6 +150,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Reflect\src\CodeGenerate\CodeGenerate.cpp" />
+    <ClCompile Include="..\Reflect\src\CodeGenerate\CodeGenerateHeader.cpp" />
+    <ClCompile Include="..\Reflect\src\CodeGenerate\CodeGenerateSource.cpp" />
     <ClCompile Include="..\Reflect\src\Core\Enums.cpp" />
     <ClCompile Include="..\Reflect\src\Core\ReflectObject.cpp" />
     <ClCompile Include="..\Reflect\src\FileParser\FileParser.cpp" />

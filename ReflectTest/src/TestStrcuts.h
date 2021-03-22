@@ -11,7 +11,6 @@ REFLECT_CLASS(Person, Public, Private)
 public:
 	Person() { }
 	 
-
 	REFLECT_PROPERTY()
 		int TestFuncInt() { std::cout << "TestFunc is being called"; return 12; }
 	REFLECT_PROPERTY()
@@ -21,6 +20,16 @@ public:
 	int y;
 	REFLECT_PROPERTY(Friend, private)
 	int x;
+	REFLECT_PROPERTY(Friend, private)
+		int a;
+	REFLECT_PROPERTY(Friend, private)
+		int w;
+	REFLECT_PROPERTY(Friend, private)
+		int h;
+	REFLECT_PROPERTY(Friend, private)
+		int u;
+	REFLECT_PROPERTY(Friend, private)
+		int c;
 
 	REFLECT_PROPERTY()
 	std::string TestString;
@@ -32,4 +41,7 @@ REFLECT_CLASS(House, Public, Private)
 
 	REFLECT_PROPERTY(Friend, )
 		int width;
+
+	REFLECT_PROPERTY()
+	Person m_person;
 };

@@ -134,6 +134,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\CodeGenerate\CodeGenerate.h" />
+    <ClInclude Include="src\CodeGenerate\CodeGenerateHeader.h" />
+    <ClInclude Include="src\CodeGenerate\CodeGenerateSource.h" />
     <ClInclude Include="src\Core\Compiler.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\Enums.h" />
@@ -145,6 +147,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CodeGenerate\CodeGenerate.cpp" />
+    <ClCompile Include="src\CodeGenerate\CodeGenerateHeader.cpp" />
+    <ClCompile Include="src\CodeGenerate\CodeGenerateSource.cpp" />
     <ClCompile Include="src\Core\Enums.cpp" />
     <ClCompile Include="src\Core\ReflectObject.cpp" />
     <ClCompile Include="src\FileParser\FileParser.cpp" />
@@ -152,4 +156,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project>
+</Project> 

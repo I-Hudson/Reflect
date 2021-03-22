@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ReflectStructs.h"
+#include "Core/Util.h"
 #include <assert.h>
 #include <utility>
 
@@ -17,15 +18,32 @@ struct ReflectFunction
 
 struct ReflectMember
 {
-	ReflectMember(void* memberPtr)
-		: MemberPtr(memberPtr)
+	ReflectMember(const char* memberName, const char* memberType, void* memberPtr)
+		: Name(memberName)
+		, Type(memberType)
+		, Ptr(memberPtr)
 	{}
-	const char* Name;
-	void* MemberPtr;
+
+	bool IsValid() const
+	{
+		return Ptr != nullptr;
+	}
 
 	template<typename T>
-	T ConvertToType()
-	{ return reinterpret_cast<T>(MemberPtr); }
+	T* ConvertToType()
+	{ 
+		const char* convertType = Reflect::Util::GetTypeName<T>();
+		if (convertType != Type)
+		{
+			return nullptr;
+		}
+		return static_cast<T*>(Ptr);
+	}
+
+private:
+	const char* Name;
+	const char* Type;
+	void* Ptr;
 };
 
 class ReflectObject
