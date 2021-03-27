@@ -45,7 +45,8 @@ private:
 	bool ReflectTypeCheck(const std::string& type);
 	void ReflectGetFunctionParameters(FileParsedData& fileData);
 
-	std::tuple<std::string, std::string> ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters);
+	std::tuple<std::string, std::string, bool> ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters);
+	void CheckForConst(FileParsedData& fileData, std::string& type, bool& typeFound, bool& isConst);
 
 	int CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character);
 

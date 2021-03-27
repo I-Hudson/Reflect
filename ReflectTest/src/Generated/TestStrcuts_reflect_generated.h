@@ -9,15 +9,15 @@
 
 #define TestStrcuts_Source_h_9_PROPERTIES \
 private:\
-	static Reflect::ReflectMemberProp __REFLECT_MEMBER_PROPS__[8];\
+	static Reflect::ReflectMemberProp __REFLECT_MEMBER_PROPS__[3];\
 
 
 #define TestStrcuts_Source_h_9_FUNCTION_DECLARE \
 private:\
 	static void __REFLECT_FUNC__TestFuncInt(void* objectPtr, void* returnValuePtr, FunctionPtrArgs& functionArgs = FunctionPtrArgs())\
 	{\
-		int* testIntArg = static_cast<int*>(functionArgs.GetArg(0));\
-		int& testIntPtrArg = *static_cast<int*>(functionArgs.GetArg(1));\
+		int const* testIntArg = static_cast<int const*>(functionArgs.GetArg(0));\
+		const int& testIntPtrArg = *static_cast<const int*>(functionArgs.GetArg(1));\
 		Person* ptr = static_cast<Person*>(objectPtr);\
 		*((int*)returnValuePtr) = ptr->TestFuncInt(testIntArg, testIntPtrArg);\
 	}\
@@ -42,11 +42,6 @@ public:\
 private:\
 	static int __REFLECT__y() { return offsetof(Person, y); }; \
 	static int __REFLECT__x() { return offsetof(Person, x); }; \
-	static int __REFLECT__a() { return offsetof(Person, a); }; \
-	static int __REFLECT__w() { return offsetof(Person, w); }; \
-	static int __REFLECT__h() { return offsetof(Person, h); }; \
-	static int __REFLECT__u() { return offsetof(Person, u); }; \
-	static int __REFLECT__c() { return offsetof(Person, c); }; \
 	static int __REFLECT__TestString() { return offsetof(Person, TestString); }; \
 
 
@@ -63,37 +58,37 @@ TestStrcuts_Source_h_9_PROPERTIES_OFFSET \
 TestStrcuts_Source_h_9_PROPERTIES_GET \
 
 
-#define TestStrcuts_Source_h_42_PROPERTIES \
+#define TestStrcuts_Source_h_32_PROPERTIES \
 private:\
 	static Reflect::ReflectMemberProp __REFLECT_MEMBER_PROPS__[2];\
 
 
-#define TestStrcuts_Source_h_42_FUNCTION_DECLARE \
+#define TestStrcuts_Source_h_32_FUNCTION_DECLARE \
 private:\
 
 
-#define TestStrcuts_Source_h_42_FUNCTION_GET \
+#define TestStrcuts_Source_h_32_FUNCTION_GET \
 public:\
 	ReflectFunction GetFunction(const char* functionName);\
 
 
-#define TestStrcuts_Source_h_42_PROPERTIES_OFFSET \
+#define TestStrcuts_Source_h_32_PROPERTIES_OFFSET \
 private:\
 	static int __REFLECT__width() { return offsetof(House, width); }; \
 	static int __REFLECT__m_person() { return offsetof(House, m_person); }; \
 
 
-#define TestStrcuts_Source_h_42_PROPERTIES_GET \
+#define TestStrcuts_Source_h_32_PROPERTIES_GET \
 public:\
 ReflectMember GetMember(const char* memberName);\
 
 
-#define TestStrcuts_Source_h_42_GENERATED_BODY \
-TestStrcuts_Source_h_42_PROPERTIES \
-TestStrcuts_Source_h_42_FUNCTION_DECLARE \
-TestStrcuts_Source_h_42_FUNCTION_GET \
-TestStrcuts_Source_h_42_PROPERTIES_OFFSET \
-TestStrcuts_Source_h_42_PROPERTIES_GET \
+#define TestStrcuts_Source_h_32_GENERATED_BODY \
+TestStrcuts_Source_h_32_PROPERTIES \
+TestStrcuts_Source_h_32_FUNCTION_DECLARE \
+TestStrcuts_Source_h_32_FUNCTION_GET \
+TestStrcuts_Source_h_32_PROPERTIES_OFFSET \
+TestStrcuts_Source_h_32_PROPERTIES_GET \
 
 
 #undef CURRENT_FILE_ID

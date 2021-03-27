@@ -15,7 +15,24 @@ struct ReflectTypeNameData
 	std::string Name;
 	int TypeSize;
 	ReflectMemberType ReflectMemberType;
+	bool IsConst;
 	std::vector<ReflectFlags> ContainerProps;
+
+	ReflectTypeNameData()
+		: Type("Unkown")
+		, Name("Unkown")
+		, TypeSize(0)
+		, ReflectMemberType(ReflectMemberType::Value)
+		, IsConst(false)
+	{ }
+
+	ReflectTypeNameData(const std::string& type, const std::string& name, const int& typeSize, const Reflect::ReflectMemberType& memberType, const bool& isConst)
+		: Type(type)
+		, Name(name)
+		, TypeSize(typeSize)
+		, ReflectMemberType(memberType)
+		, IsConst(isConst)
+	{ }
 
 	bool operator!=(const ReflectTypeNameData& other) const
 	{

@@ -179,7 +179,7 @@ void FileParser::ReflectContainer(FileParsedData& fileData)
 		auto propFlags = ReflectFlags(fileData);
 
 		// Get the type and name of the property to reflect.
-		auto [type, name] = ReflectTypeAndName(fileData, {});
+		auto [type, name, isConst] = ReflectTypeAndName(fileData, {});
 
 		char c = FindNextChar(fileData, { ' ' });
 		// Find out if the property is a function or member variable.
@@ -193,6 +193,7 @@ void FileParser::ReflectContainer(FileParsedData& fileData)
 			memberData.ReflectMemberType = type.back() == '*' || type.back() == '&' ? (type.back() == '*' ? ReflectMemberType::Pointer : ReflectMemberType::Reference) : ReflectMemberType::Value;
 			memberData.TypeSize = DEFAULT_TYPE_SIZE;
 			memberData.ContainerProps = propFlags;
+			memberData.IsConst = isConst;
 			conatinerData.Members.push_back(memberData);
 		}
 		else if (c == '(')
@@ -317,23 +318,26 @@ void FileParser::ReflectGetFunctionParameters(FileParsedData& fileData)
 
 	while (fileData.Data[fileData.Cursor] != ')')
 	{
-		auto [type, name] = ReflectTypeAndName(fileData, { ',', ')' });
+		auto [type, name, isConst] = ReflectTypeAndName(fileData, { ',', ')' });
 		funcData.Parameters.push_back(
 			{
 				type, 
 				name, 
 				DEFAULT_TYPE_SIZE,
-				type.back() == '*' || type.back() == '&' ? (type.back() == '*' ? ReflectMemberType::Pointer : ReflectMemberType::Reference) : ReflectMemberType::Value
+				type.back() == '*' || type.back() == '&' ? (type.back() == '*' ? ReflectMemberType::Pointer : ReflectMemberType::Reference) : ReflectMemberType::Value, 
+				isConst
 			});
 	}
 }
 
-std::tuple<std::string, std::string> FileParser::ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters)
+std::tuple<std::string, std::string, bool> FileParser::ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters)
 {
 	std::string type;
 	bool typeFound = false;
 	std::string name;
 	bool nameFound = false;
+	int startCursor = fileData.Cursor;
+	bool isConst = false;
 
 	while (true)
 	{
@@ -346,18 +350,12 @@ std::tuple<std::string, std::string> FileParser::ReflectTypeAndName(FileParsedDa
 
 		if (RefectCheckForEndOfLine(fileData) || (std::find(endOfLineCharacters.begin(), endOfLineCharacters.end(), c) != endOfLineCharacters.end()))
 		{
-			if (ReflectTypeCheck(type))
-			{
-				type += ' ';
-				++fileData.Cursor;
-				continue;
-			}
-
 			if (!typeFound)
 			{
 				if (!type.empty())
 				{
 					typeFound = true;
+					CheckForConst(fileData, type, typeFound, isConst);
 				}
 			}
 			else if (!nameFound)
@@ -387,7 +385,50 @@ std::tuple<std::string, std::string> FileParser::ReflectTypeAndName(FileParsedDa
 		++fileData.Cursor;
 	}
 
-	return std::make_tuple<std::string, std::string>(type.c_str(), name.c_str());
+	return std::make_tuple<std::string, std::string>(type.c_str(), name.c_str(), isConst);
+}
+
+void FileParser::CheckForConst(FileParsedData& fileData, std::string& type, bool& typeFound, bool& isConst)
+{
+	const int len = 6;
+	std::string tmp;
+	if (isConst)
+	{
+		return;
+	}
+
+	for (int i = fileData.Cursor - (len - 1); i < fileData.Cursor; ++i)
+	{
+		if (i < 0)
+		{
+			break;
+		}
+		tmp += fileData.Data[i];
+	}
+	if (tmp == "const")
+	{
+		type += ' ';
+		typeFound = false;
+		isConst = true;
+		return;
+	}
+
+	tmp = "";
+	for (int i = fileData.Cursor + 1; i < fileData.Cursor + len; ++i)
+	{
+		if (i > fileData.Data.size())
+		{
+			break;
+		}
+		tmp += fileData.Data[i];
+	}
+	if (tmp == "const")
+	{
+		type += ' ' + tmp;
+		fileData.Cursor += 5;
+		typeFound = false;
+		isConst = true;
+	}
 }
 
 int FileParser::CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character)

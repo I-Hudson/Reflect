@@ -1,13 +1,8 @@
 #include "../TestStrcuts.h"
 
-Reflect::ReflectMemberProp Person::__REFLECT_MEMBER_PROPS__[8] = {
+Reflect::ReflectMemberProp Person::__REFLECT_MEMBER_PROPS__[3] = {
 	Reflect::ReflectMemberProp("y", __REFLECT__y(), 2),
-	Reflect::ReflectMemberProp("x", __REFLECT__x(), 8),
-	Reflect::ReflectMemberProp("a", __REFLECT__a(), 4),
-	Reflect::ReflectMemberProp("w", __REFLECT__w(), 10),
-	Reflect::ReflectMemberProp("h", __REFLECT__h(), 8),
-	Reflect::ReflectMemberProp("u", __REFLECT__u(), 6),
-	Reflect::ReflectMemberProp("c", __REFLECT__c(), 12),
+	Reflect::ReflectMemberProp("x", __REFLECT__x(), 2),
 	Reflect::ReflectMemberProp("TestString", __REFLECT__TestString(), 0),
 };
 
@@ -44,46 +39,6 @@ ReflectMember Person::GetMember(const char* memberName)
 		//if()
 		{
 			return ReflectMember("x", Reflect::Util::GetTypeName(x), &x);
-		}
-	}
-	++propsIndex;
-	if(memberName == "a")
-	{
-		//if()
-		{
-			return ReflectMember("a", Reflect::Util::GetTypeName(a), &a);
-		}
-	}
-	++propsIndex;
-	if(memberName == "w")
-	{
-		//if()
-		{
-			return ReflectMember("w", Reflect::Util::GetTypeName(w), &w);
-		}
-	}
-	++propsIndex;
-	if(memberName == "h")
-	{
-		//if()
-		{
-			return ReflectMember("h", Reflect::Util::GetTypeName(h), &h);
-		}
-	}
-	++propsIndex;
-	if(memberName == "u")
-	{
-		//if()
-		{
-			return ReflectMember("u", Reflect::Util::GetTypeName(u), &u);
-		}
-	}
-	++propsIndex;
-	if(memberName == "c")
-	{
-		//if()
-		{
-			return ReflectMember("c", Reflect::Util::GetTypeName(c), &c);
 		}
 	}
 	++propsIndex;
