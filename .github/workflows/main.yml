@@ -31,4 +31,4 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Run build script
-        run: sh GENERATE_PROJECT.sh
+        run: sh ./GENERATE_PROJECT.sh
