@@ -71,6 +71,9 @@
     <ClCompile Include="..\Reflect\src\Core\ReflectObject.cpp">
       <Filter>Reflect\src\Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\Reflect\src\Core\Util.cpp">
+      <Filter>Reflect\src\Core</Filter>
+    </ClCompile>
     <ClCompile Include="..\Reflect\src\FileParser\FileParser.cpp">
       <Filter>Reflect\src\FileParser</Filter>
     </ClCompile>
