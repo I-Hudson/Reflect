@@ -18,6 +18,8 @@ namespace Util
 		return str;
 	}
 
+	std::string ValidateTypeName(const std::string& str);
+
 	template<typename T>
 	constexpr const char* GetTypeName()
 	{
@@ -25,9 +27,9 @@ namespace Util
 	}
 
 	template<typename T>
-	constexpr const char* GetTypeName(const T& type)
+	constexpr std::string GetTypeName(const T& type)
 	{
-		return GetTypeName<T>();
+		return ValidateTypeName(GetTypeName<T>());
 	}
 }
 

@@ -1,5 +1,11 @@
 #include "Reflect.h"
 
+struct Test
+{
+	const char* c;
+	int i;
+};
+
 int main(int argc, char* arg[])
 {
 	using namespace Reflect;

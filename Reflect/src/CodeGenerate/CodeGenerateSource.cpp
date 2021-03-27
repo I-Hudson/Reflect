@@ -11,24 +11,70 @@ void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstrea
 
 	for (auto& reflectData : data.ReflectData)
 	{
+		WriteMemberProperties(reflectData, file);
+		WriteFunctionGet(reflectData, file);
 		WriteMemberGet(reflectData, file);
 	}
+}
+
+void CodeGenerateSource::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file)
+{
+	auto getMemberProps = [](const std::vector<ReflectFlags>& flags) -> std::string
+	{
+		int flag = 0;
+		for (const auto& f : flags )
+		{
+			flag |= static_cast<int>(f);
+		}
+		return std::to_string(flag);
+	};
+
+	file << "Reflect::ReflectMemberProp "+ data.Name +"::__REFLECT_MEMBER_PROPS__[" + std::to_string(data.Members.size()) + "] = {\n";
+	for (const auto& member : data.Members)
+	{
+		file << "\tReflect::ReflectMemberProp(\""+ member.Name + "\", __REFLECT__" + member.Name +"(), " + getMemberProps(member.ContainerProps) + "),\n";
+	}
+	file << "};\n\n";
 }
 
 void CodeGenerateSource::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file)
 {
 	file << "ReflectMember " + data.Name + "::GetMember(const char* memberName)\n{\n";
+	//file << "\tfor(const auto& member : __REFLECT_MEMBER_PROPS__)\n{\n";
+	//file << "\tif(memberName == member.Name)\n";
+	//file << "\t{\n";
+	//file << "\t\t//CheckFlags\n";
+	//file << "\t\treturn ReflectMember(member.Name, Reflect::Util::GetTypeName(member.Name), &member.Name);\n";
+	//file << "\t}\n";
+	file << "\tint propsIndex = 0;\n";
 	for (const auto& member : data.Members)
 	{
 		file << "\tif(memberName == \"" + member.Name + "\")\n";
 		file << "\t{\n";
-		file << "\t\treturn ReflectMember(\"" + member.Name + "\", Reflect::Util::GetTypeName(" + member.Name + "), &" + member.Name + ");\n";
+		file << "\t\t//if()\n";
+		file << "\t\t{\n";
+		file << "\t\t\treturn ReflectMember(\"" + member.Name + "\", Reflect::Util::GetTypeName(" + member.Name + "), &" + member.Name + ");\n";
+		file << "\t\t}\n";
 		file << "\t}\n";
+		file << "\t++propsIndex;\n";
 	}
 	file << "\treturn ReflectMember(\"null\", Reflect::Util::GetTypeName<void>(), nullptr);\n";
 	file << "}\n\n";
 }
 
+void CodeGenerateSource::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file)
+{
+	file << "ReflectFunction " + data.Name + "::GetFunction(const char* functionName)\n{\n";
+	for (const auto& func : data.Functions)
+	{
+		file << "\tif(functionName == \"" + func.Name + "\")\n";
+		file << "\t{\n";
+		file << "\t\treturn ReflectFunction(this, " + data.Name +"::__REFLECT_FUNC__" + func.Name +");\n";
+		file << "\t}\n";
+	}
+	file << "\treturn ReflectFunction(nullptr, nullptr);\n";
+	file << "}\n\n";
+}
 
 //void CodeGenerateSource::WriteFunctionBindings(const ReflectContainerData& data, std::ofstream& file)
 //{

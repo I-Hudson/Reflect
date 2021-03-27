@@ -151,9 +151,10 @@
     <ClCompile Include="src\CodeGenerate\CodeGenerateSource.cpp" />
     <ClCompile Include="src\Core\Enums.cpp" />
     <ClCompile Include="src\Core\ReflectObject.cpp" />
+    <ClCompile Include="src\Core\Util.cpp" />
     <ClCompile Include="src\FileParser\FileParser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project> 
+</Project>

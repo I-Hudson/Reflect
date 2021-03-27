@@ -190,6 +190,7 @@ void FileParser::ReflectContainer(FileParsedData& fileData)
 			ReflectMemberData memberData = {};
 			memberData.Type = type;
 			memberData.Name = name;
+			memberData.ReflectMemberType = type.back() == '*' || type.back() == '&' ? (type.back() == '*' ? ReflectMemberType::Pointer : ReflectMemberType::Reference) : ReflectMemberType::Value;
 			memberData.TypeSize = DEFAULT_TYPE_SIZE;
 			memberData.ContainerProps = propFlags;
 			conatinerData.Members.push_back(memberData);
@@ -321,7 +322,8 @@ void FileParser::ReflectGetFunctionParameters(FileParsedData& fileData)
 			{
 				type, 
 				name, 
-				DEFAULT_TYPE_SIZE
+				DEFAULT_TYPE_SIZE,
+				type.back() == '*' || type.back() == '&' ? (type.back() == '*' ? ReflectMemberType::Pointer : ReflectMemberType::Reference) : ReflectMemberType::Value
 			});
 	}
 }

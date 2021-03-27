@@ -8,9 +8,17 @@ int main(void)
 
 	Person person;
 	auto value = person.GetMember("TestString");
-	
-	auto* str = value.ConvertToType<std::string>();
-	//*str = "This is a test string set in person.";
+	auto func = person.GetFunction("TestFuncInt");
+
+	int const&  constI = 0;
+	int returnV;
+	int p1 = 25;
+	int p2 = 10;
+	int pp1 = 25;
+	FunctionPtrArgs args;
+	args.AddArg(&p1);
+	args.AddArg(&pp1);
+	func.Invoke(&returnV, args);
 
 	return 0;
 }

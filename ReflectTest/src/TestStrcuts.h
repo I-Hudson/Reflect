@@ -12,23 +12,25 @@ public:
 	Person() { }
 	 
 	REFLECT_PROPERTY()
-		int TestFuncInt() { std::cout << "TestFunc is being called"; return 12; }
+		int TestFuncInt(int* testInt, int& testIntPtr) { std::cout << "TestFunc is being called"; testIntPtr = 100; return *testInt + testIntPtr; }
 	REFLECT_PROPERTY()
-		const char* TestFuncChar() { std::cout << "TestFunc is being called"; return "TestFunct"; }
+		const char* TestFuncChar() { std::cout << "TestFuncChar"; return ""; }
+	REFLECT_PROPERTY()
+		void TestFuncVoid() { std::cout << "TestFunc is being called"; }
 	
-	REFLECT_PROPERTY()
+	REFLECT_PROPERTY(private)
 	int y;
-	REFLECT_PROPERTY(Friend, private)
+	REFLECT_PROPERTY(Friend)
 	int x;
-	REFLECT_PROPERTY(Friend, private)
+	REFLECT_PROPERTY(public)
 		int a;
 	REFLECT_PROPERTY(Friend, private)
 		int w;
-	REFLECT_PROPERTY(Friend, private)
+	REFLECT_PROPERTY(Friend, Friend)
 		int h;
-	REFLECT_PROPERTY(Friend, private)
+	REFLECT_PROPERTY(public, private)
 		int u;
-	REFLECT_PROPERTY(Friend, private)
+	REFLECT_PROPERTY(Friend, public)
 		int c;
 
 	REFLECT_PROPERTY()

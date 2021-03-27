@@ -8,13 +8,11 @@ NAMESPACE_START
 
 enum class ReflectFlags
 {
-	Invalid,
+	Invalid = 1 << 0,
 
-	Private,
-	Public,
-	Friend,
-
-	Count
+	Private = 1 << 1,
+	Public = 1 << 2,
+	Friend = 1 << 3,
 };
 ReflectFlags StringToReflectFlags(const std::string& str);
 
@@ -28,6 +26,14 @@ enum class ReflectType
 	Count
 };
 
+enum class ReflectMemberType
+{
+	Value,
+	Reference,
+	Pointer,
+
+	Count
+};
 
 /// <summary>
 /// Dirty way of getting the enum string value.

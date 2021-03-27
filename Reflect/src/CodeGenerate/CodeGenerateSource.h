@@ -14,9 +14,10 @@ public:
 	void GenerateSource(const FileParsedData& data, std::ofstream& file);
 
 private:
-	void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file);
+	void WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file);
 
-	//void WriteFunctionBindings(const ReflectContainerData& data, std::ofstream& file);
+	void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file);
+	void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file);
 };
 
 NAMESPACE_END

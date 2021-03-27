@@ -61,5 +61,8 @@
     <ClCompile Include="src\FileParser\FileParser.cpp">
       <Filter>FileParser</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\Util.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
