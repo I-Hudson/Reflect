@@ -26,6 +26,17 @@
 
 #define REFLECT_CLASS(Name, ...) class REFLECT_HEADER(Name)
 
+#define REFLECT_MAJOR 1
+#define REFLECT_MINOR 1
+#define REFLECT_PATCH 1
+
+#define REFLECT_GET_VERSION() \
+	 ((((uint32_t)(REFLECT_MAJOR)) << 22) | (((uint32_t)(REFLECT_MINOR)) << 12) | ((uint32_t)(REFLECT_PATCH)))
+
+#define REFLECT_VERSION_MAJOR() ((uint32_t)(REFLECT_GET_VERSION()) >> 22)
+#define REFLECT_VERSION_MINOR() (((uint32_t)(REFLECT_GET_VERSION()) >> 12) & 0x3ff)
+#define REFLECT_VERSION_PATCH() ((uint32_t)(REFLECT_GET_VERSION()) & 0xfff)
+
 constexpr const char* RefectStructKey = "REFLECT_STRUCT";
 constexpr const char* RefectClassKey = "REFLECT_CLASS";
 constexpr const char* ReflectGeneratedBodykey = "REFLECT_GENERATED_BODY";
