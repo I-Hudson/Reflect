@@ -1,6 +1,6 @@
 ##### Windows
-
-PBC/data/models
+vendor/*
+!vendor/premake
 
 # Windows thumbnail cache files
 Thumbs.db
@@ -1042,6 +1042,3 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
-vendor/*
-!vendor/premake
