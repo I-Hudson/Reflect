@@ -8,6 +8,32 @@ This goal of this project was to create something similar to Unreal Engine's hea
 ## Building
 To build the project run the GENERATE_PROJECT.bat file in the root directory and premake should take care of the rest.
 
+## Example 
+```cpp
+REFLECT_CLASS(Person)
+{
+	REFLECT_GENERATED_BODY()
+
+public:
+	Person() { }
+	
+	REFLECT_PROPERTY()
+		int y;
+	REFLECT_PROPERTY()
+		int x;
+
+	REFLECT_PROPERTY()
+		int TestFuncInt(int const* testInt, const int& testIntPtr) { std::cout << "TestFunc is being called"; return *testInt + testIntPtr; }
+	REFLECT_PROPERTY()
+		const char* TestFuncChar() { std::cout << "TestFuncChar"; return ""; }
+	REFLECT_PROPERTY()
+		void TestFuncVoid() { std::cout << "TestFunc is being called"; }
+
+	REFLECT_PROPERTY()
+	std::string TestString;
+};
+```
+
 ## How to use
 There are two ways to use this tool. The first and easiest is through the .exe console app. Run the console and add the folders in which you want the tools to search for header files.
 Example:
