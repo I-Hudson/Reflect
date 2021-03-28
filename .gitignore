@@ -1,6 +1,7 @@
 ##### Windows
-vendor/*
-!vendor/premake
+!vendor/
+vendor/**
+!/vendor/premake/
 
 # Windows thumbnail cache files
 Thumbs.db
