@@ -13,15 +13,15 @@ There are two ways to just this tool. The first is through the .lib and header f
 ```cpp
 int main() 
 {
-	Reflect::FileParser parser;
-	Reflect::CodeGenerate codeGenerate;
-	for (size_t i = 0; i < argc; ++i)
-	{
-		parser.ParseDirectory(arg[i]);
-		for (auto& file : parser.GetAllFileParsedData())
-		{
-			codeGenerate.Reflect(file);
-		}
-	}
+   Reflect::FileParser parser;
+   Reflect::CodeGenerate codeGenerate;
+   for (size_t i = 0; i < argc; ++i)
+   {
+      parser.ParseDirectory(arg[i]);
+      for (auto& file : parser.GetAllFileParsedData())
+      {
+         codeGenerate.Reflect(file);
+      }
+   }
 }
 ```
