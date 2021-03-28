@@ -1043,4 +1043,4 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-!.premake.exe
+!.premake5.exe
