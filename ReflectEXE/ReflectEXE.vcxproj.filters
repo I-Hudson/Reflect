@@ -4,6 +4,18 @@
     <Filter Include="Reflect">
       <UniqueIdentifier>{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Reflect\inc">
+      <UniqueIdentifier>{F349999E-5FFF-1194-E8F3-0B6B54A80898}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reflect\inc\CodeGenerate">
+      <UniqueIdentifier>{28FB2509-1420-7589-3D6B-5A1929EF73A7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reflect\inc\Core">
+      <UniqueIdentifier>{2B9E1D29-1797-3C7B-40C9-21002C211C87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reflect\inc\FileParser">
+      <UniqueIdentifier>{8FD7C6B3-7BD1-EF05-643E-861650D75572}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Reflect\src">
       <UniqueIdentifier>{0175999E-6D2A-1294-F61E-0C6B62D30898}</UniqueIdentifier>
     </Filter>
@@ -21,38 +33,38 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerate.h">
-      <Filter>Reflect\src\CodeGenerate</Filter>
+    <ClInclude Include="..\Reflect\inc\CodeGenerate\CodeGenerate.h">
+      <Filter>Reflect\inc\CodeGenerate</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerateHeader.h">
-      <Filter>Reflect\src\CodeGenerate</Filter>
+    <ClInclude Include="..\Reflect\inc\CodeGenerate\CodeGenerateHeader.h">
+      <Filter>Reflect\inc\CodeGenerate</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerateSource.h">
-      <Filter>Reflect\src\CodeGenerate</Filter>
+    <ClInclude Include="..\Reflect\inc\CodeGenerate\CodeGenerateSource.h">
+      <Filter>Reflect\inc\CodeGenerate</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\Core\Compiler.h">
-      <Filter>Reflect\src\Core</Filter>
+    <ClInclude Include="..\Reflect\inc\Core\Compiler.h">
+      <Filter>Reflect\inc\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\Core\Core.h">
-      <Filter>Reflect\src\Core</Filter>
+    <ClInclude Include="..\Reflect\inc\Core\Core.h">
+      <Filter>Reflect\inc\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\Core\Enums.h">
-      <Filter>Reflect\src\Core</Filter>
+    <ClInclude Include="..\Reflect\inc\Core\Enums.h">
+      <Filter>Reflect\inc\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\Core\ReflectObject.h">
-      <Filter>Reflect\src\Core</Filter>
+    <ClInclude Include="..\Reflect\inc\Core\ReflectObject.h">
+      <Filter>Reflect\inc\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\Core\Util.h">
-      <Filter>Reflect\src\Core</Filter>
+    <ClInclude Include="..\Reflect\inc\Core\Util.h">
+      <Filter>Reflect\inc\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\FileParser\FileParser.h">
-      <Filter>Reflect\src\FileParser</Filter>
+    <ClInclude Include="..\Reflect\inc\FileParser\FileParser.h">
+      <Filter>Reflect\inc\FileParser</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\Reflect.h">
-      <Filter>Reflect\src</Filter>
+    <ClInclude Include="..\Reflect\inc\Reflect.h">
+      <Filter>Reflect\inc</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\src\ReflectStructs.h">
-      <Filter>Reflect\src</Filter>
+    <ClInclude Include="..\Reflect\inc\ReflectStructs.h">
+      <Filter>Reflect\inc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

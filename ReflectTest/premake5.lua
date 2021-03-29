@@ -18,7 +18,7 @@ project "ReflectTest"
     includedirs 
     {
 		"$(ProjectDir)src",
-        "%{IncludeDir.refect}/src",
+        "%{IncludeDir.refect}/inc",
 	}
 
     links 

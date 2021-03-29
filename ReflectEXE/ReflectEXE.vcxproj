@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PLATFORM_WINDWOS;REFLECT_EXE;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Reflect\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Reflect\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -97,7 +97,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PLATFORM_WINDWOS;REFLECT_EXE;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Reflect\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Reflect\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -119,7 +119,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PLATFORM_WINDWOS;REFLECT_EXE;DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Reflect\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Reflect\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -136,17 +136,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerate.h" />
-    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerateHeader.h" />
-    <ClInclude Include="..\Reflect\src\CodeGenerate\CodeGenerateSource.h" />
-    <ClInclude Include="..\Reflect\src\Core\Compiler.h" />
-    <ClInclude Include="..\Reflect\src\Core\Core.h" />
-    <ClInclude Include="..\Reflect\src\Core\Enums.h" />
-    <ClInclude Include="..\Reflect\src\Core\ReflectObject.h" />
-    <ClInclude Include="..\Reflect\src\Core\Util.h" />
-    <ClInclude Include="..\Reflect\src\FileParser\FileParser.h" />
-    <ClInclude Include="..\Reflect\src\Reflect.h" />
-    <ClInclude Include="..\Reflect\src\ReflectStructs.h" />
+    <ClInclude Include="..\Reflect\inc\CodeGenerate\CodeGenerate.h" />
+    <ClInclude Include="..\Reflect\inc\CodeGenerate\CodeGenerateHeader.h" />
+    <ClInclude Include="..\Reflect\inc\CodeGenerate\CodeGenerateSource.h" />
+    <ClInclude Include="..\Reflect\inc\Core\Compiler.h" />
+    <ClInclude Include="..\Reflect\inc\Core\Core.h" />
+    <ClInclude Include="..\Reflect\inc\Core\Enums.h" />
+    <ClInclude Include="..\Reflect\inc\Core\ReflectObject.h" />
+    <ClInclude Include="..\Reflect\inc\Core\Util.h" />
+    <ClInclude Include="..\Reflect\inc\FileParser\FileParser.h" />
+    <ClInclude Include="..\Reflect\inc\Reflect.h" />
+    <ClInclude Include="..\Reflect\inc\ReflectStructs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Reflect\src\CodeGenerate\CodeGenerate.cpp" />

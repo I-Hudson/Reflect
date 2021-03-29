@@ -2,9 +2,12 @@
 .vs/
 bin/
 bin-int/
+CMakeFiles/
+X64/
 
 *.vcxproj
 *.vcxproj.user
+*.vcxproj.filters
 
 *.pdb
 *.lib
