@@ -1,5 +1,5 @@
-#include "CodeGenerateHeader.h"
-#include "CodeGenerate.h"
+#include "CodeGenerate/CodeGenerateHeader.h"
+#include "CodeGenerate/CodeGenerate.h"
 #include <assert.h>
 
 NAMESPACE_START

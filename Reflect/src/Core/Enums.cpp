@@ -1,5 +1,5 @@
-#include "Enums.h"
-#include "Util.h"
+#include "Core/Enums.h"
+#include "Core/Util.h"
 
 NAMESPACE_START
 

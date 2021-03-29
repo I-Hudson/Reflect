@@ -11,13 +11,13 @@ project "ReflectEXE"
     files
 	{
         "src/*.cpp",
-		"../Reflect/src/**.h",
+		"../Reflect/inc/**.h",
         "../Reflect/src/**.cpp",
 	}
 
     includedirs 
     {
-        "%{IncludeDir.refect}/src",
+        "%{IncludeDir.refect}/inc",
 	}
 
     filter "system:windows"

@@ -10,14 +10,13 @@ project "Reflect"
 
     files
 	{
-		"src/**.h",
-		"src/**.hpp",
         "src/**.cpp",
+        "inc/**.h"
 	}
 
     includedirs 
     {
-		"$(ProjectDir)src",
+		"$(ProjectDir)inc",
         "%{IncludeDir.dirent}",
 	}
 
