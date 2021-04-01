@@ -4,7 +4,8 @@
 #include "ReflectStructs.h"
 #include<fstream>
 
-NAMESPACE_START
+namespace Reflect
+{
 
 class CodeGenerateHeader
 {
@@ -24,4 +25,4 @@ private:
 	void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId);
 };
 
-NAMESPACE_END
+}

@@ -4,7 +4,7 @@
 #include "Core.h"
 #include <string>
 
-NAMESPACE_START
+namespace Reflect {
 
 enum ReflectFlags
 {
@@ -35,7 +35,7 @@ enum class ReflectMemberType
 	Count
 };
 
-NAMESPACE_END
+}
 
 /// <summary>
 /// Dirty way of getting the enum string value.

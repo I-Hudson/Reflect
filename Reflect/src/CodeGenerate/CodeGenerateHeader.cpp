@@ -2,7 +2,8 @@
 #include "CodeGenerate/CodeGenerate.h"
 #include <assert.h>
 
-NAMESPACE_START
+namespace Reflect 
+{
 
 std::string GetCurrentFileID(const std::string& fileName)
 {
@@ -154,4 +155,4 @@ void CodeGenerateHeader::WriteFunctionGet(const ReflectContainerData& data, std:
 	WRITE_CLOSE();
 }
 
-NAMESPACE_END
+}

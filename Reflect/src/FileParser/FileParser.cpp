@@ -6,7 +6,8 @@
 #include <stack>
 #include <assert.h>
 
-NAMESPACE_START
+namespace Reflect
+{
 
 constexpr int DEFAULT_TYPE_SIZE = 0;
 
@@ -42,8 +43,8 @@ void FileParser::ParseDirectory(const std::string& directory)
 			std::cout << f.file_size() << std::endl;
 			std::ifstream file = OpenFile(filePath);
 			FileParsedData data = LoadFile(file);
-			data.FileName = filePath.substr(filePath.find_last_of('\\') + 1, (filePath.find_last_of('.') - filePath.find_last_of('\\')) - 1);
-			data.FilePath = filePath.substr(0, filePath.find_last_of('\\'));
+			data.FileName = f.path().filename().u8string().substr(0, f.path().filename().u8string().find_last_of('.'));
+			data.FilePath = f.path().parent_path().u8string();
 			m_filesParsed.push_back(data);
 			CloseFile(file);
 		}
@@ -446,4 +447,4 @@ int FileParser::CountNumberOfSinceTop(const FileParsedData& fileData, int cursor
 	return count;
 }
 
-NAMESPACE_END
+}

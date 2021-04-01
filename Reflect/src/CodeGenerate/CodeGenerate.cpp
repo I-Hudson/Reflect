@@ -4,7 +4,8 @@
 #include <assert.h>
 #include <filesystem>
 
-NAMESPACE_START
+namespace Reflect
+{
 
 constexpr const char* ContainerPrefix = "ReflectObject";
 
@@ -61,4 +62,4 @@ void CodeGenerate::IncludeHeader(const std::string& headerToInclude, std::ofstre
 	}
 }
 
-NAMESPACE_END
+}

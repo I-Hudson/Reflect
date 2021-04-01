@@ -1,6 +1,7 @@
 #include "Core/Util.h"
 
-NAMESPACE_START
+namespace Reflect 
+{
 
 std::string Util::ValidateTypeName(const std::string& str)
 {
@@ -18,4 +19,4 @@ std::string Util::ValidateTypeName(const std::string& str)
 	return str.substr(0, index);
 }
 
-NAMESPACE_END
+}

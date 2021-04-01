@@ -4,7 +4,8 @@
 #include <string>
 #include <algorithm>
 
-NAMESPACE_START
+namespace Reflect 
+{
 
 namespace Util
 {
@@ -33,4 +34,4 @@ namespace Util
 	}
 }
 
-NAMESPACE_END
+}

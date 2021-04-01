@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <tuple>
 
-NAMESPACE_START
+namespace Reflect {
 
 /// <summary>
 /// Parse a single file. This should extract all the info like functions and variables.
@@ -54,4 +54,4 @@ private:
 	std::vector<FileParsedData> m_filesParsed;
 };
 
-NAMESPACE_END
+}

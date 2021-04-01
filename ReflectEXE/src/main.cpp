@@ -6,7 +6,7 @@ int main(int argc, char* arg[])
 	Reflect::CodeGenerate codeGenerate;
 	for (size_t i = 0; i < argc; ++i)
 	{
-		parser.ParseDirectory(arg[i]);
+		parser.ParseDirectory("./");
 		for (auto& file : parser.GetAllFileParsedData())
 		{
 			codeGenerate.Reflect(file);

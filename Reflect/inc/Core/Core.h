@@ -10,9 +10,6 @@
 #pragma error C++17 must be used.
 #endif
 
-#define NAMESPACE_START namespace Reflect {
-#define NAMESPACE_END }
-
 #define REFLECT_PROPERTY(...)
 
 #define BODY_MACRO_COMBINE_INNER(A, B, C, D) A##B##C##D

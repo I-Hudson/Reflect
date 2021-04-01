@@ -3,7 +3,8 @@
 #include "Core/Core.h"
 #include "ReflectStructs.h"
 
-NAMESPACE_START
+namespace Reflect 
+{
 
 class  CodeGenerateSource
 {
@@ -20,4 +21,4 @@ private:
 	void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file);
 };
 
-NAMESPACE_END
+}

@@ -1,7 +1,8 @@
 #include "CodeGenerate/CodeGenerateSource.h"
 #include "CodeGenerate/CodeGenerate.h"
 
-NAMESPACE_START
+namespace Reflect
+{
 
 void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstream& file)
 {
@@ -99,4 +100,4 @@ void CodeGenerateSource::WriteFunctionGet(const ReflectContainerData& data, std:
 //	file << "\n";
 //}
 
-NAMESPACE_END
+}

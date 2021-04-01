@@ -7,7 +7,8 @@
 #include <type_traits>
 #include <unordered_map>
 
-NAMESPACE_START
+namespace Reflect 
+{
 
 struct ReflectTypeNameData
 {
@@ -103,4 +104,4 @@ struct ReflectMemberProp
 	int Properties;
 };
 
-NAMESPACE_END
+}

@@ -4,7 +4,8 @@
 #include "ReflectStructs.h"
 #include<fstream>
 
-NAMESPACE_START
+namespace Reflect 
+{
 
 /// <summary>
 /// Generate a new file and place the reflect code there.
@@ -23,4 +24,4 @@ private:
 	void CloseFile(std::ofstream& file);
 };
 
-NAMESPACE_END
+}
