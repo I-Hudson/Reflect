@@ -13,7 +13,7 @@ public:
 	
 	REFLECT_PROPERTY(private)
 		int y;
-	REFLECT_PROPERTY(private)
+	REFLECT_PROPERTY(Reflect::Private, Reflect::Friend)
 		int x;
 
 	REFLECT_PROPERTY()
@@ -23,7 +23,7 @@ public:
 	REFLECT_PROPERTY()
 		void TestFuncVoid() { std::cout << "TestFunc is being called"; }
 
-	REFLECT_PROPERTY()
+	REFLECT_PROPERTY(friend)
 	std::string TestString;
 };
 

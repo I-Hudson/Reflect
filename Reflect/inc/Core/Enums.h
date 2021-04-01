@@ -6,7 +6,7 @@
 
 NAMESPACE_START
 
-enum class ReflectFlags
+enum ReflectFlags
 {
 	Invalid = 1 << 0,
 
@@ -35,6 +35,8 @@ enum class ReflectMemberType
 	Count
 };
 
+NAMESPACE_END
+
 /// <summary>
 /// Dirty way of getting the enum string value.
 /// </summary>
@@ -46,7 +48,5 @@ template <typename E, E> constexpr std::string EnumToString()
 	int startIndex = value.find_last_of(',') + 1;
 	int endIndex = value.find_last_of('>');
 	value = value.substr(startIndex, endIndex - startIndex);
-	return std::move(value);
+	return value;
 }
-
-NAMESPACE_END
