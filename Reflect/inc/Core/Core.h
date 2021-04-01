@@ -23,7 +23,7 @@
 
 #define REFLECT_MAJOR 1
 #define REFLECT_MINOR 1
-#define REFLECT_PATCH 1
+#define REFLECT_PATCH 2
 
 #define REFLECT_GET_VERSION() \
 	 ((((uint32_t)(REFLECT_MAJOR)) << 22) | (((uint32_t)(REFLECT_MINOR)) << 12) | ((uint32_t)(REFLECT_PATCH)))
