@@ -48,6 +48,7 @@ private:\
 #define TestStrcuts_Source_h_9_PROPERTIES_GET \
 public:\
 ReflectMember GetMember(const char* memberName);\
+std::vector<ReflectMember> GetMembers(unsigned int flags);\
 
 
 #define TestStrcuts_Source_h_9_GENERATED_BODY \
@@ -81,6 +82,7 @@ private:\
 #define TestStrcuts_Source_h_32_PROPERTIES_GET \
 public:\
 ReflectMember GetMember(const char* memberName);\
+std::vector<ReflectMember> GetMembers(unsigned int flags);\
 
 
 #define TestStrcuts_Source_h_32_GENERATED_BODY \

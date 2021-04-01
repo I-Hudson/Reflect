@@ -90,13 +90,15 @@ struct FileParsedData
 
 struct ReflectMemberProp
 {
-	ReflectMemberProp(const char* name, int offset, int properties)
+	ReflectMemberProp(const char* name, const char* type, int offset, int properties)
 		: Name(name)
+		, Type(type)
 		, Offset(offset)
 		, Properties(properties)
 	{ }
 
 	const char* Name;
+	const char* Type;
 	int Offset;
 	int Properties;
 };

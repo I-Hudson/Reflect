@@ -81,6 +81,7 @@ void CodeGenerateHeader::WriteMemberGet(const ReflectContainerData& data, std::o
 	file << "#define " + currentFileId + "_PROPERTIES_GET \\\n";
 	WRITE_PUBLIC();
 	file << "ReflectMember GetMember(const char* memberName);\\\n";
+	file << "std::vector<ReflectMember> GetMembers(unsigned int flags);\\\n";
 	WRITE_CLOSE();
 }
 

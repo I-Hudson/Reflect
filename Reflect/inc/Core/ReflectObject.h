@@ -57,8 +57,8 @@ using FunctionPtr = void (*)(void* objectPtr, void* returnValue, FunctionPtrArgs
 struct ReflectFunction
 {
 	ReflectFunction(void* objectPtr, FunctionPtr func)
-		: ObjectPtr(objectPtr)
-		, Func(func)
+		: m_objectPtr(objectPtr)
+		, m_func(func)
 	{ }
 
 	//template<typename... Args>
@@ -72,7 +72,12 @@ struct ReflectFunction
 
 	void Invoke(void* returnValue, FunctionPtrArgs functionArgs)
 	{
-		return (*Func)(ObjectPtr, returnValue, functionArgs);
+		return (*m_func)(m_objectPtr, returnValue, functionArgs);
+	}
+
+	bool IsValid() const
+	{
+		return m_objectPtr != nullptr;
 	}
 
 private:
@@ -96,45 +101,45 @@ private:
 	}
 
 private:
-	void* ObjectPtr;
-	FunctionPtr Func;
+	void* m_objectPtr;
+	FunctionPtr m_func;
 };
 
 struct ReflectMember
 {
 	ReflectMember(const char* memberName, std::string memberType, int memberOffset)
-		: Name(memberName)
-		, Type(memberType)
-		, Offset(memberOffset)
+		: m_name(memberName)
+		, m_type(memberType)
+		, m_offset(memberOffset)
 	{}
 
 	ReflectMember(const char* memberName, std::string memberType, void* memberPtr)
-		: Name(memberName)
-		, Type(memberType)
-		, Ptr(memberPtr)
+		: m_name(memberName)
+		, m_type(memberType)
+		, m_ptr(memberPtr)
 	{}
 
 	bool IsValid() const
 	{
-		return Ptr != nullptr;
+		return m_ptr != nullptr;
 	}
 
 	template<typename T>
 	T* ConvertToType()
 	{ 
 		const char* convertType = Reflect::Util::GetTypeName<T>();
-		if (convertType != Type)
+		if (convertType != m_type)
 		{
 			return nullptr;
 		}
-		return static_cast<T*>(Ptr);
+		return static_cast<T*>(m_ptr);
 	}
 
 private:
-	const char* Name;
-	std::string Type;
-	void* Ptr;
-	int Offset;
+	const char* m_name;
+	std::string m_type;
+	void* m_ptr;
+	int m_offset;
 };
 
 class ReflectObject

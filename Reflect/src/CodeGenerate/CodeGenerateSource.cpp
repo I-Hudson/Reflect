@@ -32,7 +32,7 @@ void CodeGenerateSource::WriteMemberProperties(const ReflectContainerData& data,
 	file << "Reflect::ReflectMemberProp "+ data.Name +"::__REFLECT_MEMBER_PROPS__[" + std::to_string(data.Members.size()) + "] = {\n";
 	for (const auto& member : data.Members)
 	{
-		file << "\tReflect::ReflectMemberProp(\""+ member.Name + "\", __REFLECT__" + member.Name +"(), " + getMemberProps(member.ContainerProps) + "),\n";
+		file << "\tReflect::ReflectMemberProp(\""+ member.Name + "\", Reflect::Util::GetTypeName<" + member.Type + ">(), __REFLECT__" + member.Name +"(), " + getMemberProps(member.ContainerProps) + "),\n";
 	}
 	file << "};\n\n";
 }
@@ -40,24 +40,13 @@ void CodeGenerateSource::WriteMemberProperties(const ReflectContainerData& data,
 void CodeGenerateSource::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file)
 {
 	file << "ReflectMember " + data.Name + "::GetMember(const char* memberName)\n{\n";
-	//file << "\tfor(const auto& member : __REFLECT_MEMBER_PROPS__)\n{\n";
-	//file << "\tif(memberName == member.Name)\n";
-	//file << "\t{\n";
-	//file << "\t\t//CheckFlags\n";
-	//file << "\t\treturn ReflectMember(member.Name, Reflect::Util::GetTypeName(member.Name), &member.Name);\n";
-	//file << "\t}\n";
-	file << "\tint propsIndex = 0;\n";
-	for (const auto& member : data.Members)
-	{
-		file << "\tif(memberName == \"" + member.Name + "\")\n";
-		file << "\t{\n";
-		file << "\t\t//if()\n";
-		file << "\t\t{\n";
-		file << "\t\t\treturn ReflectMember(\"" + member.Name + "\", Reflect::Util::GetTypeName(" + member.Name + "), &" + member.Name + ");\n";
-		file << "\t\t}\n";
-		file << "\t}\n";
-		file << "\t++propsIndex;\n";
-	}
+	file << "\tfor(const auto& member : __REFLECT_MEMBER_PROPS__)\n\t{\n";
+	file << "\t\tif(memberName == member.Name)\n";
+	file << "\t\t{\n";
+	file << "\t\t\t//CheckFlags\n";
+	file << "\t\t\treturn ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset);\n";
+	file << "\t\t}\n";
+	file << "\t}\n";
 	file << "\treturn ReflectMember(\"null\", Reflect::Util::GetTypeName<void>(), nullptr);\n";
 	file << "}\n\n";
 }

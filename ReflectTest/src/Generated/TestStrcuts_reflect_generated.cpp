@@ -1,9 +1,9 @@
 #include "../TestStrcuts.h"
 
 Reflect::ReflectMemberProp Person::__REFLECT_MEMBER_PROPS__[3] = {
-	Reflect::ReflectMemberProp("y", __REFLECT__y(), 2),
-	Reflect::ReflectMemberProp("x", __REFLECT__x(), 2),
-	Reflect::ReflectMemberProp("TestString", __REFLECT__TestString(), 0),
+	Reflect::ReflectMemberProp("y", Reflect::Util::GetTypeName<int>(), __REFLECT__y(), 2),
+	Reflect::ReflectMemberProp("x", Reflect::Util::GetTypeName<int>(), __REFLECT__x(), 2),
+	Reflect::ReflectMemberProp("TestString", Reflect::Util::GetTypeName<std::string>(), __REFLECT__TestString(), 0),
 };
 
 ReflectFunction Person::GetFunction(const char* functionName)
@@ -25,37 +25,20 @@ ReflectFunction Person::GetFunction(const char* functionName)
 
 ReflectMember Person::GetMember(const char* memberName)
 {
-	int propsIndex = 0;
-	if(memberName == "y")
+	for(const auto& member : __REFLECT_MEMBER_PROPS__)
 	{
-		//if()
+		if(memberName == member.Name)
 		{
-			return ReflectMember("y", Reflect::Util::GetTypeName(y), &y);
+			//CheckFlags
+			return ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset);
 		}
 	}
-	++propsIndex;
-	if(memberName == "x")
-	{
-		//if()
-		{
-			return ReflectMember("x", Reflect::Util::GetTypeName(x), &x);
-		}
-	}
-	++propsIndex;
-	if(memberName == "TestString")
-	{
-		//if()
-		{
-			return ReflectMember("TestString", Reflect::Util::GetTypeName(TestString), &TestString);
-		}
-	}
-	++propsIndex;
 	return ReflectMember("null", Reflect::Util::GetTypeName<void>(), nullptr);
 }
 
 Reflect::ReflectMemberProp House::__REFLECT_MEMBER_PROPS__[2] = {
-	Reflect::ReflectMemberProp("width", __REFLECT__width(), 8),
-	Reflect::ReflectMemberProp("m_person", __REFLECT__m_person(), 0),
+	Reflect::ReflectMemberProp("width", Reflect::Util::GetTypeName<int>(), __REFLECT__width(), 8),
+	Reflect::ReflectMemberProp("m_person", Reflect::Util::GetTypeName<Person>(), __REFLECT__m_person(), 0),
 };
 
 ReflectFunction House::GetFunction(const char* functionName)
@@ -65,23 +48,14 @@ ReflectFunction House::GetFunction(const char* functionName)
 
 ReflectMember House::GetMember(const char* memberName)
 {
-	int propsIndex = 0;
-	if(memberName == "width")
+	for(const auto& member : __REFLECT_MEMBER_PROPS__)
 	{
-		//if()
+		if(memberName == member.Name)
 		{
-			return ReflectMember("width", Reflect::Util::GetTypeName(width), &width);
+			//CheckFlags
+			return ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset);
 		}
 	}
-	++propsIndex;
-	if(memberName == "m_person")
-	{
-		//if()
-		{
-			return ReflectMember("m_person", Reflect::Util::GetTypeName(m_person), &m_person);
-		}
-	}
-	++propsIndex;
 	return ReflectMember("null", Reflect::Util::GetTypeName<void>(), nullptr);
 }
 

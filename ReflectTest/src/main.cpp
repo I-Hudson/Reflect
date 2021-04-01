@@ -7,7 +7,9 @@ int main(void)
 	std::cout << "Compiled" << std::endl;
 
 	Person person;
-	auto value = person.GetMember("TestString");
+	auto value = person.GetMember("y");
+	int& typeInt = *value.ConvertToType<int>();
+	typeInt = 54;
 	auto func = person.GetFunction("TestFuncInt");
 
 	int const&  constI = 0;
