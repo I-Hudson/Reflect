@@ -1,29 +1,28 @@
 #include "../TestStrcuts.h"
 
-Reflect::ReflectMemberProp Person::__REFLECT_MEMBER_PROPS__[3] = {
-	Reflect::ReflectMemberProp("y", Reflect::Util::GetTypeName<int>(), __REFLECT__y(), 2),
-	Reflect::ReflectMemberProp("x", Reflect::Util::GetTypeName<int>(), __REFLECT__x(), 10),
-	Reflect::ReflectMemberProp("TestString", Reflect::Util::GetTypeName<std::string>(), __REFLECT__TestString(), 8),
+Reflect::ReflectMemberProp Player::__REFLECT_MEMBER_PROPS__[2] = {
+	Reflect::ReflectMemberProp("Friends", Reflect::Util::GetTypeName<int>(), __REFLECT__Friends(), 0),
+	Reflect::ReflectMemberProp("TimeOnline", Reflect::Util::GetTypeName<int>(), __REFLECT__TimeOnline(), 0),
 };
 
-ReflectFunction Person::GetFunction(const char* functionName)
+ReflectFunction Player::GetFunction(const char* functionName)
 {
-	if(functionName == "TestFuncInt")
+	if(functionName == "GetOnlineFriendsCount")
 	{
-		return ReflectFunction(this, Person::__REFLECT_FUNC__TestFuncInt);
+		return ReflectFunction(this, Player::__REFLECT_FUNC__GetOnlineFriendsCount);
 	}
-	if(functionName == "TestFuncChar")
+	if(functionName == "PrintHelloWorld")
 	{
-		return ReflectFunction(this, Person::__REFLECT_FUNC__TestFuncChar);
+		return ReflectFunction(this, Player::__REFLECT_FUNC__PrintHelloWorld);
 	}
-	if(functionName == "TestFuncVoid")
+	if(functionName == "GetId")
 	{
-		return ReflectFunction(this, Person::__REFLECT_FUNC__TestFuncVoid);
+		return ReflectFunction(this, Player::__REFLECT_FUNC__GetId);
 	}
 	return ReflectFunction(nullptr, nullptr);
 }
 
-ReflectMember Person::GetMember(const char* memberName)
+ReflectMember Player::GetMember(const char* memberName)
 {
 	for(const auto& member : __REFLECT_MEMBER_PROPS__)
 	{
@@ -36,43 +35,7 @@ ReflectMember Person::GetMember(const char* memberName)
 	return ReflectMember("null", Reflect::Util::GetTypeName<void>(), nullptr);
 }
 
-std::vector<ReflectMember> Person::GetMembers(unsigned int flags)
-{
-	std::vector<ReflectMember> members;
-	for(const auto& member : __REFLECT_MEMBER_PROPS__)
-	{
-		if(flags & member.Properties)
-		{
-			members.push_back(ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset));
-		}
-	}
-	return members;
-}
-
-Reflect::ReflectMemberProp House::__REFLECT_MEMBER_PROPS__[2] = {
-	Reflect::ReflectMemberProp("width", Reflect::Util::GetTypeName<int>(), __REFLECT__width(), 8),
-	Reflect::ReflectMemberProp("m_person", Reflect::Util::GetTypeName<Person>(), __REFLECT__m_person(), 0),
-};
-
-ReflectFunction House::GetFunction(const char* functionName)
-{
-	return ReflectFunction(nullptr, nullptr);
-}
-
-ReflectMember House::GetMember(const char* memberName)
-{
-	for(const auto& member : __REFLECT_MEMBER_PROPS__)
-	{
-		if(memberName == member.Name)
-		{
-			//CheckFlags
-			return ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset);
-		}
-	}
-	return ReflectMember("null", Reflect::Util::GetTypeName<void>(), nullptr);
-}
-
-std::vector<ReflectMember> House::GetMembers(unsigned int flags)
+std::vector<ReflectMember> Player::GetMembers(unsigned int flags)
 {
 	std::vector<ReflectMember> members;
 	for(const auto& member : __REFLECT_MEMBER_PROPS__)

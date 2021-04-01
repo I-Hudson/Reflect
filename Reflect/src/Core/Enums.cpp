@@ -1,5 +1,6 @@
 #include "Core/Enums.h"
 #include "Core/Util.h"
+#include "Core/ReflectObject.h"
 
 NAMESPACE_START
 

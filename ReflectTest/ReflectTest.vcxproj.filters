@@ -16,5 +16,7 @@
       <Filter>Generated</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="TestStructs.cpp" />
+    <ClCompile Include="..\Reflect\inc\Core\ReflectObject.cpp" />
   </ItemGroup>
 </Project>

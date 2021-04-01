@@ -123,7 +123,7 @@ void CodeGenerateHeader::WriteFunctions(const ReflectContainerData& data, std::o
 	WRITE_PRIVATE();
 	for (const auto& func : data.Functions)
 	{
-		file << "\tstatic void __REFLECT_FUNC__" + func.Name + "(void* objectPtr, void* returnValuePtr, FunctionPtrArgs& functionArgs = FunctionPtrArgs())\\\n";
+		file << "\tstatic ReflectReturnCode __REFLECT_FUNC__" + func.Name + "(void* objectPtr, void* returnValuePtr, FunctionPtrArgs& functionArgs)\\\n";
 		file << "\t{\\\n";
 		int functionArgIndex = 0;
 		for (const auto& arg : func.Parameters)
@@ -134,11 +134,13 @@ void CodeGenerateHeader::WriteFunctions(const ReflectContainerData& data, std::o
 		if (func.Type != "void")
 		{
 			file << "\t\t*((" + func.Type + "*)returnValuePtr) = ptr->" + func.Name + "(" + populateArgs(func.Parameters) +");\\\n";
+			// TODO: (01/04/21) Check this cast. If it failed return ReflectFuncReturnCode::CAST_FAILED.
 		}
 		else
 		{
 			file << "\t\tptr->" + func.Name + "();\\\n";
 		}
+		file << "\t\treturn ReflectReturnCode::SUCCESS;\\\n";
 		file << "\t}\\\n";
 	}
 	WRITE_CLOSE();

@@ -20,11 +20,9 @@
 
 #define REFLECT_GENERATED_BODY(...) BODY_MACRO_COMBINE(CURRENT_FILE_ID, _, __LINE__, _GENERATED_BODY);
 
-#define REFLECT_HEADER(Name) Name
+#define REFLECT_STRUCT(Name, ...) struct Name
 
-#define REFLECT_STRUCT(Name, ...) struct REFLECT_HEADER(Name)
-
-#define REFLECT_CLASS(Name, ...) class REFLECT_HEADER(Name)
+#define REFLECT_CLASS(Name, ...) class Name
 
 #define REFLECT_MAJOR 1
 #define REFLECT_MINOR 1

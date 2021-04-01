@@ -133,7 +133,7 @@ bool FileParser::ReflectContainerHeader(FileParsedData& fileData, const std::str
 	std::string containerName;
 	bool foundContainerName = false;
 
-	while (fileData.Data[fileData.Cursor] != ',')
+	while (fileData.Data[fileData.Cursor] != ',' && fileData.Data[fileData.Cursor] != ')')
 	{
 		if (fileData.Data[fileData.Cursor] != ' ')
 		{

@@ -2,38 +2,37 @@
 
 #include "Reflect.h"
 #include "Generated/TestStrcuts_reflect_generated.h"
-#include <iostream>
 
-REFLECT_CLASS(Person, Public, Private)
+/// <summary>
+/// Example class.
+/// </summary>
+REFLECT_CLASS(Player)
 {
 	REFLECT_GENERATED_BODY()
 
 public:
-	Person() { }
+	Player()
+	: Id("PlayerExampleId") 
+	{ }
 	
-	REFLECT_PROPERTY(private)
-		int y;
-	REFLECT_PROPERTY(Reflect::Private, Reflect::Friend)
-		int x;
+	~Player() 
+	{ }
 
 	REFLECT_PROPERTY()
-		int TestFuncInt(int const* testInt, const int& testIntPtr) { std::cout << "TestFunc is being called"; return *testInt + testIntPtr; }
-	REFLECT_PROPERTY()
-		const char* TestFuncChar() { std::cout << "TestFuncChar"; return ""; }
-	REFLECT_PROPERTY()
-		void TestFuncVoid() { std::cout << "TestFunc is being called"; }
-
-	REFLECT_PROPERTY(friend)
-	std::string TestString;
-};
-
-REFLECT_CLASS(House, Public, Private)
-{
-	REFLECT_GENERATED_BODY()
-
-	REFLECT_PROPERTY(Friend, )
-		int width;
+	int GetOnlineFriendsCount(int const& maxPlayerCount);
 
 	REFLECT_PROPERTY()
-	Person m_person;
+	void PrintHelloWorld();
+
+private:
+	REFLECT_PROPERTY()
+	std::string GetId() const;
+
+private:
+	std::string Id;
+
+	REFLECT_PROPERTY()
+	int Friends;
+	REFLECT_PROPERTY()
+	int TimeOnline;
 };

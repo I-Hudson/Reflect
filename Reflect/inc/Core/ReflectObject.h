@@ -52,7 +52,18 @@ private:
 	std::vector<Arg> m_args;
 };
 
-using FunctionPtr = void (*)(void* objectPtr, void* returnValue, FunctionPtrArgs& args);
+enum class ReflectReturnCode
+{
+	SUCCESS,
+	FAILED,
+
+	CAST_FAILED,
+	INVALID_FUNCTION_POINTER,
+	INVALID_MEMBER,
+};
+std::string ReflectReturnCodeToString(const ReflectReturnCode& code);
+
+using FunctionPtr = ReflectReturnCode(*)(void* objectPtr, void* returnValue, FunctionPtrArgs& args);
 
 struct ReflectFunction
 {
@@ -70,9 +81,14 @@ struct ReflectFunction
 	//	return (*Func)(ObjectPtr, returnValue, funcArgs);
 	//}
 
-	void Invoke(void* returnValue, FunctionPtrArgs functionArgs)
+	ReflectReturnCode Invoke(void* returnValue = nullptr, FunctionPtrArgs functionArgs = FunctionPtrArgs())
 	{
-		return (*m_func)(m_objectPtr, returnValue, functionArgs);
+		if (IsValid())
+		{
+			(*m_func)(m_objectPtr, returnValue, functionArgs);
+			return ReflectReturnCode::SUCCESS;
+		}
+		return ReflectReturnCode::INVALID_FUNCTION_POINTER;
 	}
 
 	bool IsValid() const
@@ -126,7 +142,7 @@ struct ReflectMember
 
 	template<typename T>
 	T* ConvertToType()
-	{ 
+	{
 		const char* convertType = Reflect::Util::GetTypeName<T>();
 		if (convertType != m_type)
 		{

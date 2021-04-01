@@ -45,8 +45,8 @@ NAMESPACE_END
 template <typename E, E> constexpr std::string EnumToString()
 {
 	std::string value = FUNC_SIG;
-	int startIndex = value.find_last_of(',') + 1;
-	int endIndex = value.find_last_of('>');
+	int startIndex = static_cast<int>(value.find_last_of(',')) + 1;
+	int endIndex = static_cast<int>(value.find_last_of('>'));
 	value = value.substr(startIndex, endIndex - startIndex);
 	return value;
 }
