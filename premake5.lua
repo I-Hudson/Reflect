@@ -30,6 +30,6 @@ group "Dependencies"
 group ""
 
 include "Reflect"
-i--nclude "ReflectDLL"
+--nclude "ReflectDLL"
 include "ReflectEXE"
 include "ReflectTest"
