@@ -6,60 +6,58 @@
 
 namespace Reflect
 {
+	constexpr const char* ContainerPrefix = "ReflectObject";
 
-constexpr const char* ContainerPrefix = "ReflectObject";
+	CodeGenerate::CodeGenerate()
+	{ }
 
-CodeGenerate::CodeGenerate()
-{ }
+	CodeGenerate::~CodeGenerate()
+	{ }
 
-CodeGenerate::~CodeGenerate()
-{ }
-
-void CodeGenerate::Reflect(const FileParsedData& data)
-{
-	CodeGenerateHeader header;
-	CodeGenerateSource source;
-
-	if (!std::filesystem::exists(data.FilePath + "/Generated"))
+	void CodeGenerate::Reflect(const FileParsedData& data)
 	{
-		std::filesystem::create_directory(data.FilePath + "/Generated");
+		CodeGenerateHeader header;
+		CodeGenerateSource source;
+
+		if (!std::filesystem::exists(data.FilePath + "/Generated"))
+		{
+			std::filesystem::create_directory(data.FilePath + "/Generated");
+		}
+
+		std::ofstream file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h");
+		header.GenerateHeader(data, file);
+		CloseFile(file);
+
+		file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
+		source.GenerateSource(data, file);
+		CloseFile(file);
 	}
 
-	std::ofstream file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h");
-	header.GenerateHeader(data, file);
-	CloseFile(file);
-
-	file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
-	source.GenerateSource(data, file);
-	CloseFile(file);
-}
-
-std::ofstream CodeGenerate::OpenFile(const std::string& filePath)
-{
-	std::ofstream file;
-	file.open(filePath, std::ios::trunc);
-	assert(file.is_open() && "[CodeGenerate::OpenFile] File could not be created.");
-	return file;
-}
-
-void CodeGenerate::CloseFile(std::ofstream& file)
-{
-	if (file.is_open())
+	std::ofstream CodeGenerate::OpenFile(const std::string& filePath)
 	{
-		file.close();
+		std::ofstream file;
+		file.open(filePath, std::ios::trunc);
+		assert(file.is_open() && "[CodeGenerate::OpenFile] File could not be created.");
+		return file;
 	}
-}
 
-void CodeGenerate::IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude)
-{
-	if (windowsInclude)
+	void CodeGenerate::CloseFile(std::ofstream& file)
 	{
-		file << "#include <" + headerToInclude + ">\n";
+		if (file.is_open())
+		{
+			file.close();
+		}
 	}
-	else
-	{
-		file << "#include \"" + headerToInclude + "\"\n";
-	}
-}
 
+	void CodeGenerate::IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude)
+	{
+		if (windowsInclude)
+		{
+			file << "#include <" + headerToInclude + ">\n";
+		}
+		else
+		{
+			file << "#include \"" + headerToInclude + "\"\n";
+		}
+	}
 }

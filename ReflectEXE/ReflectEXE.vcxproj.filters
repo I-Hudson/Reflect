@@ -51,9 +51,6 @@
     <ClInclude Include="..\Reflect\inc\Core\Enums.h">
       <Filter>Reflect\inc\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Reflect\inc\Core\ReflectObject.h">
-      <Filter>Reflect\inc\Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\Reflect\inc\Core\Util.h">
       <Filter>Reflect\inc\Core</Filter>
     </ClInclude>
@@ -78,9 +75,6 @@
       <Filter>Reflect\src\CodeGenerate</Filter>
     </ClCompile>
     <ClCompile Include="..\Reflect\src\Core\Enums.cpp">
-      <Filter>Reflect\src\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Reflect\src\Core\ReflectObject.cpp">
       <Filter>Reflect\src\Core</Filter>
     </ClCompile>
     <ClCompile Include="..\Reflect\src\Core\Util.cpp">

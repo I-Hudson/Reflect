@@ -140,10 +140,9 @@
     <ClInclude Include="src\TestStrcuts.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Reflect\inc\Core\ReflectObject.cpp" />
     <ClCompile Include="src\Generated\TestStrcuts_reflect_generated.cpp" />
+    <ClCompile Include="src\TestStructs.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="TestStructs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Reflect\Reflect.vcxproj">

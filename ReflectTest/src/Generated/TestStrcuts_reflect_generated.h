@@ -1,5 +1,5 @@
  // This file is auto generated please don't modify.
-#include "Core/ReflectObject.h"
+#include "ReflectStructs.h"
 #include "Core/Util.h"
 
 #ifdef TestStrcuts_reflect_generated_h
@@ -14,30 +14,30 @@ private:\
 
 #define TestStrcuts_Source_h_11_FUNCTION_DECLARE \
 private:\
-	static ReflectReturnCode __REFLECT_FUNC__GetOnlineFriendsCount(void* objectPtr, void* returnValuePtr, FunctionPtrArgs& functionArgs)\
+	static Reflect::ReflectReturnCode __REFLECT_FUNC__GetOnlineFriendsCount(void* objectPtr, void* returnValuePtr, Reflect::FunctionPtrArgs& functionArgs)\
 	{\
 		int const& maxPlayerCountArg = *static_cast<int const*>(functionArgs.GetArg(0));\
 		Player* ptr = static_cast<Player*>(objectPtr);\
 		*((int*)returnValuePtr) = ptr->GetOnlineFriendsCount(maxPlayerCountArg);\
-		return ReflectReturnCode::SUCCESS;\
+		return Reflect::ReflectReturnCode::SUCCESS;\
 	}\
-	static ReflectReturnCode __REFLECT_FUNC__PrintHelloWorld(void* objectPtr, void* returnValuePtr, FunctionPtrArgs& functionArgs)\
+	static Reflect::ReflectReturnCode __REFLECT_FUNC__PrintHelloWorld(void* objectPtr, void* returnValuePtr, Reflect::FunctionPtrArgs& functionArgs)\
 	{\
 		Player* ptr = static_cast<Player*>(objectPtr);\
 		ptr->PrintHelloWorld();\
-		return ReflectReturnCode::SUCCESS;\
+		return Reflect::ReflectReturnCode::SUCCESS;\
 	}\
-	static ReflectReturnCode __REFLECT_FUNC__GetId(void* objectPtr, void* returnValuePtr, FunctionPtrArgs& functionArgs)\
+	static Reflect::ReflectReturnCode __REFLECT_FUNC__GetId(void* objectPtr, void* returnValuePtr, Reflect::FunctionPtrArgs& functionArgs)\
 	{\
 		Player* ptr = static_cast<Player*>(objectPtr);\
 		*((std::string*)returnValuePtr) = ptr->GetId();\
-		return ReflectReturnCode::SUCCESS;\
+		return Reflect::ReflectReturnCode::SUCCESS;\
 	}\
 
 
 #define TestStrcuts_Source_h_11_FUNCTION_GET \
 public:\
-	ReflectFunction GetFunction(const char* functionName);\
+	virtual Reflect::ReflectFunction GetFunction(const char* functionName) override;\
 
 
 #define TestStrcuts_Source_h_11_PROPERTIES_OFFSET \
@@ -48,8 +48,8 @@ private:\
 
 #define TestStrcuts_Source_h_11_PROPERTIES_GET \
 public:\
-ReflectMember GetMember(const char* memberName);\
-std::vector<ReflectMember> GetMembers(unsigned int flags);\
+virtual Reflect::ReflectMember GetMember(const char* memberName) override;\
+virtual std::vector<Reflect::ReflectMember> GetMembers(unsigned int flags) override;\
 
 
 #define TestStrcuts_Source_h_11_GENERATED_BODY \

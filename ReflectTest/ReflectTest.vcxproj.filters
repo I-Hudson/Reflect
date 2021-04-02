@@ -15,8 +15,7 @@
     <ClCompile Include="src\Generated\TestStrcuts_reflect_generated.cpp">
       <Filter>Generated</Filter>
     </ClCompile>
+    <ClCompile Include="src\TestStructs.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="TestStructs.cpp" />
-    <ClCompile Include="..\Reflect\inc\Core\ReflectObject.cpp" />
   </ItemGroup>
 </Project>

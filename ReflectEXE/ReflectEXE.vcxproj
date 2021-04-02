@@ -142,7 +142,6 @@
     <ClInclude Include="..\Reflect\inc\Core\Compiler.h" />
     <ClInclude Include="..\Reflect\inc\Core\Core.h" />
     <ClInclude Include="..\Reflect\inc\Core\Enums.h" />
-    <ClInclude Include="..\Reflect\inc\Core\ReflectObject.h" />
     <ClInclude Include="..\Reflect\inc\Core\Util.h" />
     <ClInclude Include="..\Reflect\inc\FileParser\FileParser.h" />
     <ClInclude Include="..\Reflect\inc\Reflect.h" />
@@ -153,7 +152,6 @@
     <ClCompile Include="..\Reflect\src\CodeGenerate\CodeGenerateHeader.cpp" />
     <ClCompile Include="..\Reflect\src\CodeGenerate\CodeGenerateSource.cpp" />
     <ClCompile Include="..\Reflect\src\Core\Enums.cpp" />
-    <ClCompile Include="..\Reflect\src\Core\ReflectObject.cpp" />
     <ClCompile Include="..\Reflect\src\Core\Util.cpp" />
     <ClCompile Include="..\Reflect\src\FileParser\FileParser.cpp" />
     <ClCompile Include="src\main.cpp" />

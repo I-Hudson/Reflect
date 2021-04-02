@@ -4,37 +4,47 @@
 #include "Core.h"
 #include <string>
 
-namespace Reflect {
-
-enum ReflectFlags
+namespace Reflect 
 {
-	Invalid = 1 << 0,
+	enum ReflectFlags
+	{
+		Invalid = 1 << 0,
 
-	Private = 1 << 1,
-	Public = 1 << 2,
-	Friend = 1 << 3,
-};
-ReflectFlags StringToReflectFlags(const std::string& str);
+		Private = 1 << 1,
+		Public = 1 << 2,
+		Friend = 1 << 3,
+	};
+	REFLECT_DLL ReflectFlags StringToReflectFlags(const std::string& str);
 
-enum class ReflectType
-{
-	Class,
-	Struct,
-	Member,
-	Function,
+	enum class ReflectType
+	{
+		Class,
+		Struct,
+		Member,
+		Function,
 
-	Count
-};
+		Count
+	};
 
-enum class ReflectMemberType
-{
-	Value,
-	Reference,
-	Pointer,
+	enum class ReflectMemberType
+	{
+		Value,
+		Reference,
+		Pointer,
 
-	Count
-};
+		Count
+	};
 
+	enum class ReflectReturnCode
+	{
+		SUCCESS,
+		FAILED,
+
+		CAST_FAILED,
+		INVALID_FUNCTION_POINTER,
+		INVALID_MEMBER,
+	};
+	REFLECT_DLL std::string ReflectReturnCodeToString(const ReflectReturnCode& code);
 }
 
 /// <summary>
@@ -42,7 +52,7 @@ enum class ReflectMemberType
 /// </summary>
 /// <typeparam name="E"></typeparam>
 /// <returns></returns>
-template <typename E, E> constexpr std::string EnumToString()
+template <typename E, E> REFLECT_DLL constexpr std::string EnumToString()
 {
 	std::string value = FUNC_SIG;
 	int startIndex = static_cast<int>(value.find_last_of(',')) + 1;

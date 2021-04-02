@@ -30,5 +30,6 @@ group "Dependencies"
 group ""
 
 include "Reflect"
+include "ReflectDLL"
 include "ReflectEXE"
 include "ReflectTest"
