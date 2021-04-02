@@ -249,9 +249,9 @@ namespace Reflect
 
 	struct IReflect
 	{
-		REFLECT_DLL virtual ReflectFunction GetFunction(const char* functionName) = 0;
-		REFLECT_DLL virtual ReflectMember GetMember(const char* memberName) = 0;
-		REFLECT_DLL virtual std::vector<ReflectMember> GetMembers(unsigned int flags) = 0;
+		REFLECT_DLL virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
+		REFLECT_DLL virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", "", 0); };
+		REFLECT_DLL virtual std::vector<ReflectMember> GetMembers(unsigned int flags) { (void)flags; return {}; };
 	};
 }
 

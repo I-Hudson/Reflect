@@ -3,6 +3,7 @@
 #include "Core/Core.h"
 #include <string>
 #include <algorithm>
+#include <typeinfo>
 
 namespace Reflect
 {
@@ -12,9 +13,8 @@ namespace Reflect
 		{
 			std::transform(str.begin(), str.end(), str.begin(), [](char c)
 			{
-				return std::tolower(c);
+				return static_cast<char>(std::tolower(static_cast<int>(c)));
 			});
-
 			return str;
 		}
 
@@ -27,7 +27,7 @@ namespace Reflect
 		}
 
 		template<typename T>
-		constexpr std::string GetTypeName(const T& type)
+		std::string GetTypeName(const T& type)
 		{
 			return ValidateTypeName(GetTypeName<T>());
 		}

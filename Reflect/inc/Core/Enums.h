@@ -52,7 +52,7 @@ namespace Reflect
 /// </summary>
 /// <typeparam name="E"></typeparam>
 /// <returns></returns>
-template <typename E, E> REFLECT_DLL constexpr std::string EnumToString()
+template <typename E, E> REFLECT_DLL std::string EnumToString()
 {
 	std::string value = FUNC_SIG;
 	int startIndex = static_cast<int>(value.find_last_of(',')) + 1;

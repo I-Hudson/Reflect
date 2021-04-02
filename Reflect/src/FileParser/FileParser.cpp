@@ -131,7 +131,6 @@ namespace Reflect
 
 		// Get the flags passed though the REFLECT macro.
 		std::string containerName;
-		bool foundContainerName = false;
 
 		while (fileData.Data[fileData.Cursor] != ',' && fileData.Data[fileData.Cursor] != ')')
 		{
@@ -157,7 +156,6 @@ namespace Reflect
 		// Good, we have a reflected container class/struct.
 		// First find out which it is and verify that we are inheriting from "ReflectObject".
 		std::stack<char> bracketStack;
-		bool findStart = true;
 		ReflectContainerData& conatinerData = fileData.ReflectData.back();
 
 		int generatedBodyLine = static_cast<int>(fileData.Data.find(ReflectGeneratedBodykey, fileData.GeneratedBodyLineOffset));
@@ -168,7 +166,7 @@ namespace Reflect
 		while (true)
 		{
 			int reflectStart = static_cast<int>(fileData.Data.find(PropertyKey, fileData.Cursor));
-			if (reflectStart == std::string::npos || reflectStart > endOfContainerCursor)
+			if (reflectStart == static_cast<int>(std::string::npos) || reflectStart > endOfContainerCursor)
 			{
 				// There are no more properties to reflect or we have found a new container to reflect.
 				break;
@@ -336,7 +334,6 @@ namespace Reflect
 		bool typeFound = false;
 		std::string name;
 		bool nameFound = false;
-		int startCursor = fileData.Cursor;
 		bool isConst = false;
 
 		while (true)
@@ -416,7 +413,7 @@ namespace Reflect
 		tmp = "";
 		for (int i = fileData.Cursor + 1; i < fileData.Cursor + len; ++i)
 		{
-			if (i > fileData.Data.size())
+			if (i > static_cast<int>(fileData.Data.size()))
 			{
 				break;
 			}
