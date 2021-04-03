@@ -2,15 +2,23 @@
 
 int main(int argc, char* argv[])
 {
-	Reflect::FileParser parser;
-	Reflect::CodeGenerate codeGenerate;
-	for (size_t i = 0; i < argc; ++i)
+	PROFILE_BEGIN_SESSION();
 	{
-		parser.ParseDirectory(argv[i]);
-		for (auto& file : parser.GetAllFileParsedData())
+		PROFILE_SCOPE("MAIN");
+
+			Reflect::FileParser parser;
+		Reflect::CodeGenerate codeGenerate;
+		for (size_t i = 0; i < argc; ++i)
 		{
-			codeGenerate.Reflect(file);
+			parser.ParseDirectory(argv[i]);
+			for (auto& file : parser.GetAllFileParsedData())
+			{
+				codeGenerate.Reflect(file);
+			}
 		}
 	}
+
+	PROFILE_END_SESSION();
+	PROFILE_SAVE_SESSION("ReflectEXE_Profile.json");
 	return 0;
 }

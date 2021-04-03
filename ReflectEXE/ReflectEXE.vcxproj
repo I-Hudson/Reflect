@@ -144,6 +144,7 @@
     <ClInclude Include="..\Reflect\inc\Core\Enums.h" />
     <ClInclude Include="..\Reflect\inc\Core\Util.h" />
     <ClInclude Include="..\Reflect\inc\FileParser\FileParser.h" />
+    <ClInclude Include="..\Reflect\inc\Instrumentor.h" />
     <ClInclude Include="..\Reflect\inc\Reflect.h" />
     <ClInclude Include="..\Reflect\inc\ReflectStructs.h" />
   </ItemGroup>

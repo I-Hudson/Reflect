@@ -7,4 +7,5 @@
 #include "FileParser/FileParser.h"
 #include "CodeGenerate/CodeGenerate.h"
 
+#include "Instrumentor.h"
 #include "ReflectStructs.h"

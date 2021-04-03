@@ -1,5 +1,6 @@
 #include "CodeGenerate/CodeGenerateHeader.h"
 #include "CodeGenerate/CodeGenerate.h"
+#include "Instrumentor.h"
 #include <assert.h>
 
 namespace Reflect
@@ -17,6 +18,8 @@ namespace Reflect
 
 	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file)
 	{
+		PROFILE_FUNCTION();
+
 		file << " // This file is auto generated please don't modify.\n";
 
 		CodeGenerate::IncludeHeader("ReflectStructs.h", file);

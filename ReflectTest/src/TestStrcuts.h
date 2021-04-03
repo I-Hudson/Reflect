@@ -12,27 +12,27 @@ REFLECT_CLASS(Player)
 
 public:
 	Player()
-	: Id("PlayerExampleId") 
+		: Id("PlayerExampleId")
 	{ }
-	
-	~Player() 
+
+	~Player()
 	{ }
 
 	REFLECT_PROPERTY()
-	int GetOnlineFriendsCount(int const& maxPlayerCount);
+		int GetOnlineFriendsCount(int const& maxPlayerCount);
 
 	REFLECT_PROPERTY()
-	void PrintHelloWorld();
+		void PrintHelloWorld();
 
 private:
 	REFLECT_PROPERTY()
-	std::string GetId() const;
+		std::string GetId() const;
 
 private:
 	std::string Id;
 
 	REFLECT_PROPERTY()
-	int Friends;
+		int Friends;
 	REFLECT_PROPERTY()
-	int TimeOnline;
+		int TimeOnline;
 };

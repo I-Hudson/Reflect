@@ -1,4 +1,5 @@
 #include "FileParser/FileParser.h"
+#include "Instrumentor.h"
 #include <sstream>
 #include <vector>
 #include <iostream>
@@ -18,7 +19,10 @@ namespace Reflect
 
 	void FileParser::ParseDirectory(const std::string& directory)
 	{
+		PROFILE_FUNCTION();
+
 		m_filesParsed.clear();
+		m_filesToRemoveItrs.clear();
 
 		std::filesystem::path dirPath(directory);
 		std::error_code err;
@@ -31,7 +35,6 @@ namespace Reflect
 		for (const auto& f : std::filesystem::recursive_directory_iterator(directory))
 		{
 			std::string filePath = f.path().u8string();
-			std::cout << filePath << std::endl;
 
 			if ((f.is_regular_file() || f.is_character_file()) &&
 				CheckExtension(filePath, { ".h", ".hpp" }) &&
@@ -39,7 +42,7 @@ namespace Reflect
 			{
 				// TODO thread this. We could load files on more than one thread to speed
 				// this up.
-				std::cout << f.file_size() << std::endl;
+				std::cout << "Parsing " << filePath << std::endl;
 				std::ifstream file = OpenFile(filePath);
 				FileParsedData data = LoadFile(file);
 				data.FileName = f.path().filename().u8string().substr(0, f.path().filename().u8string().find_last_of('.'));
@@ -55,7 +58,16 @@ namespace Reflect
 		// TODO this could also be threaded.
 		for (auto& file : m_filesParsed)
 		{
-			ParseFile(file);
+			if (!ParseFile(file))
+			{
+				auto index = &file - &m_filesParsed[0];
+				m_filesToRemoveItrs.push_back(m_filesParsed.begin() + index);
+			}
+		}
+
+		for (auto const& fileToRemove : m_filesToRemoveItrs)
+		{
+			m_filesParsed.erase(fileToRemove);
 		}
 	}
 
@@ -106,12 +118,16 @@ namespace Reflect
 		return data;
 	}
 
-	void FileParser::ParseFile(FileParsedData& fileData)
+	bool FileParser::ParseFile(FileParsedData& fileData)
 	{
-		while (ReflectContainerHeader(fileData, RefectStructKey, ReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, ReflectType::Class))
+		PROFILE_FUNCTION();
+
+		if (ReflectContainerHeader(fileData, RefectStructKey, ReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, ReflectType::Class))
 		{
 			ReflectContainer(fileData);
+			return true;
 		}
+		return false;
 	}
 
 	bool FileParser::ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const ReflectType type)

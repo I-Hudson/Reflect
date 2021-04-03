@@ -57,6 +57,9 @@
     <ClInclude Include="..\Reflect\inc\FileParser\FileParser.h">
       <Filter>Reflect\inc\FileParser</Filter>
     </ClInclude>
+    <ClInclude Include="..\Reflect\inc\Instrumentor.h">
+      <Filter>Reflect\inc</Filter>
+    </ClInclude>
     <ClInclude Include="..\Reflect\inc\Reflect.h">
       <Filter>Reflect\inc</Filter>
     </ClInclude>

@@ -31,7 +31,7 @@ namespace Reflect
 
 		FileParsedData LoadFile(std::ifstream& file);
 
-		void ParseFile(FileParsedData& fileData);
+		bool ParseFile(FileParsedData& fileData);
 
 		bool ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const ReflectType type);
 		void ReflectContainer(FileParsedData& fileData);
@@ -52,5 +52,6 @@ namespace Reflect
 
 	private:
 		std::vector<FileParsedData> m_filesParsed;
+		std::vector<std::vector<FileParsedData>::iterator> m_filesToRemoveItrs;
 	};
 }

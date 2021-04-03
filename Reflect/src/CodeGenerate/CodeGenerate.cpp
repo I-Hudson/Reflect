@@ -1,6 +1,7 @@
 #include "CodeGenerate/CodeGenerate.h"
 #include "CodeGenerate/CodeGenerateHeader.h"
 #include "CodeGenerate/CodeGenerateSource.h"
+#include "Instrumentor.h"
 #include <assert.h>
 #include <filesystem>
 
@@ -16,6 +17,8 @@ namespace Reflect
 
 	void CodeGenerate::Reflect(const FileParsedData& data)
 	{
+		PROFILE_FUNCTION();
+
 		CodeGenerateHeader header;
 		CodeGenerateSource source;
 

@@ -1,10 +1,12 @@
 #include "CodeGenerate/CodeGenerateSource.h"
 #include "CodeGenerate/CodeGenerate.h"
+#include "Instrumentor.h"
 
 namespace Reflect
 {
 	void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstream& file)
 	{
+		PROFILE_FUNCTION();
 		//CodeGenerate::IncludeHeader(data.FileName + ReflectFileGeneratePrefix + ".h", file);
 		CodeGenerate::IncludeHeader("../" + data.FileName + ".h", file);
 		file << "\n";
