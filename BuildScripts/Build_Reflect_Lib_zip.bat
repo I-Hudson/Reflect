@@ -17,9 +17,9 @@ xcopy /i "%libraryFilesDebug%\*.*" "%cd%/%tempZipFolderName%/lib/x64/Debug"
 xcopy /i "%libraryFilesRelease%\*.*" "%cd%/%tempZipFolderName%/lib/x64/Release"
 
 IF "%version%" == "" (
-    7z a Reflect_Lib.zip "%cd%/%tempZipFolderName%/*"
+    7z a BuiltZips/Reflect_Lib.zip "%cd%/%tempZipFolderName%/*"
 ) ELSE (
-    7z a Reflect_Lib_%version%.zip "%cd%/%tempZipFolderName%/*"
+    7z a BuiltZips/Reflect_Lib_%version%.zip "%cd%/%tempZipFolderName%/*"
 )
 
 del /f /s /q "%cd%/tempZipFolder" 1>nul

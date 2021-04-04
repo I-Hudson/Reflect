@@ -10,9 +10,9 @@ call "BuildProject.bat"
 xcopy /i "%exeLocation%\*.*" "%cd%/%tempZipFolderName%/"
 
 IF "%version%" == "" (
-    7z a Reflect_EXE.zip "%cd%/%tempZipFolderName%/*"
+    7z a BuiltZips/Reflect_EXE.zip "%cd%/%tempZipFolderName%/*"
 ) ELSE (
-    7z a Reflect_EXE_%version%.zip "%cd%/%tempZipFolderName%/*"
+    7z a BuiltZips/Reflect_EXE_%version%.zip "%cd%/%tempZipFolderName%/*"
 )
 
 del /f /s /q "%cd%/tempZipFolder" 1>nul

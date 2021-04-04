@@ -5,6 +5,7 @@ bin-int/
 CMakeFiles/
 X64/
 Generated/
+BuildScripts/BuiltZips/
 
 *.vcxproj
 *.vcxproj.user
