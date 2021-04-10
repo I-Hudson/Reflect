@@ -6,7 +6,7 @@ int main(int argc, char* argv[])
 	{
 		PROFILE_SCOPE("MAIN");
 
-			Reflect::FileParser parser;
+		Reflect::FileParser parser;
 		Reflect::CodeGenerate codeGenerate;
 		for (size_t i = 0; i < argc; ++i)
 		{

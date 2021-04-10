@@ -49,7 +49,7 @@ private:\
 #define TestStrcuts_Source_h_11_PROPERTIES_GET \
 public:\
 virtual Reflect::ReflectMember GetMember(const char* memberName) override;\
-virtual std::vector<Reflect::ReflectMember> GetMembers(unsigned int flags) override;\
+virtual std::vector<Reflect::ReflectMember> GetMembers(std::vector<std::string> const& flags) override;\
 
 
 #define TestStrcuts_Source_h_11_GENERATED_BODY \
