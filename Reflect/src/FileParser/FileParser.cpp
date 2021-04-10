@@ -22,7 +22,7 @@ namespace Reflect
 		PROFILE_FUNCTION();
 
 		m_filesParsed.clear();
-		m_filesToRemoveItrs.clear();
+		m_filesToRemove.clear();
 
 		std::filesystem::path dirPath(directory);
 		std::error_code err;
@@ -60,14 +60,18 @@ namespace Reflect
 		{
 			if (!ParseFile(file))
 			{
-				auto index = &file - &m_filesParsed[0];
-				m_filesToRemoveItrs.push_back(m_filesParsed.begin() + index);
+				m_filesToRemove.push_back(file.FileName);
 			}
 		}
 
-		for (auto const& fileToRemove : m_filesToRemoveItrs)
+		for (auto const& fileToRemove : m_filesToRemove)
 		{
-			m_filesParsed.erase(fileToRemove);
+			auto itr = std::find_if(m_filesParsed.begin(), m_filesParsed.end(), [fileToRemove](FileParsedData const& data)
+			{
+				return fileToRemove == data.FileName;
+			});
+			assert(itr != m_filesParsed.end() && "[FileParser::ParseDirectory] Remove file to parse dose not exists.");
+			m_filesParsed.erase(itr);
 		}
 	}
 
