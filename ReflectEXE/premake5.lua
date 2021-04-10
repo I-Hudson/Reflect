@@ -17,7 +17,7 @@ project "ReflectEXE"
 
     includedirs 
     {
-        "%{IncludeDir.refect}/inc",
+        "../Reflect/inc",
 	}
 
     filter "system:windows"

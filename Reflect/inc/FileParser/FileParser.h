@@ -52,6 +52,6 @@ namespace Reflect
 
 	private:
 		std::vector<FileParsedData> m_filesParsed;
-		std::vector<std::vector<FileParsedData>::iterator> m_filesToRemoveItrs;
+		std::vector<std::string> m_filesToRemove;
 	};
 }
