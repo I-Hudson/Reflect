@@ -18,7 +18,7 @@ public:
 	~Player()
 	{ }
 
-	REFLECT_PROPERTY()
+	REFLECT_PROPERTY(Public)
 		int GetOnlineFriendsCount(int const& maxPlayerCount);
 
 	REFLECT_PROPERTY()
@@ -31,8 +31,8 @@ private:
 private:
 	std::string Id;
 
-	REFLECT_PROPERTY()
+	REFLECT_PROPERTY(EditorOnly, Public)
 		int Friends;
-	REFLECT_PROPERTY()
+	REFLECT_PROPERTY(Public)
 		int TimeOnline;
 };

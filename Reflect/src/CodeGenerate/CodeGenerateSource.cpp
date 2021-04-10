@@ -21,14 +21,24 @@ namespace Reflect
 
 	void CodeGenerateSource::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file)
 	{
-		auto getMemberProps = [](const std::vector<ReflectFlags>& flags) -> std::string
+		auto getMemberProps = [](const std::vector<std::string>& flags) -> std::string
 		{
-			int flag = 0;
-			for (const auto& f : flags)
+			if (flags.size() == 0)
 			{
-				flag |= static_cast<int>(f);
+				return "{ }";
 			}
-			return std::to_string(flag);
+
+			std::string value;
+			value += "{";
+			for (auto const& flag : flags)
+			{
+				if (flag != flags.back())
+				{
+					value += "\"" + flag + "\"" + ", ";
+				}
+			}
+			value += "\"" + flags.back() + "\"" + "}";
+			return value;
 		};
 
 		if (data.Members.size() > 0)
@@ -58,12 +68,12 @@ namespace Reflect
 		file << "\treturn Reflect::ReflectMember(\"null\", Reflect::Util::GetTypeName<void>(), nullptr);\n";
 		file << "}\n\n";
 
-		file << "std::vector<Reflect::ReflectMember> " + data.Name + "::GetMembers(unsigned int flags)\n{\n";
+		file << "std::vector<Reflect::ReflectMember> " + data.Name + "::GetMembers(std::vector<std::string> const& flags)\n{\n";
 		file << "\tstd::vector<Reflect::ReflectMember> members;\n";
 		if (data.Members.size() > 0)
 		{
-			file << "\tfor(const auto& member : __REFLECT_MEMBER_PROPS__)\n\t{\n";
-			file << "\t\tif(flags & member.Properties)\n";
+			file << "\tfor(auto& member : __REFLECT_MEMBER_PROPS__)\n\t{\n";
+			file << "\t\tif(member.ContainsProperty(flags))\n";
 			file << "\t\t{\n";
 			file << "\t\t\tmembers.push_back(Reflect::ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset));\n";
 			file << "\t\t}\n";

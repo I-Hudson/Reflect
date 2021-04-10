@@ -38,7 +38,7 @@ namespace Reflect
 
 		int FindEndOfConatiner(const FileParsedData& fileData);
 
-		std::vector<ReflectFlags> ReflectFlags(FileParsedData& fileData);
+		std::vector<std::string> ReflectFlags(FileParsedData& fileData);
 		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ingoreChars);
 
 		bool RefectCheckForEndOfLine(const FileParsedData& fileData);

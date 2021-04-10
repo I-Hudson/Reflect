@@ -19,7 +19,7 @@ namespace Reflect
 		int TypeSize;
 		ReflectMemberType ReflectMemberType;
 		bool IsConst;
-		std::vector<ReflectFlags> ContainerProps;
+		std::vector<std::string> ContainerProps;
 
 		ReflectTypeNameData()
 			: Type("Unkown")
@@ -42,10 +42,9 @@ namespace Reflect
 			bool propsEqual = ContainerProps.size() != other.ContainerProps.size();
 			if (propsEqual)
 			{
-				int i = 0;
-				for (const auto& prop : ContainerProps)
+				for (uint32_t i = 0; i < ContainerProps.size(); ++i)
 				{
-					if (prop == other.ContainerProps[i])
+					if (ContainerProps[i] == other.ContainerProps[i])
 					{
 						propsEqual = false;
 						break;
@@ -93,17 +92,32 @@ namespace Reflect
 
 	struct ReflectMemberProp
 	{
-		ReflectMemberProp(const char* name, const char* type, int offset, int properties)
+		ReflectMemberProp(const char* name, const char* type, int offset, std::vector<std::string> const& strProperties)
 			: Name(name)
 			, Type(type)
 			, Offset(offset)
-			, Properties(properties)
+			, StrProperties(strProperties)
 		{ }
+
+		bool ContainsProperty(std::vector<std::string> const& flags)
+		{
+			for (auto const& flag : flags)
+			{
+				for (auto const& p : StrProperties)
+				{
+					if (p == flag)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 
 		const char* Name;
 		const char* Type;
 		int Offset;
-		int Properties;
+		std::vector<std::string> StrProperties;
 	};
 
 	/// <summary>
@@ -135,12 +149,6 @@ namespace Reflect
 		{
 			return m_args.at(index).Get();
 		}
-
-		//template<typename T>
-		//void AddArg(const T& obj)
-		//{
-		//	m_args.push_back(Arg(Reflect::Util::GetTypeName(obj), &obj));
-		//}
 
 		template<typename T>
 		REFLECT_DLL void AddArg(T* obj)
@@ -251,7 +259,7 @@ namespace Reflect
 	{
 		REFLECT_DLL virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
 		REFLECT_DLL virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", "", 0); };
-		REFLECT_DLL virtual std::vector<ReflectMember> GetMembers(unsigned int flags) { (void)flags; return {}; };
+		REFLECT_DLL virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
 	};
 }
 

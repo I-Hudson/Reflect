@@ -84,7 +84,7 @@ namespace Reflect
 		file << "#define " + currentFileId + "_PROPERTIES_GET \\\n";
 		WRITE_PUBLIC();
 		file << "virtual Reflect::ReflectMember GetMember(const char* memberName) override;\\\n";
-		file << "virtual std::vector<Reflect::ReflectMember> GetMembers(unsigned int flags) override;\\\n";
+		file << "virtual std::vector<Reflect::ReflectMember> GetMembers(std::vector<std::string> const& flags) override;\\\n";
 		WRITE_CLOSE();
 	}
 

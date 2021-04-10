@@ -253,11 +253,11 @@ namespace Reflect
 		return cursor;
 	}
 
-	std::vector<ReflectFlags> FileParser::ReflectFlags(FileParsedData& fileData)
+	std::vector<std::string> FileParser::ReflectFlags(FileParsedData& fileData)
 	{
 		// Get the flags passed though the REFLECT macro.
 		std::string flag;
-		std::vector<Reflect::ReflectFlags> flags;
+		std::vector<std::string> flags;
 
 		if (fileData.Data[fileData.Cursor] == '(')
 		{
@@ -271,7 +271,7 @@ namespace Reflect
 			{
 				if (!flag.empty())
 				{
-					flags.push_back(StringToReflectFlags(flag));
+					flags.push_back(flag);
 				}
 				flag = "";
 			}
@@ -287,7 +287,7 @@ namespace Reflect
 		++fileData.Cursor;
 		if (!flag.empty())
 		{
-			flags.push_back(StringToReflectFlags(flag));
+			flags.push_back(flag);
 		}
 
 		return flags;

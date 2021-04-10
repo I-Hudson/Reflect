@@ -38,11 +38,20 @@ void FuncWithParameters()
 	std::cout << Reflect::ReflectReturnCodeToString(parameterFunc.Invoke(&returnCount, args));
 }
 
+void GetMemberWithFlags()
+{
+	Player player;
+	auto membersWithPublic = player.GetMembers({ "Public" });
+	int& friendInt = *membersWithPublic[0].ConvertToType<int>();
+	friendInt = 12;
+}
+
 int main(void)
 {
 	FuncNoReturn();
 	FuncReturnValue();
 	FuncWithParameters();
+	GetMemberWithFlags();
 
 	return 0;
 }
