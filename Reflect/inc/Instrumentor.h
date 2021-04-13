@@ -179,11 +179,15 @@ namespace Profile
 				Stop();
 		}
 
+		long long GetElapsedTimeMicro() { return  (std::chrono::time_point_cast<std::chrono::microseconds>(m_StopTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch()).count(); }
+		long long GetElapsedTimeMill() { return  (std::chrono::time_point_cast<std::chrono::milliseconds>(m_StopTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::milliseconds>(m_StartTimepoint).time_since_epoch()).count(); }
+		long long GetElapsedTimeSec() { return  (std::chrono::time_point_cast<std::chrono::seconds>(m_StopTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::seconds>(m_StartTimepoint).time_since_epoch()).count(); }
+
 		void Stop()
 		{
-			auto endTimepoint = std::chrono::steady_clock::now();
+			m_StopTimepoint = std::chrono::steady_clock::now();
 			auto highResStart = FloatingPointMicroseconds{ m_StartTimepoint.time_since_epoch() };
-			auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();
+			auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(m_StopTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();
 
 			Instrumentor::Get().WriteProfile({ m_Name, highResStart, elapsedTime, std::this_thread::get_id() });
 
@@ -192,6 +196,7 @@ namespace Profile
 	private:
 		const char* m_Name;
 		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
+		std::chrono::time_point<std::chrono::steady_clock> m_StopTimepoint;
 		bool m_Stopped;
 	};
 

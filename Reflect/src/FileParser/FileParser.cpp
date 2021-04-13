@@ -42,7 +42,7 @@ namespace Reflect
 			{
 				// TODO thread this. We could load files on more than one thread to speed
 				// this up.
-				std::cout << "Parsing " << filePath << std::endl;
+				std::cout << "Parsing: " << filePath << std::endl;
 				std::ifstream file = OpenFile(filePath);
 				FileParsedData data = LoadFile(file);
 				data.FileName = f.path().filename().u8string().substr(0, f.path().filename().u8string().find_last_of('.'));

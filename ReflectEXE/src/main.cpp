@@ -3,6 +3,7 @@
 int main(int argc, char* argv[])
 {
 	PROFILE_BEGIN_SESSION();
+	Profile::InstrumentationTimer timer("Reflect Timer");
 	{
 		PROFILE_SCOPE("MAIN");
 
@@ -17,7 +18,10 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
-
+	timer.Stop();
+	std::cout << "Reflect micro: " << timer.GetElapsedTimeMicro() << std::endl;
+	std::cout << "Reflect mill: " << timer.GetElapsedTimeMill() << std::endl;
+	std::cout << "Reflect sec: " << timer.GetElapsedTimeSec() << std::endl;
 	PROFILE_END_SESSION();
 	PROFILE_SAVE_SESSION("ReflectEXE_Profile.json");
 	return 0;
