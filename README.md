@@ -10,6 +10,10 @@ C++17 required
 ## Building
 To build the project run the GENERATE_PROJECT.bat file in the root directory and premake should take care of the rest.
 
+## Command line args
+Use pchInclude= to add a pch header to all genertaed .cpp files.
+Example: pchInclude=pch.h
+
 ## Example 
 ```cpp
 REFLECT_CLASS(Person)
