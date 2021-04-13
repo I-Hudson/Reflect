@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 				std::string arg = argv[i];
 				if (arg.find("pchInclude=") != std::string::npos)
 				{
-					options.IncludePCHString = arg.substr(strlen("pchInclude=") + 1);
+					options.IncludePCHString = arg.substr(strlen("pchInclude="));
 				}
 			}
 		}
