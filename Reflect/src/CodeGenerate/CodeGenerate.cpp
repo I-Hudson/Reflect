@@ -15,7 +15,7 @@ namespace Reflect
 	CodeGenerate::~CodeGenerate()
 	{ }
 
-	void CodeGenerate::Reflect(const FileParsedData& data)
+	void CodeGenerate::Reflect(const FileParsedData& data, const CodeGenerateAddtionalOptions& addtionalOptions)
 	{
 		PROFILE_FUNCTION();
 
@@ -28,11 +28,11 @@ namespace Reflect
 		}
 
 		std::ofstream file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h");
-		header.GenerateHeader(data, file);
+		header.GenerateHeader(data, file, addtionalOptions);
 		CloseFile(file);
 
 		file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
-		source.GenerateSource(data, file);
+		source.GenerateSource(data, file, addtionalOptions);
 		CloseFile(file);
 	}
 

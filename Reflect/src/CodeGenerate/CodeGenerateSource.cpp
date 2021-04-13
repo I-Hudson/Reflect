@@ -1,25 +1,28 @@
 #include "CodeGenerate/CodeGenerateSource.h"
-#include "CodeGenerate/CodeGenerate.h"
 #include "Instrumentor.h"
 
 namespace Reflect
 {
-	void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstream& file)
+	void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)
 	{
 		PROFILE_FUNCTION();
 		//CodeGenerate::IncludeHeader(data.FileName + ReflectFileGeneratePrefix + ".h", file);
+		if (!addtionalOptions.IncludePCHString.empty())
+		{
+			CodeGenerate::IncludeHeader(addtionalOptions.IncludePCHString, file);
+		}
 		CodeGenerate::IncludeHeader("../" + data.FileName + ".h", file);
 		file << "\n";
 
 		for (auto& reflectData : data.ReflectData)
 		{
-			WriteMemberProperties(reflectData, file);
-			WriteFunctionGet(reflectData, file);
-			WriteMemberGet(reflectData, file);
+			WriteMemberProperties(reflectData, file, addtionalOptions);
+			WriteFunctionGet(reflectData, file, addtionalOptions);
+			WriteMemberGet(reflectData, file, addtionalOptions);
 		}
 	}
 
-	void CodeGenerateSource::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file)
+	void CodeGenerateSource::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)
 	{
 		auto getMemberProps = [](const std::vector<std::string>& flags) -> std::string
 		{
@@ -52,7 +55,7 @@ namespace Reflect
 		}
 	}
 
-	void CodeGenerateSource::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file)
+	void CodeGenerateSource::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)
 	{
 		file << "Reflect::ReflectMember " + data.Name + "::GetMember(const char* memberName)\n{\n";
 		if (data.Members.size() > 0)
@@ -83,7 +86,7 @@ namespace Reflect
 		file << "}\n\n";
 	}
 
-	void CodeGenerateSource::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file)
+	void CodeGenerateSource::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)
 	{
 		file << "Reflect::ReflectFunction " + data.Name + "::GetFunction(const char* functionName)\n{\n";
 		for (const auto& func : data.Functions)

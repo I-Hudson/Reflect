@@ -1,4 +1,6 @@
 #include "Reflect.h"
+#include <filesystem>
+#include <string_view>
 
 int main(int argc, char* argv[])
 {
@@ -9,12 +11,32 @@ int main(int argc, char* argv[])
 
 		Reflect::FileParser parser;
 		Reflect::CodeGenerate codeGenerate;
+		Reflect::CodeGenerateAddtionalOptions options = { };
+
+		std::vector<std::string> directories;
+
 		for (size_t i = 0; i < argc; ++i)
 		{
-			parser.ParseDirectory(argv[i]);
+			if (std::filesystem::is_directory(argv[i]))
+			{
+				directories.push_back(argv[i]);
+			}
+			else
+			{
+				std::string arg = argv[i];
+				if (arg.find("pchInclude=") != std::string::npos)
+				{
+					options.IncludePCHString = arg.substr(strlen("pchInclude=") + 1);
+				}
+			}
+		}
+
+		for (auto& dir : directories)
+		{
+			parser.ParseDirectory(dir);
 			for (auto& file : parser.GetAllFileParsedData())
 			{
-				codeGenerate.Reflect(file);
+				codeGenerate.Reflect(file, options);
 			}
 		}
 	}

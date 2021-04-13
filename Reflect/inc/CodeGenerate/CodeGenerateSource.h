@@ -2,6 +2,7 @@
 
 #include "Core/Core.h"
 #include "ReflectStructs.h"
+#include "CodeGenerate/CodeGenerate.h"
 
 namespace Reflect
 {
@@ -11,12 +12,12 @@ namespace Reflect
 		CodeGenerateSource() { }
 		~CodeGenerateSource() { }
 
-		void GenerateSource(const FileParsedData& data, std::ofstream& file);
+		void GenerateSource(const FileParsedData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions);
 
 	private:
-		void WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file);
+		void WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions);
 
-		void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file);
-		void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file);
+		void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions);
+		void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions);
 	};
 }
