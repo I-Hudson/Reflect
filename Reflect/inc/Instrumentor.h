@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iosfwd>
 
-namespace Profile
+namespace Reflect::Profile
 {
 	using FloatingPointMicroseconds = std::chrono::duration<double, std::micro>;
 
@@ -232,11 +232,11 @@ namespace Profile
 }
 
 #if  defined(DEBUG)
-#define PROFILE_BEGIN_SESSION() Profile::Instrumentor::Get().BeginSession()
-#define PROFILE_END_SESSION() Profile::Instrumentor::Get().EndSession()
-#define PROFILE_SAVE_SESSION(filePath) Profile::Instrumentor::Get().SaveSession(filePath)
-#define PROFILE_SCOPE_LINE2(name, line) constexpr auto fixedName##line = Profile::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");\
-											   Profile::InstrumentationTimer timer##line(fixedName##line.Data)
+#define PROFILE_BEGIN_SESSION() Reflect::Profile::Instrumentor::Get().BeginSession()
+#define PROFILE_END_SESSION() Reflect::Profile::Instrumentor::Get().EndSession()
+#define PROFILE_SAVE_SESSION(filePath) Reflect::Profile::Instrumentor::Get().SaveSession(filePath)
+#define PROFILE_SCOPE_LINE2(name, line) constexpr auto fixedName##line = Reflect::Profile::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");\
+											   Reflect::Profile::InstrumentationTimer timer##line(fixedName##line.Data)
 
 #define PROFILE_FRAME(name) PROFILE_SCOPE(name)
 #define PROFILE_SCOPE_LINE(name, line) PROFILE_SCOPE_LINE2(name, line)
@@ -248,7 +248,7 @@ namespace Profile
 #define PROFILE_STATE_CHANGED(callbackFunc)
 #define PROFILE_SET_MEMORY_ALLOCATOR(allocFunc, deAllocFunc, callbackFunc)
 
-#define PROFILE_START_CAPTURE() ::Profile::Instrumentor temp; temp.BeginSession()
+#define PROFILE_START_CAPTURE() ::Reflect::Profile::Instrumentor temp; temp.BeginSession()
 #define PROFILE_STOP_CAPTURE() temp.EndSession()
 #define PROFILE_SAVE_CAPTURE(filePath) temp.SaveSession(CheckAndAppend(".json", filePath))
 #else

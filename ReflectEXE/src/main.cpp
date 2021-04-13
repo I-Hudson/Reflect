@@ -3,7 +3,7 @@
 int main(int argc, char* argv[])
 {
 	PROFILE_BEGIN_SESSION();
-	Profile::InstrumentationTimer timer("Reflect Timer");
+	Reflect::Profile::InstrumentationTimer timer("Reflect Timer");
 	{
 		PROFILE_SCOPE("MAIN");
 
