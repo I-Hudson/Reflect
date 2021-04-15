@@ -4,10 +4,10 @@
 
 int main(int argc, char* argv[])
 {
-	PROFILE_BEGIN_SESSION();
+	REFLECT_PROFILE_BEGIN_SESSION();
 	Reflect::Profile::InstrumentationTimer timer("Reflect Timer");
 	{
-		PROFILE_SCOPE("MAIN");
+		REFLECT_PROFILE_SCOPE("MAIN");
 
 		Reflect::FileParser parser;
 		Reflect::CodeGenerate codeGenerate;
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	std::cout << "Reflect micro: " << timer.GetElapsedTimeMicro() << std::endl;
 	std::cout << "Reflect mill: " << timer.GetElapsedTimeMill() << std::endl;
 	std::cout << "Reflect sec: " << timer.GetElapsedTimeSec() << std::endl;
-	PROFILE_END_SESSION();
-	PROFILE_SAVE_SESSION("ReflectEXE_Profile.json");
+	REFLECT_PROFILE_END_SESSION();
+	REFLECT_PROFILE_SAVE_SESSION("ReflectEXE_Profile.json");
 	return 0;
 }

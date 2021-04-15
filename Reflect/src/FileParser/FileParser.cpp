@@ -19,7 +19,7 @@ namespace Reflect
 
 	void FileParser::ParseDirectory(const std::string& directory)
 	{
-		PROFILE_FUNCTION();
+		REFLECT_PROFILE_FUNCTION();
 
 		m_filesParsed.clear();
 		m_filesToRemove.clear();
@@ -124,7 +124,7 @@ namespace Reflect
 
 	bool FileParser::ParseFile(FileParsedData& fileData)
 	{
-		PROFILE_FUNCTION();
+		REFLECT_PROFILE_FUNCTION();
 
 		if (ReflectContainerHeader(fileData, RefectStructKey, ReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, ReflectType::Class))
 		{

@@ -18,7 +18,7 @@ namespace Reflect
 
 	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)
 	{
-		PROFILE_FUNCTION();
+		REFLECT_PROFILE_FUNCTION();
 
 		file << " // This file is auto generated please don't modify.\n";
 

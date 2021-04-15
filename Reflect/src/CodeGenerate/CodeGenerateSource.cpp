@@ -5,7 +5,7 @@ namespace Reflect
 {
 	void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)
 	{
-		PROFILE_FUNCTION();
+		REFLECT_PROFILE_FUNCTION();
 		//CodeGenerate::IncludeHeader(data.FileName + ReflectFileGeneratePrefix + ".h", file);
 		if (!addtionalOptions.IncludePCHString.empty())
 		{
