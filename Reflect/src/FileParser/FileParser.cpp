@@ -228,6 +228,8 @@ namespace Reflect
 			}
 			else
 			{
+				// TODO: This is thrown if the member variable has a default value set.
+				// Example: bool ShowDebug = false;
 				assert(false && "[FileParser::ParseFile] Unknown reflect type. This must be a member variable or function.");
 			}
 
