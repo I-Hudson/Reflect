@@ -6,7 +6,9 @@
 /// <summary>
 /// Example class.
 /// </summary>
-REFLECT_CLASS(Player)
+
+REFLECT_CLASS(AllPrivate, ShowInEditorOnly, EditorOnly)
+class Player : REFLECT_BASE()
 {
 	REFLECT_GENERATED_BODY()
 
@@ -34,5 +36,5 @@ private:
 	REFLECT_PROPERTY(EditorOnly, Public)
 		int Friends;
 	REFLECT_PROPERTY(Public)
-		int TimeOnline;
+		int TimeOnline = 0;
 };

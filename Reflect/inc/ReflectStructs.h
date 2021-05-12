@@ -263,6 +263,6 @@ namespace Reflect
 	};
 }
 
-#define REFLECT_STRUCT(Name, ...) struct Name : public Reflect::IReflect
-
-#define REFLECT_CLASS(Name, ...) class Name : public Reflect::IReflect
+#define REFLECT_BASE() public Reflect::IReflect
+#define REFLECT_STRUCT(...)
+#define REFLECT_CLASS(...)

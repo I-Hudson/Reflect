@@ -140,7 +140,7 @@ namespace Reflect
 		int reflectStart = static_cast<int>(fileData.Data.find(keyword, fileData.Cursor));
 		if (reflectStart == std::string::npos)
 		{
-			// Can't reflect this class. Return.
+			// Can't reflect this class/struct. Return.
 			return false;
 		}
 
@@ -148,22 +148,41 @@ namespace Reflect
 
 		containerData.ReflectType = type;
 		fileData.Cursor = reflectStart + static_cast<int>(keyword.length()) + 1;
+		containerData.ContainerProps = ReflectFlags(fileData);
+
+		int newPos = fileData.Data.find("class", fileData.Cursor);
+		if (newPos == std::string::npos)
+		{
+			newPos = fileData.Data.find("struct", fileData.Cursor);
+			if (newPos == std::string::npos)
+			{
+				return false;
+			}
+			else
+			{
+				fileData.Cursor = newPos;
+				fileData.Cursor += 6;
+			}
+		}
+		else
+		{
+			fileData.Cursor = newPos;
+			fileData.Cursor += 5;
+		}
 
 		// Get the flags passed though the REFLECT macro.
 		std::string containerName;
-
-		while (fileData.Data[fileData.Cursor] != ',' && fileData.Data[fileData.Cursor] != ')')
+		while (fileData.Data.at(fileData.Cursor) != ':' && fileData.Data.at(fileData.Cursor) != '{' && fileData.Data.at(fileData.Cursor) != '\n')
 		{
-			if (fileData.Data[fileData.Cursor] != ' ')
+			if (fileData.Data.at(fileData.Cursor) != ' ')
 			{
-				containerName += fileData.Data[fileData.Cursor];
+				containerName += fileData.Data.at(fileData.Cursor);
 			}
 			++fileData.Cursor;
 		}
 		containerData.Name = containerName;
 		containerData.Type = containerName;
 		containerData.TypeSize = DEFAULT_TYPE_SIZE;
-		containerData.ContainerProps = ReflectFlags(fileData);
 		fileData.ReflectData.push_back(containerData);
 
 		return true;
@@ -226,11 +245,9 @@ namespace Reflect
 				// Function
 				ReflectGetFunctionParameters(fileData);
 			}
-			else
+			else if (c == '\n')
 			{
-				// TODO: This is thrown if the member variable has a default value set.
-				// Example: bool ShowDebug = false;
-				assert(false && "[FileParser::ParseFile] Unknown reflect type. This must be a member variable or function.");
+				assert(false && "[FileParser::ParseFile] Unknown reflect type. This must be a member variable or function. Make sure ')' or ';' is used before a new line.");
 			}
 
 			++fileData.Cursor;

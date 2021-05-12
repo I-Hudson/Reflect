@@ -7,12 +7,12 @@
 #endif TestStrcuts_reflect_generated_h
 #define TestStrcuts_reflect_generated_h
 
-#define TestStrcuts_Source_h_11_PROPERTIES \
+#define TestStrcuts_Source_h_13_PROPERTIES \
 private:\
-	static Reflect::ReflectMemberProp __REFLECT_MEMBER_PROPS__[2];\
+	static Reflect::ReflectMemberProp __REFLECT_MEMBER_PROPS__[1];\
 
 
-#define TestStrcuts_Source_h_11_FUNCTION_DECLARE \
+#define TestStrcuts_Source_h_13_FUNCTION_DECLARE \
 private:\
 	static Reflect::ReflectReturnCode __REFLECT_FUNC__GetOnlineFriendsCount(void* objectPtr, void* returnValuePtr, Reflect::FunctionPtrArgs& functionArgs)\
 	{\
@@ -35,29 +35,28 @@ private:\
 	}\
 
 
-#define TestStrcuts_Source_h_11_FUNCTION_GET \
+#define TestStrcuts_Source_h_13_FUNCTION_GET \
 public:\
 	virtual Reflect::ReflectFunction GetFunction(const char* functionName) override;\
 
 
-#define TestStrcuts_Source_h_11_PROPERTIES_OFFSET \
+#define TestStrcuts_Source_h_13_PROPERTIES_OFFSET \
 private:\
 	static int __REFLECT__Friends() { return offsetof(Player, Friends); }; \
-	static int __REFLECT__TimeOnline() { return offsetof(Player, TimeOnline); }; \
 
 
-#define TestStrcuts_Source_h_11_PROPERTIES_GET \
+#define TestStrcuts_Source_h_13_PROPERTIES_GET \
 public:\
 virtual Reflect::ReflectMember GetMember(const char* memberName) override;\
 virtual std::vector<Reflect::ReflectMember> GetMembers(std::vector<std::string> const& flags) override;\
 
 
-#define TestStrcuts_Source_h_11_GENERATED_BODY \
-TestStrcuts_Source_h_11_PROPERTIES \
-TestStrcuts_Source_h_11_FUNCTION_DECLARE \
-TestStrcuts_Source_h_11_FUNCTION_GET \
-TestStrcuts_Source_h_11_PROPERTIES_OFFSET \
-TestStrcuts_Source_h_11_PROPERTIES_GET \
+#define TestStrcuts_Source_h_13_GENERATED_BODY \
+TestStrcuts_Source_h_13_PROPERTIES \
+TestStrcuts_Source_h_13_FUNCTION_DECLARE \
+TestStrcuts_Source_h_13_FUNCTION_GET \
+TestStrcuts_Source_h_13_PROPERTIES_OFFSET \
+TestStrcuts_Source_h_13_PROPERTIES_GET \
 
 
 #undef CURRENT_FILE_ID

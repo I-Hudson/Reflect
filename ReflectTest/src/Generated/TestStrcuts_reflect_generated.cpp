@@ -1,8 +1,7 @@
 #include "../TestStrcuts.h"
 
-Reflect::ReflectMemberProp Player::__REFLECT_MEMBER_PROPS__[2] = {
+Reflect::ReflectMemberProp Player::__REFLECT_MEMBER_PROPS__[1] = {
 	Reflect::ReflectMemberProp("Friends", Reflect::Util::GetTypeName<int>(), __REFLECT__Friends(), {"EditorOnly", "Public"}),
-	Reflect::ReflectMemberProp("TimeOnline", Reflect::Util::GetTypeName<int>(), __REFLECT__TimeOnline(), {"Public"}),
 };
 
 Reflect::ReflectFunction Player::GetFunction(const char* functionName)
