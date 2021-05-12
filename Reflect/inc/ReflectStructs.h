@@ -237,6 +237,10 @@ namespace Reflect
 			return m_ptr != nullptr;
 		}
 
+		void* GetRawPointer() { return m_ptr; }
+
+		std::string GetName() { return m_name; }
+
 		template<typename T>
 		REFLECT_DLL T* ConvertToType()
 		{
