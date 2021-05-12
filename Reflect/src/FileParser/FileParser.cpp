@@ -126,12 +126,13 @@ namespace Reflect
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		if (ReflectContainerHeader(fileData, RefectStructKey, ReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, ReflectType::Class))
+		bool reflectItem = false;
+		while (ReflectContainerHeader(fileData, RefectStructKey, ReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, ReflectType::Class))
 		{
 			ReflectContainer(fileData);
-			return true;
+			reflectItem = true;
 		}
-		return false;
+		return reflectItem;
 	}
 
 	bool FileParser::ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const ReflectType type)
@@ -150,24 +151,31 @@ namespace Reflect
 		fileData.Cursor = reflectStart + static_cast<int>(keyword.length()) + 1;
 		containerData.ContainerProps = ReflectFlags(fileData);
 
-		int newPos = fileData.Data.find("class", fileData.Cursor);
-		if (newPos == std::string::npos)
+		if (containerData.ReflectType == ReflectType::Class)
 		{
-			newPos = fileData.Data.find("struct", fileData.Cursor);
-			if (newPos == std::string::npos)
+			int newPos = fileData.Data.find("class", fileData.Cursor);
+			if (newPos != std::string::npos)
+			{
+				fileData.Cursor = newPos;
+				fileData.Cursor += 5;
+			}
+			else
 			{
 				return false;
 			}
-			else
+		}
+		else if (containerData.ReflectType == ReflectType::Struct)
+		{
+			int newPos = fileData.Data.find("struct", fileData.Cursor);
+			if (newPos != std::string::npos)
 			{
 				fileData.Cursor = newPos;
 				fileData.Cursor += 6;
 			}
-		}
-		else
-		{
-			fileData.Cursor = newPos;
-			fileData.Cursor += 5;
+			else
+			{
+				return false;
+			}
 		}
 
 		// Get the flags passed though the REFLECT macro.
@@ -218,7 +226,13 @@ namespace Reflect
 			// Get the type and name of the property to reflect.
 			auto [type, name, isConst] = ReflectTypeAndName(fileData, {});
 
-			char c = FindNextChar(fileData, { ' ' });
+			char c = FindNextChar(fileData, { ' ', '=' });
+			while (c != ';' && c != '(' && c != '\n')
+			{
+				++fileData.Cursor;
+				c = FindNextChar(fileData, { ' ', '=' });
+			}
+
 			// Find out if the property is a function or member variable.
 			if (c == ';')
 			{

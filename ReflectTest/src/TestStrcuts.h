@@ -7,6 +7,22 @@
 /// Example class.
 /// </summary>
 
+REFLECT_STRUCT()
+struct S : REFLECT_BASE()
+{
+	REFLECT_GENERATED_BODY()
+
+	REFLECT_PROPERTY(EditorOnly, Public)
+	int Friends;
+	REFLECT_PROPERTY(Public)
+	int TimeOnline = 0;
+};
+
+class C
+{
+
+};
+
 REFLECT_CLASS(AllPrivate, ShowInEditorOnly, EditorOnly)
 class Player : REFLECT_BASE()
 {
