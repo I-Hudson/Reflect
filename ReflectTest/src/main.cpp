@@ -41,6 +41,7 @@ void FuncWithParameters()
 void GetMemberWithFlags()
 {
 	Player player;
+	auto member = player.GetMember("");
 	auto membersWithPublic = player.GetMembers({ "Public" });
 	int& friendInt = *membersWithPublic[0].ConvertToType<int>();
 	friendInt = 12;

@@ -220,12 +220,6 @@ namespace Reflect
 
 	struct ReflectMember
 	{
-		ReflectMember(const char* memberName, std::string memberType, int memberOffset)
-			: m_name(memberName)
-			, m_type(memberType)
-			, m_offset(memberOffset)
-		{}
-
 		ReflectMember(const char* memberName, std::string memberType, void* memberPtr)
 			: m_name(memberName)
 			, m_type(memberType)
@@ -264,7 +258,7 @@ namespace Reflect
 	struct IReflect
 	{
 		REFLECT_DLL virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
-		REFLECT_DLL virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", "", 0); };
+		REFLECT_DLL virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", "void", nullptr); };
 		REFLECT_DLL virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
 	};
 }
