@@ -153,7 +153,7 @@ namespace Reflect
 
 		if (containerData.ReflectType == ReflectType::Class)
 		{
-			int newPos = fileData.Data.find("class", fileData.Cursor);
+			int newPos = (int)fileData.Data.find("class", fileData.Cursor);
 			if (newPos != std::string::npos)
 			{
 				fileData.Cursor = newPos;
@@ -166,7 +166,7 @@ namespace Reflect
 		}
 		else if (containerData.ReflectType == ReflectType::Struct)
 		{
-			int newPos = fileData.Data.find("struct", fileData.Cursor);
+			int newPos = (int)fileData.Data.find("struct", fileData.Cursor);
 			if (newPos != std::string::npos)
 			{
 				fileData.Cursor = newPos;

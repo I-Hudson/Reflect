@@ -64,7 +64,6 @@ namespace Reflect::Profile
 		void EndSession()
 		{
 			std::lock_guard lock(m_Mutex);
-			auto p = &Get();
 			if (&Get() != this)
 			{
 				Get().RemoveProfile(this);
