@@ -226,8 +226,9 @@ namespace Reflect
 			// Get the type and name of the property to reflect.
 			auto [type, name, isConst] = ReflectTypeAndName(fileData, {});
 
-			char c = FindNextChar(fileData, { ' ', '=' });
-			while (c != ';' && c != '(' && c != '\n')
+			char c = FindNextChar(fileData, { ' ' });
+			bool defaultMemberValue = c == '=';
+			while (c != ';' && (c != '(' || defaultMemberValue) && c != '\n')
 			{
 				++fileData.Cursor;
 				c = FindNextChar(fileData, { ' ', '=' });

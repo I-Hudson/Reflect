@@ -3,6 +3,26 @@
 #include "Reflect.h"
 #include "Generated/TestStrcuts_reflect_generated.h"
 
+struct vec3
+{
+	vec3(float f)
+	{ }
+
+	union
+	{
+		struct
+		{
+			float x;
+			float y;
+			float z;
+		};
+		struct
+		{
+			float v[3];
+		};
+	};
+};
+
 /// <summary>
 /// Example class.
 /// </summary>
@@ -16,6 +36,9 @@ struct S : REFLECT_BASE()
 	int Friends;
 	REFLECT_PROPERTY(Public)
 	int TimeOnline = 0;
+
+	REFLECT_PROPERTY()
+	vec3 vec = vec3(1);
 };
 
 class C
