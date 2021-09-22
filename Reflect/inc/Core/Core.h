@@ -27,7 +27,7 @@
 
 namespace Reflect
 {
-	#define REFLECT_MAJOR 1
+	#define REFLECT_MAJOR 2
 	#define REFLECT_MINOR 6
 	#define REFLECT_PATCH 0
 

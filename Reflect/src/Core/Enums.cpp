@@ -1,5 +1,6 @@
 #include "Core/Enums.h"
 #include "Core/Util.h"
+#include <stdexcept>
 
 namespace Reflect
 {
@@ -22,7 +23,7 @@ namespace Reflect
 			case ReflectReturnCode::INVALID_FUNCTION_POINTER: return "ReflectFuncReturnCode - Invalid Function Pointer";
 			case ReflectReturnCode::INVALID_MEMBER: return "ReflectFuncReturnCode - Invalid Member";
 
-			default: throw std::exception("[ReflectFuncReturnCodeToString] Missing ReflectFuncReturnCode to string conversion.");
+			default: throw std::runtime_error("[ReflectFuncReturnCodeToString] Missing ReflectFuncReturnCode to string conversion.");
 		}
 	}
 }

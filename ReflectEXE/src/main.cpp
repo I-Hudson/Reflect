@@ -1,6 +1,7 @@
 #include "Reflect.h"
 #include <filesystem>
 #include <string_view>
+#include <string.h>
 
 int main(int argc, char* argv[])
 {

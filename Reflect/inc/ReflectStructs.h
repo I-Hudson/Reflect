@@ -2,6 +2,7 @@
 
 #include "Core/Core.h"
 #include "Core/Enums.h"
+#include "Core/Util.h"
 #include <vector>
 #include <functional>
 #include <type_traits>

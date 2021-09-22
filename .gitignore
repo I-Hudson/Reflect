@@ -13,3 +13,6 @@ BuildScripts/BuiltZips/
 
 *.pdb
 *.lib
+*.mk
+*.project
+*.txt

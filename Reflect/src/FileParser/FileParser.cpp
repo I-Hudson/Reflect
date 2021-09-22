@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <stack>
 #include <assert.h>
+#include <string.h>
 
 namespace Reflect
 {
