@@ -17,20 +17,23 @@ namespace Reflect
 	{
 		std::string Type;
 		std::string Name;
-		int TypeSize;
-		ReflectMemberType ReflectMemberType;
-		bool IsConst;
+		EReflectMemberType ReflectMemberType;
+		EReflectMemberModifer ReflectModifer;
 		std::vector<std::string> ContainerProps;
+
+		int TypeSize;
+		bool IsConst;
 
 		ReflectTypeNameData()
 			: Type("Unkown")
 			, Name("Unkown")
+			, ReflectMemberType(EReflectMemberType::Value)
+			, ReflectModifer(EReflectMemberModifer::None)
 			, TypeSize(0)
-			, ReflectMemberType(ReflectMemberType::Value)
 			, IsConst(false)
 		{ }
 
-		ReflectTypeNameData(const std::string& type, const std::string& name, const int& typeSize, const Reflect::ReflectMemberType& memberType, const bool& isConst)
+		ReflectTypeNameData(const std::string& type, const std::string& name, const int& typeSize, const Reflect::EReflectMemberType& memberType, const bool& isConst)
 			: Type(type)
 			, Name(name)
 			, TypeSize(typeSize)
@@ -61,19 +64,19 @@ namespace Reflect
 
 	struct ReflectMemberData : public ReflectTypeNameData
 	{
-		ReflectType ReflectType = ReflectType::Member;
+		EReflectType ReflectType = EReflectType::Member;
 	};
 
 	struct ReflectFunctionData : public ReflectTypeNameData
 	{
-		ReflectType ReflectType = ReflectType::Function;
+		EReflectType ReflectType = EReflectType::Function;
 		std::vector<ReflectTypeNameData> Parameters;
 	};
 
 	struct ReflectContainerData : public ReflectTypeNameData
 	{
 		std::string Name;
-		ReflectType ReflectType;
+		EReflectType ReflectType;
 		int ReflectGenerateBodyLine;
 
 		std::vector<ReflectMemberData> Members;
@@ -152,7 +155,7 @@ namespace Reflect
 		}
 
 		template<typename T>
-		REFLECT_DLL void AddArg(T* obj)
+		void AddArg(T* obj)
 		{
 			m_args.push_back(Arg(Reflect::Util::GetTypeName(*obj), obj));
 		}
@@ -161,7 +164,7 @@ namespace Reflect
 		std::vector<Arg> m_args;
 	};
 
-	using FunctionPtr = Reflect::ReflectReturnCode(*)(void* objectPtr, void* returnValue, FunctionPtrArgs& args);
+	using FunctionPtr = Reflect::EReflectReturnCode(*)(void* objectPtr, void* returnValue, FunctionPtrArgs& args);
 
 	struct ReflectFunction
 	{
@@ -179,17 +182,17 @@ namespace Reflect
 		//	return (*Func)(ObjectPtr, returnValue, funcArgs);
 		//}
 
-		REFLECT_DLL Reflect::ReflectReturnCode Invoke(void* returnValue = nullptr, FunctionPtrArgs functionArgs = FunctionPtrArgs())
+		Reflect::EReflectReturnCode Invoke(void* returnValue = nullptr, FunctionPtrArgs functionArgs = FunctionPtrArgs())
 		{
 			if (IsValid())
 			{
 				(*m_func)(m_objectPtr, returnValue, functionArgs);
-				return ReflectReturnCode::SUCCESS;
+				return EReflectReturnCode::SUCCESS;
 			}
-			return ReflectReturnCode::INVALID_FUNCTION_POINTER;
+			return EReflectReturnCode::INVALID_FUNCTION_POINTER;
 		}
 
-		REFLECT_DLL bool IsValid() const
+		bool IsValid() const
 		{
 			return m_objectPtr != nullptr;
 		}
@@ -239,7 +242,7 @@ namespace Reflect
 		std::string GetTypeName() { return m_type; }
 
 		template<typename T>
-		REFLECT_DLL T* ConvertToType()
+		T* ConvertToType()
 		{
 			const char* convertType = Reflect::Util::GetTypeName<T>();
 			if (convertType != m_type)
@@ -258,9 +261,9 @@ namespace Reflect
 
 	struct IReflect
 	{
-		REFLECT_DLL virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
-		REFLECT_DLL virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", "void", nullptr); };
-		REFLECT_DLL virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
+		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
+		virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", "void", nullptr); };
+		virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
 	};
 }
 

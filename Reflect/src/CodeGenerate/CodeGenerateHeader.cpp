@@ -108,11 +108,11 @@ namespace Reflect
 
 		auto castToType = [](const Reflect::ReflectTypeNameData& arg) -> std::string
 		{
-			if (arg.ReflectMemberType == Reflect::ReflectMemberType::Pointer)
+			if (arg.ReflectMemberType == Reflect::EReflectMemberType::Pointer)
 			{
 				return "static_cast<" + arg.Type + ">";
 			}
-			else if (arg.ReflectMemberType == Reflect::ReflectMemberType::Reference)
+			else if (arg.ReflectMemberType == Reflect::EReflectMemberType::Reference)
 			{
 				return "*static_cast<" + arg.Type.substr(0, arg.Type.length() - 1) + "*>";
 			}

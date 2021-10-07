@@ -1,4 +1,5 @@
 #include "FileParser/FileParser.h"
+#include "FileParser/FileParserKeyWords.h"
 #include "Instrumentor.h"
 #include <sstream>
 #include <vector>
@@ -7,6 +8,13 @@
 #include <stack>
 #include <assert.h>
 #include <string.h>
+
+#define EXP_PARSER
+const std::vector<char> emptyChars = { '\n', '\t', '\r', ' ' };
+const std::vector<char> generalEndChars = { ' ', '(', '=', ';', ':' };
+const std::vector<char> functionStartChars = { '(' };
+const std::vector<char> memberStartChars = { '=', ';' };
+
 
 namespace Reflect
 {
@@ -128,7 +136,7 @@ namespace Reflect
 		REFLECT_PROFILE_FUNCTION();
 
 		bool reflectItem = false;
-		while (ReflectContainerHeader(fileData, RefectStructKey, ReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, ReflectType::Class))
+		while (ReflectContainerHeader(fileData, RefectStructKey, EReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, EReflectType::Class))
 		{
 			ReflectContainer(fileData);
 			reflectItem = true;
@@ -136,7 +144,7 @@ namespace Reflect
 		return reflectItem;
 	}
 
-	bool FileParser::ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const ReflectType type)
+	bool FileParser::ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const EReflectType type)
 	{
 		// Check if we can reflect this class/struct. 
 		int reflectStart = static_cast<int>(fileData.Data.find(keyword, fileData.Cursor));
@@ -152,7 +160,7 @@ namespace Reflect
 		fileData.Cursor = reflectStart + static_cast<int>(keyword.length()) + 1;
 		containerData.ContainerProps = ReflectFlags(fileData);
 
-		if (containerData.ReflectType == ReflectType::Class)
+		if (containerData.ReflectType == EReflectType::Class)
 		{
 			int newPos = (int)fileData.Data.find("class", fileData.Cursor);
 			if (newPos != std::string::npos)
@@ -165,7 +173,7 @@ namespace Reflect
 				return false;
 			}
 		}
-		else if (containerData.ReflectType == ReflectType::Struct)
+		else if (containerData.ReflectType == EReflectType::Struct)
 		{
 			int newPos = (int)fileData.Data.find("struct", fileData.Cursor);
 			if (newPos != std::string::npos)
@@ -211,8 +219,94 @@ namespace Reflect
 		fileData.GeneratedBodyLineOffset = generatedBodyLine + static_cast<int>(strlen(ReflectGeneratedBodykey));
 		conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1;
 
+		// Set us to the start of the class/struct. We should continue until we find something.
+		char c = FindNextChar(fileData, '{');
+		std::vector<std::string> reflectFlags;
 		while (true)
 		{
+#ifdef EXP_PARSER
+			if (CheckForEndOfFile(fileData, endOfContainerCursor))
+				break;
+
+			c = FindNextChar(fileData, emptyChars);
+			std::string word = FindNextWord(fileData, generalEndChars);
+			// Check for type alias
+			// Check for child strcuts/class
+			if (CheckForVisibility(word))
+			{
+				++fileData.Cursor;
+				continue;
+			}
+
+			// Check for constructor/destructor
+			if (CheckForConstructor(fileData, conatinerData, word))
+				continue;
+
+			// We should now have a type (unless there are macros or compiler keywords).
+			if (IsWordReflectKey(word))
+			{
+				if (word == ReflectGeneratedBodykey)
+				{
+					c = FindNextChar(fileData, { '(', ')' });
+					continue;
+				}
+				else if (word == ReflectPropertyKey)
+				{
+					// Get the flags for the property
+					reflectFlags = ReflectFlags(fileData);
+					continue;
+				}
+			}
+			else
+			{
+				// We think we have function or memeber.
+				fileData.Cursor -= word.size();
+			}
+
+			if (CheckForEndOfFile(fileData, endOfContainerCursor))
+				break;
+
+			if (CheckForReflectType(fileData) == EReflectType::Member)
+			{
+				conatinerData.Members.push_back(GetMember(fileData, reflectFlags));
+			}
+			else if (CheckForReflectType(fileData) == EReflectType::Function)
+			{
+				conatinerData.Functions.push_back(GetFunction(fileData, reflectFlags));
+			}
+			else
+			{
+				assert(false);
+				continue;
+			}
+
+			reflectFlags = {};
+			// Check for functions/memebrs
+			//std::string type = FindNextWord(fileData, generalEndChars);
+			//std::string name = FindNextWord(fileData, generalEndChars);
+			//c = fileData.Data[fileData.Cursor];
+
+			//while(c == ' ')
+			//	c = FindNextChar(fileData, emptyChars);
+
+			//if (c == '(')
+			//{
+			//	//function
+			//	ReflectFunctionData funcData = {};
+			//	funcData.Type = type;
+			//	funcData.Name = name;
+			//	funcData.TypeSize = DEFAULT_TYPE_SIZE;
+			//	funcData.ContainerProps = reflectFlags;
+			//	conatinerData.Functions.push_back(funcData);
+
+			//	// Function
+			//	ReflectGetFunctionParameters(fileData);
+			//}
+			//else if (c == '=' || c == ';')
+			//{
+			//	//member 
+			//}
+#else
 			int reflectStart = static_cast<int>(fileData.Data.find(PropertyKey, fileData.Cursor));
 			if (reflectStart == static_cast<int>(std::string::npos) || reflectStart > endOfContainerCursor)
 			{
@@ -267,6 +361,7 @@ namespace Reflect
 			}
 
 			++fileData.Cursor;
+#endif
 		}
 	}
 
@@ -275,8 +370,38 @@ namespace Reflect
 		int cursor = fileData.Cursor;
 		char lastCharacter = '\0';
 		char c = '\0';
+		bool foundStartOfContainer = false;
+		std::stack<char> symbols;
 		while (true)
 		{
+#ifdef EXP_PARSER
+			if (!foundStartOfContainer)
+			{
+				if (c == '{')
+				{
+					symbols.push(c);
+					foundStartOfContainer = true;
+				}
+			}
+			else
+			{
+				if (c == '{')
+				{
+					symbols.push(c);
+				}
+				else if (c == '}')
+				{
+					symbols.pop();
+				}
+
+				if (symbols.size() == 0)
+				{
+					char nextChar = FindNextChar(fileData, cursor, emptyChars);
+					assert(nextChar == ';' && "[FileParser::FindEndOfConatiner] Did not find ';' at end of the container.");
+					break;
+				}
+			}
+#else
 			if (lastCharacter == '}' && c == ';')
 			{
 				break;
@@ -286,6 +411,7 @@ namespace Reflect
 			{
 				lastCharacter = c;
 			}
+#endif
 			++cursor;
 			c = fileData.Data[cursor];
 		}
@@ -332,15 +458,275 @@ namespace Reflect
 		return flags;
 	}
 
-	char FileParser::FindNextChar(FileParsedData& fileData, const std::vector<char>& ingoreChars)
+	char FileParser::FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars)
 	{
-		while (std::find(ingoreChars.begin(), ingoreChars.end(), fileData.Data[fileData.Cursor]) != ingoreChars.end())
+		FileParsedData copyFileData = fileData;
+		copyFileData.Cursor = cursor;
+		char c = FindNextChar(copyFileData, ignoreChars);
+		cursor = copyFileData.Cursor;
+		return c;
+	}
+
+	char FileParser::FindNextChar(FileParsedData& fileData, char charToFind)
+	{
+		char c = fileData.Data[fileData.Cursor];
+		while (c != charToFind)
+		{
+			if (++fileData.Cursor < fileData.Data.size())
+				c = fileData.Data[fileData.Cursor];
+			else
+				break;
+		}
+		return c;
+	}
+
+	char FileParser::FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars)
+	{
+		++fileData.Cursor;
+		while (std::find(ignoreChars.begin(), ignoreChars.end(), fileData.Data[fileData.Cursor]) != ignoreChars.end())
 		{
 			++fileData.Cursor;
 		}
 		return fileData.Data[fileData.Cursor];
 	}
 
+	std::string FileParser::FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars)
+	{
+		std::string s;
+		s += fileData.Data[fileData.Cursor];
+		char c = FindNextChar(fileData, std::vector<char>());
+		while (std::find(endChars.begin(), endChars.end(), c) == endChars.end())
+		{
+			s += c;
+			c = FindNextChar(fileData, std::vector<char>());
+		}
+		return s;
+	}
+
+	bool FileParser::IsWordReflectKey(std::string_view view)
+	{
+		return view == ReflectGeneratedBodykey ||
+			view == ReflectPropertyKey;
+	}
+
+	bool FileParser::CheckForVisibility(std::string_view view)
+	{
+		return view == "public" ||
+			view == "protected" ||
+			view == "private";
+	}
+
+	bool FileParser::CheckForConstructor(FileParsedData& fileData, ReflectContainerData& container, std::string_view view)
+	{
+		if (view == container.Name || view.at(0) == '~')
+		{
+			SkipFunctionBody(fileData);
+			return true;
+		}
+		return false;
+	}
+
+	ReflectFunctionData FileParser::GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags)
+	{
+		int endCursor;
+		FileParsedData copy = fileData;
+		FindNextChar(copy, ';');
+		endCursor = copy.Cursor;
+		copy = fileData;
+		FindNextChar(copy, '}');
+		endCursor = std::min(copy.Cursor, endCursor);
+		std::string line = fileData.Data.substr(fileData.Cursor, endCursor - fileData.Cursor);
+
+		fileData.Cursor = endCursor;
+		return {};
+	}
+
+	ReflectMemberData FileParser::GetMember(FileParsedData& fileData, const std::vector<std::string>& flags)
+	{
+		ReflectMemberData memberData;
+		memberData.TypeSize = DEFAULT_TYPE_SIZE;
+		memberData.ContainerProps = flags;
+
+		FileParsedData copy = fileData;
+		FindNextChar(copy, ';');
+		std::string line = fileData.Data.substr(fileData.Cursor, copy.Cursor - fileData.Cursor);
+		line += ';';
+
+		int endOfLineCursor = fileData.Cursor + line.size();
+
+		// Check for if there is a deault value being set.
+		uint32_t equalCursor = (uint32_t)line.find('=');
+		uint32_t semicolonCursor = (uint32_t)line.find(';');
+		uint32_t cursor = equalCursor < semicolonCursor ? equalCursor : semicolonCursor;
+
+		// Always go back one so we are not on '=' or ';';
+		--cursor;
+		// Go back untill we are not on an empty char.
+		while (std::find(emptyChars.begin(), emptyChars.end(), line.at(cursor)) != emptyChars.end())
+			--cursor;
+		line = line.substr(0, cursor + 1);
+
+		// 'line' should now contain the value, member name and any modifers like const.
+		std::string name;
+		std::vector<char> endChars = emptyChars;
+		endChars.push_back('*');
+		endChars.push_back('&');
+		while (std::find(endChars.begin(), endChars.end(), line.at(cursor)) == endChars.end())
+		{
+			name += line.at(cursor);
+			--cursor;
+		}
+		name = Util::Reverse(name);
+		memberData.Name = name;
+
+		while (std::find(emptyChars.begin(), emptyChars.end(), line.at(cursor)) != emptyChars.end())
+			--cursor;
+		std::string type = line.substr(0, cursor + 1);
+		memberData.ReflectMemberType = CheckForRefOrPtr(type);
+		Util::RemoveCharAll(type, '&');
+		Util::RemoveCharAll(type, '*');
+
+		memberData.ReflectModifer = CheckForMemberModifers(type);
+		Util::RemoveString(type, ConstKey);
+		Util::RemoveString(type, StaticKey);
+		Util::RemoveString(type, VolatileKey);
+
+		// Make sure there are no empty chars in the type string.
+		for (const char& c : emptyChars)
+			Util::RemoveCharAll(type, c);
+		memberData.Type = type;
+
+		fileData.Cursor = endOfLineCursor;
+		return memberData;
+	}
+
+	void FileParser::SkipFunctionBody(FileParsedData& fileData)
+	{
+		FileParsedData bracketCursor = fileData;
+		FindNextChar(bracketCursor, '{');
+		FileParsedData semicolonCursor = fileData;
+		FindNextChar(semicolonCursor, ';');
+
+		if (semicolonCursor.Cursor < bracketCursor.Cursor)
+		{
+			fileData.Cursor = semicolonCursor.Cursor;
+			return;
+		}
+		fileData.Cursor = bracketCursor.Cursor;
+
+		std::stack<char> brackets;
+		char c = fileData.Data[fileData.Cursor];
+		while (true)
+		{
+			if (c == '{')
+				brackets.push('{');
+			else if (c == '}')
+				brackets.pop();
+
+			if (brackets.size() == 0)
+			{
+				break;
+			}
+			c = fileData.Data[++fileData.Cursor];
+		}
+	}
+
+	EReflectType FileParser::CheckForReflectType(FileParsedData& data)
+	{
+		auto find_closest_char = [data, this](std::vector<char> const& chars_to_find)
+		{
+			int cursor = INT_MAX;
+			for (size_t i = 0; i < chars_to_find.size(); ++i)
+			{
+				char charToFind = chars_to_find.at(i);
+				FileParsedData copy = data;
+				FindNextChar(copy, charToFind);
+				cursor = std::min(copy.Cursor, cursor);
+			}
+			return cursor;
+		};
+
+		int member_cursor = find_closest_char(memberStartChars);
+		int function_cursor = find_closest_char(functionStartChars);
+
+		if (member_cursor < function_cursor)
+		{
+			return EReflectType::Member;
+		}
+		else if (function_cursor != INT_MAX)
+		{
+			return EReflectType::Function;
+		}
+		return EReflectType::Unknown;
+	}
+
+	bool FileParser::CheckForEndOfFile(FileParsedData& fileData, int cursor)
+	{
+		if (fileData.Cursor >= cursor)
+		{
+			return true;
+		}
+
+		FileParsedData copy = fileData;
+		char c = copy.Data[copy.Cursor];
+		bool endOfFile = false;
+		char previousValidChar = c;
+		while (copy.Cursor < cursor)
+		{
+			++copy.Cursor;
+			c = copy.Data[copy.Cursor];
+			if (std::find(emptyChars.begin(), emptyChars.end(), c) == emptyChars.end())
+			{
+				if (previousValidChar == '}')
+				{
+					endOfFile = c == ';';
+				}
+				break;
+			}
+		}
+		if (endOfFile)
+			fileData.Cursor = ++copy.Cursor;
+		return endOfFile || copy.Cursor == cursor;
+	}
+
+	EReflectMemberType FileParser::CheckForRefOrPtr(std::string_view view)
+	{
+		size_t referenceIndex = view.find(ReferenceKey);
+		size_t pointerIndex = view.find(PointerKey);
+
+		// Get the type. We need this as the code generation will need to add some casting 
+		// if the type is not a value.
+		if (referenceIndex == std::string::npos && pointerIndex == std::string::npos)
+			return EReflectMemberType::Value;
+		else if (referenceIndex < pointerIndex)
+			return EReflectMemberType::Reference;
+		else if (pointerIndex < referenceIndex && referenceIndex == std::string::npos)
+			return EReflectMemberType::Pointer;
+		else if (pointerIndex < referenceIndex && referenceIndex != std::string::npos)
+			return EReflectMemberType::PointerReference;
+		// TODO: Think about pointer, pointer, pointer, etc. 
+		assert(false && "[FileParser::CheckForRefOrPtr] Unknow type.");
+		return EReflectMemberType::Value;
+	}
+
+	EReflectMemberModifer FileParser::CheckForMemberModifers(std::string_view view)
+	{
+		size_t constIndex = view.find(ConstKey);
+		size_t staticIndex = view.find(StaticKey);
+		size_t volatileIndex = view.find(VolatileKey);
+
+		if (constIndex != std::string::npos)
+			return EReflectMemberModifer::Const;
+		else if (staticIndex != std::string::npos)
+			return EReflectMemberModifer::Static;
+		else if (volatileIndex != std::string::npos)
+			return EReflectMemberModifer::Volatile;
+
+		//TODO: Think about const static
+		return EReflectMemberModifer::None;
+	}
+
+#ifndef EXP_PARSER
 	bool FileParser::RefectCheckForEndOfLine(const FileParsedData& fileData)
 	{
 		char c = fileData.Data[fileData.Cursor];
@@ -377,10 +763,11 @@ namespace Reflect
 					type,
 					name,
 					DEFAULT_TYPE_SIZE,
-					type.back() == '*' || type.back() == '&' ? (type.back() == '*' ? ReflectMemberType::Pointer : ReflectMemberType::Reference) : ReflectMemberType::Value,
+					type.back() == '*' || type.back() == '&' ? (type.back() == '*' ? EReflectMemberType::Pointer : EReflectMemberType::Reference) : EReflectMemberType::Value,
 					isConst
 				});
 		}
+		SkipFunctionBody(fileData);
 	}
 
 	std::tuple<std::string, std::string, bool> FileParser::ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters)
@@ -436,7 +823,6 @@ namespace Reflect
 			}
 			++fileData.Cursor;
 		}
-
 		return std::make_tuple<std::string, std::string>(type.c_str(), name.c_str(), isConst);
 	}
 
@@ -482,6 +868,7 @@ namespace Reflect
 			isConst = true;
 		}
 	}
+#endif
 
 	int FileParser::CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character)
 	{

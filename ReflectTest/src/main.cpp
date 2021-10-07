@@ -2,6 +2,8 @@
 #include "TestStrcuts.h"
 #include <iostream>
 
+#include "Core/ReflectData.h"
+
 void FuncNoReturn()
 {
 	// Get a function with no return value.
@@ -54,5 +56,11 @@ int main(void)
 	FuncWithParameters();
 	GetMemberWithFlags();
 
+	int* i;
+	int *& ptrRef = i;
+
+	Reflect::EXP::ReflectTypeTemplate<std::string> m_nameType;
+	std::string* strPtr = m_nameType.ConvertObjPtrToReturnValue<std::string>();
+	*strPtr = "This is a type name.";
 	return 0;
 }

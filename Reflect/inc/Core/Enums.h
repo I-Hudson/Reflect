@@ -6,7 +6,7 @@
 
 namespace Reflect 
 {
-	enum ReflectFlags
+	enum EReflectFlags
 	{
 		Invalid = 1 << 0,
 
@@ -14,28 +14,35 @@ namespace Reflect
 		Public = 1 << 2,
 		Friend = 1 << 3,
 	};
-	REFLECT_DLL ReflectFlags StringToReflectFlags(const std::string& str);
+	REFLECT_DLL EReflectFlags StringToReflectFlags(const std::string& str);
 
-	enum class ReflectType
+	enum class EReflectType
 	{
 		Class,
 		Struct,
 		Member,
 		Function,
 
-		Count
+		Unknown
 	};
 
-	enum class ReflectMemberType
+	enum class EReflectMemberType
 	{
 		Value,
 		Reference,
 		Pointer,
-
-		Count
+		PointerReference,
 	};
 
-	enum class ReflectReturnCode
+	enum class EReflectMemberModifer
+	{
+		None,
+		Const, 
+		Static,
+		Volatile
+	};
+
+	enum class EReflectReturnCode
 	{
 		SUCCESS,
 		FAILED,
@@ -44,7 +51,7 @@ namespace Reflect
 		INVALID_FUNCTION_POINTER,
 		INVALID_MEMBER,
 	};
-	REFLECT_DLL std::string ReflectReturnCodeToString(const ReflectReturnCode& code);
+	REFLECT_DLL std::string ReflectReturnCodeToString(const EReflectReturnCode& code);
 }
 
 /// <summary>

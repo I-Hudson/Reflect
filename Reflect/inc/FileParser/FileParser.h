@@ -31,16 +31,36 @@ namespace Reflect
 
 		FileParsedData LoadFile(std::ifstream& file);
 
-		bool ParseFile(FileParsedData& fileData);
 
-		bool ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const ReflectType type);
+		bool ParseFile(FileParsedData& fileData);
+		bool ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const EReflectType type);
 		void ReflectContainer(FileParsedData& fileData);
 
 		int FindEndOfConatiner(const FileParsedData& fileData);
-
 		std::vector<std::string> ReflectFlags(FileParsedData& fileData);
-		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ingoreChars);
 
+		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars);
+		char FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars);
+		char FindNextChar(FileParsedData& fileData, char charToFind);
+
+		std::string FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars);
+		bool IsWordReflectKey(std::string_view view);
+
+		bool CheckForVisibility(std::string_view view);
+		bool CheckForConstructor(FileParsedData& fileData, ReflectContainerData& container, std::string_view view);
+		
+		ReflectFunctionData GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags);
+		ReflectMemberData GetMember(FileParsedData& fileData, const std::vector<std::string>& flags);
+
+		void SkipFunctionBody(FileParsedData& fileData);
+
+		EReflectType CheckForReflectType(FileParsedData& data);
+
+		bool CheckForEndOfFile(FileParsedData& fileData, int cursor);
+		EReflectMemberType CheckForRefOrPtr(std::string_view view);
+		EReflectMemberModifer CheckForMemberModifers(std::string_view view);
+
+#ifndef EXP_PARSER
 		bool RefectCheckForEndOfLine(const FileParsedData& fileData);
 		bool ReflectTypeCheck(const std::string& type);
 		void ReflectGetFunctionParameters(FileParsedData& fileData);
@@ -48,8 +68,8 @@ namespace Reflect
 		std::tuple<std::string, std::string, bool> ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters);
 		void CheckForConst(FileParsedData& fileData, std::string& type, bool& typeFound, bool& isConst);
 
+#endif
 		int CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character);
-
 	private:
 		std::vector<FileParsedData> m_filesParsed;
 		std::vector<std::string> m_filesToRemove;
