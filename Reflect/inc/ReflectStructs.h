@@ -17,27 +17,27 @@ namespace Reflect
 	{
 		std::string Type;
 		std::string Name;
-		EReflectMemberType ReflectMemberType;
-		EReflectMemberModifer ReflectModifer;
+		EReflectValueType ReflectValueType;
+		EReflectMemberModifier ReflectModifier;
 		std::vector<std::string> ContainerProps;
 
 		int TypeSize;
 		bool IsConst;
 
 		ReflectTypeNameData()
-			: Type("Unkown")
-			, Name("Unkown")
-			, ReflectMemberType(EReflectMemberType::Value)
-			, ReflectModifer(EReflectMemberModifer::None)
+			: Type("")
+			, Name("")
+			, ReflectValueType(EReflectValueType::Value)
+			, ReflectModifier(EReflectMemberModifier::None)
 			, TypeSize(0)
 			, IsConst(false)
 		{ }
 
-		ReflectTypeNameData(const std::string& type, const std::string& name, const int& typeSize, const Reflect::EReflectMemberType& memberType, const bool& isConst)
+		ReflectTypeNameData(const std::string& type, const std::string& name, const int& typeSize, const Reflect::EReflectValueType& memberType, const bool& isConst)
 			: Type(type)
 			, Name(name)
 			, TypeSize(typeSize)
-			, ReflectMemberType(memberType)
+			, ReflectValueType(memberType)
 			, IsConst(isConst)
 		{ }
 
@@ -264,6 +264,7 @@ namespace Reflect
 		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
 		virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", "void", nullptr); };
 		virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
+		virtual std::vector<ReflectMember> GetAllMembers() { return {}; };
 	};
 }
 

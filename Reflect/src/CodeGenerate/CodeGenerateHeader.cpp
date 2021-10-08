@@ -74,7 +74,7 @@ namespace Reflect
 		WRITE_PRIVATE();
 		for (const auto& member : data.Members)
 		{
-			file << "\tstatic int __REFLECT__" + member.Name + "() { return offsetof(" + data.Name + ", " + member.Name + "); }; \\\n";
+			file << "\tstatic size_t __REFLECT__" + member.Name + "() { return offsetof(" + data.Name + ", " + member.Name + "); }; \\\n";
 		}
 		WRITE_CLOSE();
 	}
@@ -85,6 +85,7 @@ namespace Reflect
 		WRITE_PUBLIC();
 		file << "virtual Reflect::ReflectMember GetMember(const char* memberName) override;\\\n";
 		file << "virtual std::vector<Reflect::ReflectMember> GetMembers(std::vector<std::string> const& flags) override;\\\n";
+		file << "virtual std::vector<Reflect::ReflectMember> GetAllMembers() override;\\\n";
 		WRITE_CLOSE();
 	}
 
@@ -108,30 +109,21 @@ namespace Reflect
 
 		auto castToType = [](const Reflect::ReflectTypeNameData& arg) -> std::string
 		{
-			if (arg.ReflectMemberType == Reflect::EReflectMemberType::Pointer)
-			{
-				return "static_cast<" + arg.Type + ">";
-			}
-			else if (arg.ReflectMemberType == Reflect::EReflectMemberType::Reference)
-			{
-				return "*static_cast<" + arg.Type.substr(0, arg.Type.length() - 1) + "*>";
-			}
-			else
-			{
+			if (arg.ReflectValueType == Reflect::EReflectValueType::Reference || arg.ReflectValueType == Reflect::EReflectValueType::PointerReference)
 				return "*static_cast<" + arg.Type + "*>";
-			}
+			return "static_cast<" + arg.Type + "*>";
 		};
 
 		file << "#define " + currentFileId + "_FUNCTION_DECLARE \\\n";
 		WRITE_PRIVATE();
 		for (const auto& func : data.Functions)
 		{
-			file << "\tstatic Reflect::ReflectReturnCode __REFLECT_FUNC__" + func.Name + "(void* objectPtr, void* returnValuePtr, Reflect::FunctionPtrArgs& functionArgs)\\\n";
+			file << "\tstatic Reflect::EReflectReturnCode __REFLECT_FUNC__" + func.Name + "(void* objectPtr, void* returnValuePtr, Reflect::FunctionPtrArgs& functionArgs)\\\n";
 			file << "\t{\\\n";
 			int functionArgIndex = 0;
 			for (const auto& arg : func.Parameters)
 			{
-				file << "\t\t" + arg.Type + " " + arg.Name + "Arg = " + castToType(arg) + "(functionArgs.GetArg(" + std::to_string(functionArgIndex++) + "));\\\n";
+				file << "\t\t" + GetType(arg) + " " + arg.Name + "Arg = " + castToType(arg) + "(functionArgs.GetArg(" + std::to_string(functionArgIndex++) + "));\\\n";
 			}
 			file << "\t\t" + data.Name + "* ptr = static_cast<" + data.Name + "*>(objectPtr);\\\n";
 			if (func.Type != "void")
@@ -143,7 +135,7 @@ namespace Reflect
 			{
 				file << "\t\tptr->" + func.Name + "();\\\n";
 			}
-			file << "\t\treturn Reflect::ReflectReturnCode::SUCCESS;\\\n";
+			file << "\t\treturn Reflect::EReflectReturnCode::SUCCESS;\\\n";
 			file << "\t}\\\n";
 		}
 		WRITE_CLOSE();
@@ -155,5 +147,17 @@ namespace Reflect
 		WRITE_PUBLIC();
 		file << "\tvirtual Reflect::ReflectFunction GetFunction(const char* functionName) override;\\\n";
 		WRITE_CLOSE();
+	}
+
+	std::string CodeGenerateHeader::GetType(const Reflect::ReflectTypeNameData& arg)
+	{
+		if (arg.ReflectValueType == Reflect::EReflectValueType::Pointer)
+			return arg.Type + "*";
+		else if (arg.ReflectValueType == Reflect::EReflectValueType::Reference)
+			return arg.Type + "&";
+		else if (arg.ReflectValueType == Reflect::EReflectValueType::PointerReference)
+			return arg.Type + "*&";
+		else
+			return arg.Type + "*";
 	}
 }

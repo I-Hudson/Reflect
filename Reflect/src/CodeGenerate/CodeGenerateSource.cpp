@@ -84,6 +84,17 @@ namespace Reflect
 		}
 		file << "\treturn members;\n";
 		file << "}\n\n";
+
+		file << "std::vector<Reflect::ReflectMember> " + data.Name + "::GetAllMembers()\n{\n";
+		file << "\tstd::vector<Reflect::ReflectMember> members = __super::GetAllMembers();\n";
+		if (data.Members.size() > 0)
+		{
+			file << "\tfor(auto& member : __REFLECT_MEMBER_PROPS__)\n\t{\n";
+			file << "\t\tmembers.push_back(Reflect::ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset));\n";
+			file << "\t}\n";
+		}
+		file << "\treturn members;\n";
+		file << "}\n\n";
 	}
 
 	void CodeGenerateSource::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)

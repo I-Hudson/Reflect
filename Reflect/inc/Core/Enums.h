@@ -26,7 +26,7 @@ namespace Reflect
 		Unknown
 	};
 
-	enum class EReflectMemberType
+	enum class EReflectValueType
 	{
 		Value,
 		Reference,
@@ -34,12 +34,13 @@ namespace Reflect
 		PointerReference,
 	};
 
-	enum class EReflectMemberModifer
+	enum class EReflectMemberModifier
 	{
 		None,
 		Const, 
 		Static,
-		Volatile
+		Volatile,
+		Virtual,
 	};
 
 	enum class EReflectReturnCode

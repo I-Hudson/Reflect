@@ -23,5 +23,7 @@ namespace Reflect
 
 		void WriteFunctions(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const CodeGenerateAddtionalOptions& addtionalOptions);
 		void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const CodeGenerateAddtionalOptions& addtionalOptions);
+
+		std::string GetType(const Reflect::ReflectTypeNameData& arg);
 	};
 }

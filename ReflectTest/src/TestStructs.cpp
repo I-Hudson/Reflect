@@ -1,6 +1,6 @@
 #include "TestStrcuts.h"
 
-int Player::GetOnlineFriendsCount(int const& maxPlayerCount)
+int Player::GetOnlineFriendsCount(int const& maxPlayerCount) const
 {
 	return maxPlayerCount;
 }

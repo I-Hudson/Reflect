@@ -46,9 +46,12 @@ namespace Reflect
 		std::string FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars);
 		bool IsWordReflectKey(std::string_view view);
 
+		bool CheckForTypeAlias(std::string_view view);
 		bool CheckForVisibility(std::string_view view);
 		bool CheckForConstructor(FileParsedData& fileData, ReflectContainerData& container, std::string_view view);
-		
+
+		void GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectMemberModifier& modifer);
+
 		ReflectFunctionData GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags);
 		ReflectMemberData GetMember(FileParsedData& fileData, const std::vector<std::string>& flags);
 
@@ -57,13 +60,14 @@ namespace Reflect
 		EReflectType CheckForReflectType(FileParsedData& data);
 
 		bool CheckForEndOfFile(FileParsedData& fileData, int cursor);
-		EReflectMemberType CheckForRefOrPtr(std::string_view view);
-		EReflectMemberModifer CheckForMemberModifers(std::string_view view);
+		EReflectValueType CheckForRefOrPtr(std::string_view view);
+		EReflectMemberModifier CheckForMemberModifers(std::string_view view);
+
+		std::vector<ReflectTypeNameData> ReflectGetFunctionParameters(std::string_view view);
 
 #ifndef EXP_PARSER
 		bool RefectCheckForEndOfLine(const FileParsedData& fileData);
 		bool ReflectTypeCheck(const std::string& type);
-		void ReflectGetFunctionParameters(FileParsedData& fileData);
 
 		std::tuple<std::string, std::string, bool> ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters);
 		void CheckForConst(FileParsedData& fileData, std::string& type, bool& typeFound, bool& isConst);

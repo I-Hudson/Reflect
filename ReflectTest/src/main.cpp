@@ -10,6 +10,11 @@ void FuncNoReturn()
 	Player player;
 	auto playerGetId = player.GetFunction("PrintHelloWorld");
 	playerGetId.Invoke();
+
+	auto playerGetName = player.GetFunction("GetName");
+	std::string name;
+	playerGetName.Invoke(&name);
+	std::cout << name << '\n';
 }
 
 void FuncReturnValue()
@@ -36,7 +41,8 @@ void FuncWithParameters()
 	args.AddArg(&intParameter);
 
 	int returnCount;
-	std::cout << Reflect::ReflectReturnCodeToString(parameterFunc.Invoke(&returnCount, args));
+	parameterFunc.Invoke(&returnCount, args);
+	std::cout << returnCount;
 	std::cout << Reflect::ReflectReturnCodeToString(parameterFunc.Invoke(&returnCount, args));
 }
 
@@ -49,18 +55,22 @@ void GetMemberWithFlags()
 	friendInt = 12;
 }
 
+void GetAllMemebers()
+{
+	int testI = 45;
+	S s;
+	auto allMembers = s.GetAllMembers();
+	int* iptr = allMembers[1].ConvertToType<int>();
+	//iptr = &testI;
+	std::cout << "S member count: " << allMembers.size() << '\n';
+}
+
 int main(void)
 {
 	FuncNoReturn();
 	FuncReturnValue();
 	FuncWithParameters();
 	GetMemberWithFlags();
-
-	int* i;
-	int *& ptrRef = i;
-
-	Reflect::EXP::ReflectTypeTemplate<std::string> m_nameType;
-	std::string* strPtr = m_nameType.ConvertObjPtrToReturnValue<std::string>();
-	*strPtr = "This is a type name.";
+	GetAllMemebers();
 	return 0;
 }

@@ -18,6 +18,8 @@
 #define REFLECT_DLL
 #endif
 
+#define EXP_PARSER
+
 #define REFLECT_PROPERTY(...)
 
 #define BODY_MACRO_COMBINE_INNER(A, B, C, D) A##B##C##D

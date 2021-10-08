@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <typeinfo>
+#include <vector>
 
 namespace Reflect
 {
@@ -54,14 +55,33 @@ namespace Reflect
 
 		static void RemoveCharAll(std::string& str, char c)
 		{
-			str.erase(std::remove(str.begin(), str.end(), c));
+			str.erase(std::remove(str.begin(), str.end(), c), str.end());
 		}
 
-		static void RemoveString(std::string& str, const std::string& remove)
+		static void RemoveString(std::string& str, const std::string& remove, bool removeFromback = true)
 		{
-			size_t index = str.find(remove);
+			size_t index = removeFromback ? str.rfind(remove) : str.find(remove);
 			if (index != std::string::npos)
 				str.erase(index, remove.size());
+		}
+		
+		static bool StringContains(const std::string& str, const std::vector<char>& chars)
+		{
+			for (const char& strChar : str)
+			{
+				bool found = false;
+				for (const char& cChars : chars)
+				{
+					if (strChar == cChars)
+					{
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					return false;
+			}
+			return true;
 		}
 	}
 }
