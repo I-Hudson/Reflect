@@ -2,8 +2,6 @@
 #include "TestStrcuts.h"
 #include <iostream>
 
-#include "Core/ReflectData.h"
-
 void FuncNoReturn()
 {
 	// Get a function with no return value.
@@ -59,8 +57,11 @@ void GetAllMemebers()
 {
 	int testI = 45;
 	S s;
+	s.Friends = 78;
+	S otherS;
+
 	auto allMembers = s.GetAllMembers();
-	auto member = allMembers[2];
+	auto member = allMembers[0];
 	int* iptr = member.ConvertToType<int>();
 
 	//int value = 128;
@@ -74,9 +75,10 @@ void GetAllMemebers()
 	void* valuePtr = &value;
 	void* copyPtr = &copy;
 
-	member.Type->Copy_s(valuePtr, nullptr, sizeof(decltype(copy)));
-	member.Type->ClearValue(valuePtr);
-	member.Type->Copy(valuePtr, copyPtr);
+	Log_Info("Typename: %s, Typesize: %i", member.GetType()->GetTypeName().c_str(), member.GetType()->GetTypeSize());
+	member.GetType()->Copy(member.GetRawPointer(), otherS.GetMember("Friends").GetRawPointer());
+	member.GetType()->ClearValue(valuePtr);
+	member.GetType()->Copy(valuePtr, copyPtr);
 
 	std::cout << "S member count: " << allMembers.size() << '\n';
 }

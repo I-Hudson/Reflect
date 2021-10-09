@@ -1,10 +1,15 @@
 #pragma once
 
 #include "Core/Core.h"
+#include "FileParser/FileParserKeyWords.h"
 #include <string>
 #include <algorithm>
 #include <typeinfo>
 #include <vector>
+
+
+#include <array>
+#include <cstddef>
 
 namespace Reflect
 {
@@ -22,9 +27,16 @@ namespace Reflect
 		std::string ValidateTypeName(const std::string& str);
 
 		template<typename T>
-		constexpr const char* GetTypeName()
+		std::string GetTypeName()
 		{
-			return typeid(T).name();
+			std::string name = typeid(T).name();
+			for (const std::string& key : ContainerKeys)
+			{
+				RemoveString(name, key);
+			}
+			RemoveString(name, PointerTypeIdKey);
+			RemoveCharAll(name, ' ');
+			return name;
 		}
 
 		template<typename T>

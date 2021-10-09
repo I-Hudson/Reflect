@@ -1,8 +1,14 @@
 #pragma once
 
-
 namespace Reflect
 {
+	const std::string ClassKey = "class";
+	const std::string StructKey = "struct";
+	const std::string ContainerKeys[] =
+	{
+		ClassKey, StructKey
+	};
+
 	const std::string TypedefKey = "typedef";
 	const std::string UsingKey = "using";
 
@@ -18,4 +24,6 @@ namespace Reflect
 	const std::string StaticKey = "static";
 	const std::string VolatileKey = "volatile";
 	const std::string VirtualKey = "virtual";
+
+	const std::string PointerTypeIdKey = "__ptr64";
 }
