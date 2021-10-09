@@ -60,17 +60,33 @@ void GetAllMemebers()
 	int testI = 45;
 	S s;
 	auto allMembers = s.GetAllMembers();
-	int* iptr = allMembers[1].ConvertToType<int>();
-	//iptr = &testI;
+	auto member = allMembers[2];
+	int* iptr = member.ConvertToType<int>();
+
+	//int value = 128;
+	//int copy;
+	vec3 value(0);
+	value.x = 12;
+	value.y = 120;
+	value.z = 258;
+	int copy(0);
+
+	void* valuePtr = &value;
+	void* copyPtr = &copy;
+
+	member.Type->Copy_s(valuePtr, nullptr, sizeof(decltype(copy)));
+	member.Type->ClearValue(valuePtr);
+	member.Type->Copy(valuePtr, copyPtr);
+
 	std::cout << "S member count: " << allMembers.size() << '\n';
 }
 
 int main(void)
 {
-	FuncNoReturn();
-	FuncReturnValue();
-	FuncWithParameters();
-	GetMemberWithFlags();
+	//FuncNoReturn();
+	//FuncReturnValue();
+	//FuncWithParameters();
+	//GetMemberWithFlags();
 	GetAllMemebers();
 	return 0;
 }

@@ -34,7 +34,7 @@ struct S : REFLECT_BASE()
 
 	int Friends = int(1);
 	int* TimeOnline = nullptr;
-	vec3 const vec = vec3(1);
+	vec3 vec = vec3(1);
 };
 
 class C

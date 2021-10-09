@@ -1,5 +1,6 @@
 #include "CodeGenerate/CodeGenerateSource.h"
 #include "Instrumentor.h"
+#include "CodeGenerate/CodeGenerateHeader.h"
 
 namespace Reflect
 {
@@ -49,7 +50,11 @@ namespace Reflect
 			file << "Reflect::ReflectMemberProp " + data.Name + "::__REFLECT_MEMBER_PROPS__[" + std::to_string(data.Members.size()) + "] = {\n";
 			for (const auto& member : data.Members)
 			{
-				file << "\tReflect::ReflectMemberProp(\"" + member.Name + "\", Reflect::Util::GetTypeName<" + member.Type + ">(), __REFLECT__" + member.Name + "(), " + getMemberProps(member.ContainerProps) + "),\n";
+				file << "\tReflect::ReflectMemberProp(\"" + member.Name + 
+					"\", Reflect::Util::GetTypeName<" + member.Type + 
+					">(), __REFLECT__" + member.Name + "(), " + 
+					"new Reflect::ReflectTypeCPP<" + CodeGenerateHeader::GetType(member, false) + ">(), " +
+					getMemberProps(member.ContainerProps) + "),\n";
 			}
 			file << "};\n\n";
 		}
@@ -64,7 +69,7 @@ namespace Reflect
 			file << "\t\tif(memberName == member.Name)\n";
 			file << "\t\t{\n";
 			file << "\t\t\t//CheckFlags\n";
-			file << "\t\t\treturn Reflect::ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset);\n";
+			file << "\t\t\treturn Reflect::ReflectMember(member.Name, member.Type, member.TypeEXP, ((char*)this) + member.Offset);\n";
 			file << "\t\t}\n";
 			file << "\t}\n";
 		}
@@ -78,7 +83,7 @@ namespace Reflect
 			file << "\tfor(auto& member : __REFLECT_MEMBER_PROPS__)\n\t{\n";
 			file << "\t\tif(member.ContainsProperty(flags))\n";
 			file << "\t\t{\n";
-			file << "\t\t\tmembers.push_back(Reflect::ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset));\n";
+			file << "\t\t\tmembers.push_back(Reflect::ReflectMember(member.Name, member.Type, member.TypeEXP, ((char*)this) + member.Offset));\n";
 			file << "\t\t}\n";
 			file << "\t}\n";
 		}
@@ -90,7 +95,7 @@ namespace Reflect
 		if (data.Members.size() > 0)
 		{
 			file << "\tfor(auto& member : __REFLECT_MEMBER_PROPS__)\n\t{\n";
-			file << "\t\tmembers.push_back(Reflect::ReflectMember(member.Name, member.Type, ((char*)this) + member.Offset));\n";
+			file << "\t\tmembers.push_back(Reflect::ReflectMember(member.Name, member.Type, member.TypeEXP, ((char*)this) + member.Offset));\n";
 			file << "\t}\n";
 		}
 		file << "\treturn members;\n";

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Log.h"
+
 #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
 #define CPP_17 1
 #else
@@ -30,7 +32,7 @@
 namespace Reflect
 {
 	#define REFLECT_MAJOR 3
-	#define REFLECT_MINOR 0
+	#define REFLECT_MINOR 1
 	#define REFLECT_PATCH 0
 
 	constexpr const char* RefectStructKey = "REFLECT_STRUCT";
@@ -46,3 +48,17 @@ namespace Reflect
 #define REFLECT_VERSION_MAJOR() ((uint32_t)(REFLECT_GET_VERSION()) >> 22)
 #define REFLECT_VERSION_MINOR() (((uint32_t)(REFLECT_GET_VERSION()) >> 12) & 0x3ff)
 #define REFLECT_VERSION_PATCH() ((uint32_t)(REFLECT_GET_VERSION()) & 0xfff)
+
+// Compiler marcos
+#if defined(__GNUC__) || defined(__clang__)
+#define DEPRECATED(func) func __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201402L ) || __cplusplus >= 201402L)
+#define DEPRECATED(x) [[deprecated(x)]]
+#else
+#define DEPRECATED(x) __declspec(deprecated(x))
+#endif
+#else
+#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
+#define DEPRECATED(func) func
+#endif

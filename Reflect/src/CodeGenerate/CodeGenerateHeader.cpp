@@ -123,7 +123,7 @@ namespace Reflect
 			int functionArgIndex = 0;
 			for (const auto& arg : func.Parameters)
 			{
-				file << "\t\t" + GetType(arg) + " " + arg.Name + "Arg = " + castToType(arg) + "(functionArgs.GetArg(" + std::to_string(functionArgIndex++) + "));\\\n";
+				file << "\t\t" + GetType(arg, true) + " " + arg.Name + "Arg = " + castToType(arg) + "(functionArgs.GetArg(" + std::to_string(functionArgIndex++) + "));\\\n";
 			}
 			file << "\t\t" + data.Name + "* ptr = static_cast<" + data.Name + "*>(objectPtr);\\\n";
 			if (func.Type != "void")
@@ -149,7 +149,7 @@ namespace Reflect
 		WRITE_CLOSE();
 	}
 
-	std::string CodeGenerateHeader::GetType(const Reflect::ReflectTypeNameData& arg)
+	std::string CodeGenerateHeader::GetType(const Reflect::ReflectTypeNameData& arg, bool defaultReturnPointer)
 	{
 		if (arg.ReflectValueType == Reflect::EReflectValueType::Pointer)
 			return arg.Type + "*";
@@ -158,6 +158,6 @@ namespace Reflect
 		else if (arg.ReflectValueType == Reflect::EReflectValueType::PointerReference)
 			return arg.Type + "*&";
 		else
-			return arg.Type + "*";
+			return defaultReturnPointer ? arg.Type + "*" : arg.Type;
 	}
 }
