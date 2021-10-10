@@ -33,7 +33,7 @@ namespace Reflect
 {
 	#define REFLECT_MAJOR 3
 	#define REFLECT_MINOR 1
-	#define REFLECT_PATCH 0
+	#define REFLECT_PATCH 1
 
 	constexpr const char* RefectStructKey = "REFLECT_STRUCT";
 	constexpr const char* RefectClassKey = "REFLECT_CLASS";

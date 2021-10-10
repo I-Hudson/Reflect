@@ -50,7 +50,7 @@ namespace Reflect
 		bool CheckForVisibility(std::string_view view);
 		bool CheckForConstructor(FileParsedData& fileData, ReflectContainerData& container, std::string_view view);
 
-		void GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectMemberModifier& modifer);
+		void GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer);
 
 		ReflectFunctionData GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags);
 		ReflectMemberData GetMember(FileParsedData& fileData, const std::vector<std::string>& flags);
@@ -61,7 +61,7 @@ namespace Reflect
 
 		bool CheckForEndOfFile(FileParsedData& fileData, int cursor);
 		EReflectValueType CheckForRefOrPtr(std::string_view view);
-		EReflectMemberModifier CheckForMemberModifers(std::string_view view);
+		EReflectValueModifier CheckForMemberModifers(std::string_view view);
 
 		std::vector<ReflectTypeNameData> ReflectGetFunctionParameters(std::string_view view);
 

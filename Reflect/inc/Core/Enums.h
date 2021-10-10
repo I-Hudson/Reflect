@@ -34,7 +34,7 @@ namespace Reflect
 		PointerReference,
 	};
 
-	enum class EReflectMemberModifier
+	enum class EReflectValueModifier
 	{
 		None,
 		Const, 

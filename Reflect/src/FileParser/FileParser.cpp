@@ -510,7 +510,7 @@ namespace Reflect
 		return false;
 	}
 
-	void FileParser::GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectMemberModifier& modifer)
+	void FileParser::GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer)
 	{
 		name = Util::Reverse(name);
 		Util::RemoveCharAll(name, ' ');
@@ -742,7 +742,7 @@ namespace Reflect
 		return EReflectValueType::Value;
 	}
 
-	EReflectMemberModifier FileParser::CheckForMemberModifers(std::string_view view)
+	EReflectValueModifier FileParser::CheckForMemberModifers(std::string_view view)
 	{
 		size_t constIndex = view.find(ConstKey);
 		size_t staticIndex = view.find(StaticKey);
@@ -750,16 +750,16 @@ namespace Reflect
 		size_t virtualIndex = view.find(VirtualKey);
 
 		if (constIndex != std::string::npos)
-			return EReflectMemberModifier::Const;
+			return EReflectValueModifier::Const;
 		else if (staticIndex != std::string::npos)
-			return EReflectMemberModifier::Static;
+			return EReflectValueModifier::Static;
 		else if (volatileIndex != std::string::npos)
-			return EReflectMemberModifier::Volatile;
+			return EReflectValueModifier::Volatile;
 		else if (virtualIndex != std::string::npos)
-			return EReflectMemberModifier::Virtual;
+			return EReflectValueModifier::Virtual;
 
 		//TODO: Think about const static
-		return EReflectMemberModifier::None;
+		return EReflectValueModifier::None;
 	}
 
 	std::vector<ReflectTypeNameData> FileParser::ReflectGetFunctionParameters(std::string_view view)

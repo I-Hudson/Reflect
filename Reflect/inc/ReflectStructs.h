@@ -18,6 +18,9 @@ namespace Reflect
 		std::string GetTypeName() const { return m_typeName; }
 		std::size_t GetTypeSize() const { return m_typeSize; }
 
+		std::string GetValueTypeName() const { return m_valueTypeName; }
+		std::size_t GetValueTypeSize() const { return m_valueTypeSize; }
+
 		virtual void ClearValue(void* data) const = 0;
 		virtual void Copy(void* src, void* dst) const = 0;
 		virtual void Copy_s(void* src, void* dst, size_t dst_size) const = 0;
@@ -25,6 +28,13 @@ namespace Reflect
 	protected:
 		std::string m_typeName;
 		std::size_t m_typeSize;
+
+		// Store the value type (ex. int* would be int).
+		std::string m_valueTypeName;
+		std::size_t m_valueTypeSize;
+
+		EReflectValueType m_typeValue;
+		EReflectValueModifier m_modifier;
 	};
 
 	template<typename Type>
@@ -35,7 +45,10 @@ namespace Reflect
 		ReflectTypeCPP()
 		{
 			m_typeName = Util::GetTypeName<Type>();
-			m_typeSize = sizeof(Type);
+			m_typeSize = Util::GetTypeSize<Type>();
+
+			m_valueTypeName = Util::GetValueTypeName<Type>();
+			m_valueTypeSize = Util::GetValueTypeSize<Type>();
 		}
 
 		virtual void ClearValue(void* data) const override
@@ -96,7 +109,7 @@ namespace Reflect
 		std::string Type;
 		std::string Name;
 		EReflectValueType ReflectValueType;
-		EReflectMemberModifier ReflectModifier;
+		EReflectValueModifier ReflectModifier;
 		std::vector<std::string> ContainerProps;
 
 		int TypeSize;
@@ -105,8 +118,7 @@ namespace Reflect
 		ReflectTypeNameData()
 			: Type("")
 			, Name("")
-			, ReflectValueType(EReflectValueType::Value)
-			, ReflectModifier(EReflectMemberModifier::None)
+
 			, TypeSize(0)
 			, IsConst(false)
 		{ }

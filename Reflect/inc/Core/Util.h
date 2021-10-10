@@ -38,6 +38,25 @@ namespace Reflect
 			RemoveCharAll(name, ' ');
 			return name;
 		}
+		template<typename T>
+		std::size_t GetTypeSize()
+		{
+			return sizeof(T);
+		}
+
+		template<typename T>
+		std::string GetValueTypeName()
+		{
+			std::string name = GetTypeName<T>();
+			RemoveCharAll(name, ReferenceKey);
+			RemoveCharAll(name, PointerKey);
+			return name;
+		}
+		template<typename T>
+		std::size_t GetValueTypeSize()
+		{
+			return sizeof(std::remove_reference_t<std::remove_pointer_t<T>>);
+		}
 
 		template<typename T>
 		std::string GetTypeName(const T& type)
