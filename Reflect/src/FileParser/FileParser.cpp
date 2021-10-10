@@ -9,14 +9,14 @@
 #include <assert.h>
 #include <string.h>
 
-const std::vector<char> emptyChars = { '\n', '\t', '\r', ' '};
-const std::vector<char> generalEndChars = { ' ', '(', '=', ';', ':' };
-const std::vector<char> functionStartChars = { '(' };
-const std::vector<char> memberStartChars = { '=', ';' };
-
 namespace Reflect
 {
 	constexpr int DEFAULT_TYPE_SIZE = 0;
+
+	const std::vector<char> emptyChars = { '\n', '\t', '\r', ' ' };
+	const std::vector<char> generalEndChars = { ' ', '(', '=', ';', ':' };
+	const std::vector<char> functionStartChars = { '(' };
+	const std::vector<char> memberStartChars = { '=', ';' };
 
 	FileParser::FileParser()
 	{ }
@@ -80,6 +80,11 @@ namespace Reflect
 			assert(itr != m_filesParsed.end() && "[FileParser::ParseDirectory] Remove file to parse dose not exists.");
 			m_filesParsed.erase(itr);
 		}
+	}
+
+	void FileParser::SetIgnoreStrings(const std::vector<std::string>& ignoreStrings)
+	{
+		m_ignoreStrings = ignoreStrings;
 	}
 
 	std::ifstream FileParser::OpenFile(const std::string& filePath)
@@ -246,6 +251,11 @@ namespace Reflect
 			if (CheckForConstructor(fileData, conatinerData, word))
 				continue;
 
+			if (CheckForIgnoreWord(fileData, word))
+				continue;
+
+			RemoveComments(fileData, word);
+
 			// We should now have a type (unless there are macros or compiler keywords).
 			if (IsWordReflectKey(word))
 			{
@@ -270,19 +280,20 @@ namespace Reflect
 			if (CheckForEndOfFile(fileData, endOfContainerCursor))
 				break;
 
-			if (CheckForReflectType(fileData) == EReflectType::Member)
+			EReflectType refectType = CheckForReflectType(fileData);
+			if (refectType == EReflectType::Member)
 			{
 				conatinerData.Members.push_back(GetMember(fileData, reflectFlags));
 			}
-			else if (CheckForReflectType(fileData) == EReflectType::Function)
+			else if (refectType == EReflectType::Function)
 			{
 				conatinerData.Functions.push_back(GetFunction(fileData, reflectFlags));
 			}
-			else
-			{
-				assert(false);
-				continue;
-			}
+			//else
+			//{
+			//	assert(false);
+			//	continue;
+			//}
 			reflectFlags = {};
 #else
 			int reflectStart = static_cast<int>(fileData.Data.find(PropertyKey, fileData.Cursor));
@@ -510,6 +521,29 @@ namespace Reflect
 		return false;
 	}
 
+	bool FileParser::CheckForIgnoreWord(FileParsedData& fileData, std::string_view view)
+	{
+		for (const std::string& str : m_ignoreStrings)
+		{
+			if (view == str)
+			{
+				FindNextChar(fileData, ';');
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void FileParser::RemoveComments(FileParsedData& fileData, std::string& line)
+	{
+		// Remove all contents of a line with comments.
+		size_t index = line.find("//");
+		if (index != std::string::npos)
+		{
+			line = line.substr(0, index);
+		}
+	}
+
 	void FileParser::GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer)
 	{
 		name = Util::Reverse(name);
@@ -538,7 +572,7 @@ namespace Reflect
 		FindNextChar(copy, '{');
 		if (copy.Cursor < endCursor)
 		{
-			FindNextChar(copy, '}');
+			SkipFunctionBody(copy);
 			endCursor = copy.Cursor;
 		}
 		else
@@ -682,13 +716,20 @@ namespace Reflect
 		int member_cursor = find_closest_char(memberStartChars);
 		int function_cursor = find_closest_char(functionStartChars);
 
-		if (member_cursor < function_cursor)
+		bool isTemplate = data.Data.find(TemplateKey, data.Cursor) < member_cursor;
+
+		if (member_cursor < function_cursor && !isTemplate)
 		{
 			return EReflectType::Member;
 		}
-		else if (function_cursor != INT_MAX)
+		else if (function_cursor != INT_MAX && !isTemplate)
 		{
 			return EReflectType::Function;
+		}
+
+		if (isTemplate)
+		{
+			SkipFunctionBody(data);
 		}
 		return EReflectType::Unknown;
 	}

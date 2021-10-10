@@ -3,10 +3,10 @@
 #include "Core/Core.h"
 #include "FileParser/FileParserKeyWords.h"
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include <typeinfo>
 #include <vector>
-
 
 #include <array>
 #include <cstddef>
@@ -113,6 +113,20 @@ namespace Reflect
 					return false;
 			}
 			return true;
+		}
+
+		static std::vector<std::string> SplitString(std::string str, char splitChar)
+		{
+			std::vector<std::string> strings;
+			std::stringstream ss(str);
+			str += '\n';
+			while (ss.good())
+			{
+				std::string subStr;
+				std::getline(ss, subStr, splitChar);
+				strings.push_back(subStr);
+			}
+			return strings;
 		}
 	}
 }

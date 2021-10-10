@@ -23,6 +23,7 @@
 #define EXP_PARSER
 
 #define REFLECT_PROPERTY(...)
+#define NO_REFLECT(x) x
 
 #define BODY_MACRO_COMBINE_INNER(A, B, C, D) A##B##C##D
 #define BODY_MACRO_COMBINE(A, B, C, D) BODY_MACRO_COMBINE_INNER(A, B, C, D)
@@ -40,6 +41,7 @@ namespace Reflect
 	constexpr const char* ReflectGeneratedBodykey = "REFLECT_GENERATED_BODY";
 	constexpr const char* ReflectPropertyKey = "REFLECT_PROPERTY";
 	constexpr const char* ReflectFileGeneratePrefix = "_reflect_generated";
+	constexpr const char* ReflectIgnoreStringsFileName = "reflect_ignore_strings.txt";
 }
 
 #define REFLECT_GET_VERSION() \
