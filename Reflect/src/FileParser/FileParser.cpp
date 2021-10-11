@@ -667,13 +667,6 @@ namespace Reflect
 		// TODO: template support?
 		GetReflectNameAndReflectValueTypeAndReflectModifer(line, functionData.Name, functionData.ReflectValueType, functionData.ReflectModifier);
 
-		if (functionData.ReflectValueType == EReflectValueType::Reference)
-		{
-			fileData.Cursor = endOfLineCursor;
-			functionData = {};
-			return functionData;
-		}
-
 		// Make sure there are no empty chars in the type string.
 		for (const char& c : emptyChars)
 			Util::RemoveCharAll(line, c);
