@@ -32,6 +32,8 @@ struct S : REFLECT_BASE()
 {
 	REFLECT_GENERATED_BODY()
 
+	int& GetFriends() { return Friends; }
+
 	int Friends = int(1);
 	int* TimeOnline = nullptr;
 	vec3 vec = vec3(1);
@@ -55,19 +57,16 @@ public:
 	~Player(){}
 
 	REFLECT_PROPERTY(Public)
-		int GetOnlineFriendsCount(	      int	     const&	         maxPlayerCount	         )const;
+	int GetOnlineFriendsCount(int const& maxPlayerCount)const;
 
 	REFLECT_PROPERTY()
-		void PrintHelloWorld(			               
-		
-		
-		);
+	void PrintHelloWorld();
 
 	std::string GetName() { return "Test name"; }
 
 private:
 	REFLECT_PROPERTY()
-		std::string GetId() const;
+		std::string* GetId();
 
 private:
 	std::string Id = { };

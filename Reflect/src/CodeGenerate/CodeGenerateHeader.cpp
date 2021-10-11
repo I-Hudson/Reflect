@@ -41,15 +41,15 @@ namespace Reflect
 			const std::string CurrentFileId = GetCurrentFileID(data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine);
 
 			WriteMemberProperties(reflectData, file, CurrentFileId, addtionalOptions);
-			//WriteFunctions(reflectData, file, CurrentFileId, addtionalOptions);
-			//WriteFunctionGet(reflectData, file, CurrentFileId, addtionalOptions);
+			WriteFunctions(reflectData, file, CurrentFileId, addtionalOptions);
+			WriteFunctionGet(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteMemberPropertiesOffsets(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteMemberGet(reflectData, file, CurrentFileId, addtionalOptions);
 
 			WRITE_CURRENT_FILE_ID(data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine) + "_GENERATED_BODY \\\n";
 			file << CurrentFileId + "_PROPERTIES \\\n";
-			//file << CurrentFileId + "_FUNCTION_DECLARE \\\n";
-			//file << CurrentFileId + "_FUNCTION_GET \\\n";
+			file << CurrentFileId + "_FUNCTION_DECLARE \\\n";
+			file << CurrentFileId + "_FUNCTION_GET \\\n";
 			file << CurrentFileId + "_PROPERTIES_OFFSET \\\n";
 			file << CurrentFileId + "_PROPERTIES_GET \\\n";
 
@@ -111,22 +111,20 @@ namespace Reflect
 			}
 			return returnValue;
 		};
-
 		auto castToType = [](const Reflect::ReflectTypeNameData& arg) -> std::string
 		{
 			if (arg.ReflectValueType == Reflect::EReflectValueType::Reference || arg.ReflectValueType == Reflect::EReflectValueType::PointerReference)
-				return "*static_cast<" + arg.Type + "*>";
+				return "static_cast<" + arg.Type + "*>";
 			return "static_cast<" + arg.Type + "*>";
 		};
-
 		auto returnType = [](const Reflect::ReflectFunctionData& func) -> std::string
 		{
 			if (func.ReflectValueType == EReflectValueType::Value)
 				return "\t\t*((" + func.Type + "*)returnValuePtr) = ";
 			else if (func.ReflectValueType == EReflectValueType::Pointer)
-				return "\t\t(" + func.Type + "*)returnValuePtr = ";
+				return "\t\treturnValuePtr = ";
 			else if (func.ReflectValueType == EReflectValueType::Reference)
-				return "\t\t*((" + func.Type + "*)returnValuePtr) = ";
+				return "\t\treturnValuePtr = &";
 			return "";
 		};
 
@@ -151,7 +149,8 @@ namespace Reflect
 			{
 				file << "\t\t";
 			}
-			file << "ptr->" + func.Name + "(" + populateArgs(func.Parameters) + "); \\\n";
+			file << "ptr->" + func.Name + "(" + populateArgs(func.Parameters) + ")";
+			file << ";\\\n";
 			file << "\t\treturn Reflect::EReflectReturnCode::SUCCESS;\\\n";
 			file << "\t}\\\n";
 		}
@@ -171,7 +170,7 @@ namespace Reflect
 		if (arg.ReflectValueType == Reflect::EReflectValueType::Pointer)
 			return arg.Type + "*";
 		else if (arg.ReflectValueType == Reflect::EReflectValueType::Reference)
-			return arg.Type + "&";
+			return arg.Type + "*";
 		else if (arg.ReflectValueType == Reflect::EReflectValueType::PointerReference)
 			return arg.Type + "*&";
 		else

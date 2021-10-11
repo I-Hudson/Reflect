@@ -24,7 +24,7 @@ namespace Reflect
 		for (auto& reflectData : data.ReflectData)
 		{
 			WriteMemberProperties(reflectData, file, addtionalOptions);
-			//WriteFunctionGet(reflectData, file, addtionalOptions);
+			WriteFunctionGet(reflectData, file, addtionalOptions);
 			WriteMemberGet(reflectData, file, addtionalOptions);
 		}
 	}

@@ -83,12 +83,42 @@ void GetAllMemebers()
 	std::cout << "S member count: " << allMembers.size() << '\n';
 }
 
+void GetFunctionRefReturn()
+{
+	Player player;
+	Reflect::ReflectFunction func = player.GetFunction("GetId");
+	if (!func.IsValid())
+	{
+		return;
+	}
+
+	std::string baseStringPtr;
+	func.Invoke(&baseStringPtr);
+	std::string* stringPtr = (std::string*)&baseStringPtr;
+	std::string& stringRef = *((std::string*)&baseStringPtr);
+	*stringPtr = "Pointer ID";
+	stringRef = "ReferenceID";
+}
+
+int testI = 5;
+int& GetInt()
+{
+	
+	return testI;
+}
+
 int main(void)
 {
-	//FuncNoReturn();
-	//FuncReturnValue();
-	//FuncWithParameters();
-	//GetMemberWithFlags();
+	FuncNoReturn();
+	FuncReturnValue();
+	FuncWithParameters();
+	GetMemberWithFlags();
 	GetAllMemebers();
+	GetFunctionRefReturn();
+
+	int* intPtr = new int;
+	void* ptr = intPtr;
+	ptr = &GetInt();
+
 	return 0;
 }
