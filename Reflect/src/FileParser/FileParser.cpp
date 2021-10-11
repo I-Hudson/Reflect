@@ -253,8 +253,12 @@ namespace Reflect
 
 			if (CheckForIgnoreWord(fileData, word))
 				continue;
+			
+			if (CheckForOperatorFunction(fileData, word))
+				continue;
 
-			RemoveComments(fileData, word);
+			if (CheckForComments(fileData, word))
+				continue;
 
 			// We should now have a type (unless there are macros or compiler keywords).
 			if (IsWordReflectKey(word))
@@ -534,14 +538,29 @@ namespace Reflect
 		return false;
 	}
 
-	void FileParser::RemoveComments(FileParsedData& fileData, std::string& line)
+	bool FileParser::CheckForOperatorFunction(FileParsedData& fileData, std::string_view view)
+	{
+		size_t index = view.find(OperatorKey);
+		if (index == std::string::npos)
+		{
+			return false;
+		}
+
+
+		return false;
+	}
+
+	bool FileParser::CheckForComments(FileParsedData& fileData, std::string& line)
 	{
 		// Remove all contents of a line with comments.
 		size_t index = line.find("//");
 		if (index != std::string::npos)
 		{
 			line = line.substr(0, index);
+			FindNextChar(fileData, '\n');
+			return true;
 		}
+		return false;
 	}
 
 	void FileParser::GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer)
@@ -592,7 +611,7 @@ namespace Reflect
 		std::string prameters = line.substr(oBracket, cBracket);
 		Util::RemoveString(line, prameters);
 		// Parse the parameters.
-		functionData.Parameters = ReflectGetFunctionParameters(prameters);
+		functionData.Parameters = ReflectGetFunctionParameters(fileData, prameters);
 
 		// Make sure if there are any spaces between the parameters and the function name we check for them.
 		uint32_t cursor = (uint32_t)line.size() - 1;
@@ -803,7 +822,7 @@ namespace Reflect
 		return EReflectValueModifier::None;
 	}
 
-	std::vector<ReflectTypeNameData> FileParser::ReflectGetFunctionParameters(std::string_view view)
+	std::vector<ReflectTypeNameData> FileParser::ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view)
 	{
 		int cursor = 0;
 		if (view.at(0) == '(')
@@ -830,6 +849,7 @@ namespace Reflect
 					{
 						parameter.Name += view.at(copyCursor);
 						--copyCursor;
+						CheckStringViewBounds(fileData, copyCursor, view);
 					}
 					GetReflectNameAndReflectValueTypeAndReflectModifer(str, parameter.Name, parameter.ReflectValueType, parameter.ReflectModifier);
 
@@ -858,6 +878,15 @@ namespace Reflect
 			//	});
 		}
 		return parameters;
+	}
+
+	void FileParser::CheckStringViewBounds(const FileParsedData& fileData, int cursor, std::string_view view)
+	{
+		if (cursor < 0 || cursor >= view.size())
+		{
+			Log_Error("[FileParser::CheckStringViewBounds] File: '%s', Line: '%s', Cursor: '%d'.", fileData.FileName.c_str(), view.data(), cursor);
+			exit(0);
+		}
 	}
 
 #ifndef EXP_PARSER

@@ -9,6 +9,7 @@ namespace Reflect
 	struct CodeGenerateAddtionalOptions
 	{
 		std::string IncludePCHString = "";
+		std::string IgnoreStringsPath = "";
 	};
 
 	/// <summary>

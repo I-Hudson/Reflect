@@ -52,7 +52,8 @@ namespace Reflect
 		bool CheckForVisibility(std::string_view view);
 		bool CheckForConstructor(FileParsedData& fileData, ReflectContainerData& container, std::string_view view);
 		bool CheckForIgnoreWord(FileParsedData& fileData, std::string_view view);
-		void RemoveComments(FileParsedData& fileData, std::string& line);
+		bool CheckForOperatorFunction(FileParsedData& fileData, std::string_view view);
+		bool CheckForComments(FileParsedData& fileData, std::string& line);
 
 		void GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer);
 
@@ -67,7 +68,9 @@ namespace Reflect
 		EReflectValueType CheckForRefOrPtr(std::string_view view);
 		EReflectValueModifier CheckForMemberModifers(std::string_view view);
 
-		std::vector<ReflectTypeNameData> ReflectGetFunctionParameters(std::string_view view);
+		std::vector<ReflectTypeNameData> ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view);
+
+		void CheckStringViewBounds(const FileParsedData& fileData, int cursor, std::string_view view);
 
 #ifndef EXP_PARSER
 		bool RefectCheckForEndOfLine(const FileParsedData& fileData);

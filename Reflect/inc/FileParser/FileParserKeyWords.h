@@ -38,4 +38,5 @@ namespace Reflect
 
 	const std::string PointerTypeIdKey = "__ptr64";
 	const std::string TemplateKey = "template";
+	const std::string OperatorKey = "operator";
 }
