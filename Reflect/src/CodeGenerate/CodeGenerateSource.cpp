@@ -15,6 +15,12 @@ namespace Reflect
 		CodeGenerate::IncludeHeader("../" + data.FileName + ".h", file);
 		file << "\n";
 
+		for (const std::string& include : data.CPPIncludes)
+		{
+			CodeGenerate::IncludeHeader(include, file);
+		}
+		file << "\n";
+
 		for (auto& reflectData : data.ReflectData)
 		{
 			WriteMemberProperties(reflectData, file, addtionalOptions);

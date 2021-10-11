@@ -10,6 +10,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cassert>
 
 namespace Reflect
 {
@@ -83,10 +84,20 @@ namespace Reflect
 			std::string::iterator itr = str.begin() + (index != -1 ? index : str.size());
 			str.erase(itr);
 		}
+		static void RemoveChar(std::string& str, const std::string c)
+		{
+			assert(c.size() == 1);
+			RemoveChar(str, c);
+		}
 
 		static void RemoveCharAll(std::string& str, char c)
 		{
 			str.erase(std::remove(str.begin(), str.end(), c), str.end());
+		}
+		static void RemoveCharAll(std::string& str, const std::string c)
+		{
+			assert(c.size() == 1);
+			RemoveCharAll(str, c);
 		}
 
 		static void RemoveString(std::string& str, const std::string& remove, bool removeFromback = true)

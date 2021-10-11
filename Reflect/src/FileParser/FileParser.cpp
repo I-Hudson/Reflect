@@ -374,10 +374,10 @@ namespace Reflect
 		size_t index = fileData.Data.find(ReflectCPPIncludeKey);
 		while (index != std::string::npos)
 		{
-			std::string line = fileData.Data.substr(index, fileData.Data.find(';', index));
-			line = line.substr(0, 1);
+			std::string line = fileData.Data.substr(index, fileData.Data.find(';', index) - index);
+			line = line.substr(line.find('(') + 2, line.find(')') - (line.find('(') + 3));
 			fileData.CPPIncludes.push_back(line);
-			index = fileData.Data.find(ReflectCPPIncludeKey);
+			index = fileData.Data.find(ReflectCPPIncludeKey, fileData.Data.find(';', index));
 		}
 	}
 
