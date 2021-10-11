@@ -41,15 +41,15 @@ namespace Reflect
 			const std::string CurrentFileId = GetCurrentFileID(data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine);
 
 			WriteMemberProperties(reflectData, file, CurrentFileId, addtionalOptions);
-			WriteFunctions(reflectData, file, CurrentFileId, addtionalOptions);
-			WriteFunctionGet(reflectData, file, CurrentFileId, addtionalOptions);
+			//WriteFunctions(reflectData, file, CurrentFileId, addtionalOptions);
+			//WriteFunctionGet(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteMemberPropertiesOffsets(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteMemberGet(reflectData, file, CurrentFileId, addtionalOptions);
 
 			WRITE_CURRENT_FILE_ID(data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine) + "_GENERATED_BODY \\\n";
 			file << CurrentFileId + "_PROPERTIES \\\n";
-			file << CurrentFileId + "_FUNCTION_DECLARE \\\n";
-			file << CurrentFileId + "_FUNCTION_GET \\\n";
+			//file << CurrentFileId + "_FUNCTION_DECLARE \\\n";
+			//file << CurrentFileId + "_FUNCTION_GET \\\n";
 			file << CurrentFileId + "_PROPERTIES_OFFSET \\\n";
 			file << CurrentFileId + "_PROPERTIES_GET \\\n";
 
@@ -98,6 +98,11 @@ namespace Reflect
 			std::string returnValue;
 			for (const auto& arg : args)
 			{
+				if (arg.ReflectValueType == EReflectValueType::Value)
+					returnValue += "*";
+				if (arg.ReflectValueType == EReflectValueType::Reference)
+					returnValue += "*";
+
 				returnValue += arg.Name + "Arg";
 				if (arg != args.back())
 				{
@@ -114,6 +119,17 @@ namespace Reflect
 			return "static_cast<" + arg.Type + "*>";
 		};
 
+		auto returnType = [](const Reflect::ReflectFunctionData& func) -> std::string
+		{
+			if (func.ReflectValueType == EReflectValueType::Value)
+				return "\t\t*((" + func.Type + "*)returnValuePtr) = ";
+			else if (func.ReflectValueType == EReflectValueType::Pointer)
+				return "\t\t(" + func.Type + "*)returnValuePtr = ";
+			else if (func.ReflectValueType == EReflectValueType::Reference)
+				return "\t\t*((" + func.Type + "*)returnValuePtr) = ";
+			return "";
+		};
+
 		file << "#define " + currentFileId + "_FUNCTION_DECLARE \\\n";
 		WRITE_PRIVATE();
 		for (const auto& func : data.Functions)
@@ -128,13 +144,14 @@ namespace Reflect
 			file << "\t\t" + data.Name + "* ptr = static_cast<" + data.Name + "*>(objectPtr);\\\n";
 			if (func.Type != "void")
 			{
-				file << "\t\t*((" + func.Type + "*)returnValuePtr) = ptr->" + func.Name + "(" + populateArgs(func.Parameters) + ");\\\n";
+				file << returnType(func);
 				// TODO: (01/04/21) Check this cast. If it failed return ReflectFuncReturnCode::CAST_FAILED.
 			}
 			else
 			{
-				file << "\t\tptr->" + func.Name + "();\\\n";
+				file << "\t\t";
 			}
+			file << "ptr->" + func.Name + "(" + populateArgs(func.Parameters) + "); \\\n";
 			file << "\t\treturn Reflect::EReflectReturnCode::SUCCESS;\\\n";
 			file << "\t}\\\n";
 		}

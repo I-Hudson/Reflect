@@ -14,7 +14,7 @@ namespace Reflect
 	constexpr int DEFAULT_TYPE_SIZE = 0;
 
 	const std::vector<char> emptyChars = { '\n', '\t', '\r', ' ' };
-	const std::vector<char> generalEndChars = { ' ', '(', '=', ';', ':' };
+	const std::vector<char> generalEndChars = { ' ', '(', '=', ';', ':'};
 	const std::vector<char> functionStartChars = { '(' };
 	const std::vector<char> memberStartChars = { '=', ';' };
 
@@ -142,6 +142,7 @@ namespace Reflect
 		while (ReflectContainerHeader(fileData, RefectStructKey, EReflectType::Struct) || ReflectContainerHeader(fileData, RefectClassKey, EReflectType::Class))
 		{
 			ReflectContainer(fileData);
+			GetAllCPPIncludes(fileData);
 			reflectItem = true;
 		}
 		return reflectItem;
@@ -260,6 +261,9 @@ namespace Reflect
 			if (CheckForComments(fileData, word))
 				continue;
 
+			if (CheckForFriends(fileData, word))
+				continue;
+
 			// We should now have a type (unless there are macros or compiler keywords).
 			if (IsWordReflectKey(word))
 			{
@@ -291,7 +295,14 @@ namespace Reflect
 			}
 			else if (refectType == EReflectType::Function)
 			{
-				conatinerData.Functions.push_back(GetFunction(fileData, reflectFlags));
+				if (!CheckForConstructor(fileData, conatinerData, word))
+				{
+					ReflectFunctionData funcData = GetFunction(fileData, reflectFlags);
+					if (!funcData.Name.empty())
+					{
+						conatinerData.Functions.push_back(funcData);
+					}
+				}
 			}
 			//else
 			//{
@@ -355,6 +366,18 @@ namespace Reflect
 
 			++fileData.Cursor;
 #endif
+		}
+	}
+
+	void FileParser::GetAllCPPIncludes(FileParsedData& fileData)
+	{
+		size_t index = fileData.Data.find(ReflectCPPIncludeKey);
+		while (index != std::string::npos)
+		{
+			std::string line = fileData.Data.substr(index, fileData.Data.find(';', index));
+			line = line.substr(0, 1);
+			fileData.CPPIncludes.push_back(line);
+			index = fileData.Data.find(ReflectCPPIncludeKey);
 		}
 	}
 
@@ -517,11 +540,20 @@ namespace Reflect
 
 	bool FileParser::CheckForConstructor(FileParsedData& fileData, ReflectContainerData& container, std::string_view view)
 	{
-		if (view == container.Name || view.at(0) == '~')
+		int i;
+		FileParsedData copy = fileData;
+		std::string line = GetFunctionLine(copy, i);
+		if (line.find('~') != std::string::npos)
 		{
 			SkipFunctionBody(fileData);
 			return true;
 		}
+
+		if (view == container.Name || view.at(0) == '~')
+		{
+			SkipFunctionBody(fileData);
+			return true;
+		} 
 		return false;
 	}
 
@@ -540,13 +572,14 @@ namespace Reflect
 
 	bool FileParser::CheckForOperatorFunction(FileParsedData& fileData, std::string_view view)
 	{
-		size_t index = view.find(OperatorKey);
-		if (index == std::string::npos)
+		int i;
+		std::string line = GetFunctionLine(fileData, i);
+		size_t index = line.find(OperatorKey);
+		if (index != std::string::npos)
 		{
-			return false;
+			SkipFunctionBody(fileData);
+			return true;
 		}
-
-
 		return false;
 	}
 
@@ -563,42 +596,48 @@ namespace Reflect
 		return false;
 	}
 
+	bool FileParser::CheckForFriends(FileParsedData& fileData, std::string_view view)
+	{
+		if (view == FriendKey)
+		{
+			FindNextChar(fileData, ';');
+			return true;
+		}
+		return false;
+	}
+
 	void FileParser::GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer)
 	{
 		name = Util::Reverse(name);
 		Util::RemoveCharAll(name, ' ');
 		Util::RemoveString(str, name);
 
-		valueType = CheckForRefOrPtr(str);
-		Util::RemoveCharAll(str, '&');
-		Util::RemoveCharAll(str, '*');
-
 		modifer = CheckForMemberModifers(str);
 		Util::RemoveString(str, ConstKey);
 		Util::RemoveString(str, StaticKey);
 		Util::RemoveString(str, VolatileKey);
 		Util::RemoveString(str, VirtualKey);
+
+		if (str.find('<') == std::string::npos && str.find('>') == std::string::npos)
+		{
+			valueType = CheckForRefOrPtr(str);
+			Util::RemoveCharAll(str, '&');
+			Util::RemoveCharAll(str, '*');
+		}
+		else
+		{
+			Util::RemoveCharAll(str, ' ');
+			std::string stdContainerRefPtr = str.substr(str.find_last_of('>'));
+			valueType = CheckForRefOrPtr(stdContainerRefPtr);
+		}
 	}
 
 	ReflectFunctionData FileParser::GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags)
 	{
 		ReflectFunctionData functionData;
 
-		FileParsedData copy = fileData;
-		FindNextChar(copy, ';');
-		int endCursor = copy.Cursor;
-		copy = fileData;
-		FindNextChar(copy, '{');
-		if (copy.Cursor < endCursor)
-		{
-			SkipFunctionBody(copy);
-			endCursor = copy.Cursor;
-		}
-		else
-			endCursor = std::min(copy.Cursor, endCursor);
-
-		std::string line = fileData.Data.substr(fileData.Cursor, endCursor - fileData.Cursor);
-		int endOfLineCursor = endCursor;
+		int endOfLineCursor;
+		std::string line = GetFunctionLine(fileData, endOfLineCursor);
 
 		uint32_t cBracket = (uint32_t)line.find_last_of(')');
 		size_t functionConst = (uint32_t)line.find(ConstKey, cBracket);
@@ -627,6 +666,13 @@ namespace Reflect
 		// TODO: Think about how to handle 'inline' modifiers and suck.
 		// TODO: template support?
 		GetReflectNameAndReflectValueTypeAndReflectModifer(line, functionData.Name, functionData.ReflectValueType, functionData.ReflectModifier);
+
+		if (functionData.ReflectValueType == EReflectValueType::Reference)
+		{
+			fileData.Cursor = endOfLineCursor;
+			functionData = {};
+			return functionData;
+		}
 
 		// Make sure there are no empty chars in the type string.
 		for (const char& c : emptyChars)
@@ -822,6 +868,25 @@ namespace Reflect
 		return EReflectValueModifier::None;
 	}
 
+	std::string FileParser::GetFunctionLine(const FileParsedData& fileData, int& endCursor)
+	{
+		FileParsedData copy = fileData;
+		FindNextChar(copy, ';');
+		endCursor = copy.Cursor;
+		copy = fileData;
+		FindNextChar(copy, '{');
+		if (copy.Cursor < endCursor)
+		{
+			SkipFunctionBody(copy);
+			endCursor = copy.Cursor;
+		}
+		else
+		{
+			endCursor = std::min(copy.Cursor, endCursor);
+		}
+		return fileData.Data.substr(fileData.Cursor, endCursor - fileData.Cursor);
+	}
+
 	std::vector<ReflectTypeNameData> FileParser::ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view)
 	{
 		int cursor = 0;
@@ -840,6 +905,13 @@ namespace Reflect
 				if (str.size() > 0 && !Util::StringContains(str, emptyChars))
 				{
 					ReflectTypeNameData parameter;
+
+					std::size_t defaultValueIndex = str.find('=');
+					if (defaultValueIndex != std::string::npos)
+					{
+						cursor = ((view.size() - 1) - str.size()) + defaultValueIndex;
+					}
+
 					// Extract the name, type for the parameter.
 					int copyCursor = cursor - 1;
 					while (std::find(emptyChars.begin(), emptyChars.end(), view.at(copyCursor)) != emptyChars.end())
@@ -853,11 +925,17 @@ namespace Reflect
 					}
 					GetReflectNameAndReflectValueTypeAndReflectModifer(str, parameter.Name, parameter.ReflectValueType, parameter.ReflectModifier);
 
-					// Make sure there are no empty chars in the type string.
-					for (const char& emptyChar : emptyChars)
-						Util::RemoveCharAll(str, emptyChar);
-					parameter.Type = str;
+					while (view.at(copyCursor) != '(' && view.at(copyCursor) != ',')
+					{
+						parameter.Type += view.at(copyCursor);
+						--copyCursor;
+						CheckStringViewBounds(fileData, copyCursor, view);
+					}
+					parameter.Type = Util::Reverse(parameter.Type);
+					Util::RemoveString(parameter.Type, ReferenceKey);
+					Util::RemoveString(parameter.Type, PointerKey);
 
+					str = {};
 					parameters.push_back(parameter);
 				}
 				if (c == ')')

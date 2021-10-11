@@ -29,6 +29,7 @@
 #define BODY_MACRO_COMBINE(A, B, C, D) BODY_MACRO_COMBINE_INNER(A, B, C, D)
 
 #define REFLECT_GENERATED_BODY(...) BODY_MACRO_COMBINE(CURRENT_FILE_ID, _, __LINE__, _GENERATED_BODY);
+#define REFLECT_CPP_INCLUDE(...)
 
 namespace Reflect
 {
@@ -40,6 +41,7 @@ namespace Reflect
 	constexpr const char* RefectClassKey = "REFLECT_CLASS";
 	constexpr const char* ReflectGeneratedBodykey = "REFLECT_GENERATED_BODY";
 	constexpr const char* ReflectPropertyKey = "REFLECT_PROPERTY";
+	constexpr const char* ReflectCPPIncludeKey = "REFLECT_CPP_INCLUDE";
 	constexpr const char* ReflectFileGeneratePrefix = "_reflect_generated";
 	constexpr const char* ReflectIgnoreStringsFileName = "reflect_ignore_strings.txt";
 }

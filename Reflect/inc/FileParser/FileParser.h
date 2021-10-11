@@ -37,6 +37,7 @@ namespace Reflect
 		bool ParseFile(FileParsedData& fileData);
 		bool ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const EReflectType type);
 		void ReflectContainer(FileParsedData& fileData);
+		void GetAllCPPIncludes(FileParsedData& fileData);
 
 		int FindEndOfConatiner(const FileParsedData& fileData);
 		std::vector<std::string> ReflectFlags(FileParsedData& fileData);
@@ -54,6 +55,7 @@ namespace Reflect
 		bool CheckForIgnoreWord(FileParsedData& fileData, std::string_view view);
 		bool CheckForOperatorFunction(FileParsedData& fileData, std::string_view view);
 		bool CheckForComments(FileParsedData& fileData, std::string& line);
+		bool CheckForFriends(FileParsedData& fileData, std::string_view view);
 
 		void GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer);
 
@@ -68,6 +70,7 @@ namespace Reflect
 		EReflectValueType CheckForRefOrPtr(std::string_view view);
 		EReflectValueModifier CheckForMemberModifers(std::string_view view);
 
+		std::string GetFunctionLine(const FileParsedData& fileData, int& endCursor);
 		std::vector<ReflectTypeNameData> ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view);
 
 		void CheckStringViewBounds(const FileParsedData& fileData, int cursor, std::string_view view);

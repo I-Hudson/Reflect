@@ -181,6 +181,7 @@ namespace Reflect
 		std::string FilePath;
 		std::string FileName;
 		int GeneratedBodyLineOffset;
+		std::vector<std::string> CPPIncludes;
 
 		std::vector<ReflectContainerData> ReflectData;
 	};
