@@ -120,11 +120,11 @@ namespace Reflect
 		auto returnType = [](const Reflect::ReflectFunctionData& func) -> std::string
 		{
 			if (func.ReflectValueType == EReflectValueType::Value)
-				return "\t\t*((" + func.Type + "*)returnValuePtr) = ";
+				return "\t\t*(" + func.Type + "*)returnValuePtr = ";
 			else if (func.ReflectValueType == EReflectValueType::Pointer)
-				return "\t\treturnValuePtr = ";
+				return "\t\t*(("+ func.Type +"**)returnValuePtr) = ";
 			else if (func.ReflectValueType == EReflectValueType::Reference)
-				return "\t\treturnValuePtr = &";
+				return "\t\t*((" + func.Type + "**)returnValuePtr) = &";
 			return "";
 		};
 

@@ -92,19 +92,12 @@ void GetFunctionRefReturn()
 		return;
 	}
 
-	std::string baseStringPtr;
+	std::string* baseStringPtr;
 	func.Invoke(&baseStringPtr);
 	std::string* stringPtr = (std::string*)&baseStringPtr;
 	std::string& stringRef = *((std::string*)&baseStringPtr);
 	*stringPtr = "Pointer ID";
 	stringRef = "ReferenceID";
-}
-
-int testI = 5;
-int& GetInt()
-{
-	
-	return testI;
 }
 
 int main(void)
@@ -114,11 +107,7 @@ int main(void)
 	FuncWithParameters();
 	GetMemberWithFlags();
 	GetAllMemebers();
-	GetFunctionRefReturn();
-
-	int* intPtr = new int;
-	void* ptr = intPtr;
-	ptr = &GetInt();
+	//GetFunctionRefReturn();
 
 	return 0;
 }

@@ -279,6 +279,13 @@ namespace Reflect
 		//	return (*Func)(ObjectPtr, returnValue, funcArgs);
 		//}
 
+		//TODO: FunctionPtr returnValuePointer needs to be a pointer to a pointer. This will allow pointers to be returned from functions.
+		template<typename T>
+		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
+		{
+			return Invoke((void*)returnValue, std::move(functionArgs));
+		}
+
 		Reflect::EReflectReturnCode Invoke(void* returnValue = nullptr, FunctionPtrArgs functionArgs = FunctionPtrArgs())
 		{
 			if (IsValid())
