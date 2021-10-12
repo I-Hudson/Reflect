@@ -15,6 +15,16 @@ namespace Reflect
 {
 	struct ReflectType
 	{
+		bool operator!=(const ReflectType& other)
+		{
+			return m_typeName != other.m_typeName ||
+				m_typeSize != other.m_typeSize;
+		}
+		bool operator==(const ReflectType& other)
+		{
+			return !(*this != other);
+		}
+
 		std::string GetTypeName() const { return m_typeName; }
 		std::size_t GetTypeSize() const { return m_typeSize; }
 
@@ -70,7 +80,8 @@ namespace Reflect
 			{
 				value_type* from = static_cast<value_type*>(src);
 				value_type* to = static_cast<value_type*>(dst);
-				memcpy(to, from, sizeof(value_type));
+				// TODO: Not perfect, but should do for now.
+				memcpy(to, from, sizeof(value_type*));
 			}
 			else
 			{
@@ -349,7 +360,7 @@ namespace Reflect
 		T* ConvertToType()
 		{
 			std::string convertType = Reflect::Util::GetTypeName<T>();
-			if (convertType != m_type->GetTypeName())
+			if (!IsValid() || convertType != m_type->GetTypeName())
 			{
 				return nullptr;
 			}

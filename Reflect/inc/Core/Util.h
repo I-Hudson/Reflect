@@ -2,6 +2,7 @@
 
 #include "Core/Core.h"
 #include "FileParser/FileParserKeyWords.h"
+#include "Core/Enums.h"
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -138,6 +139,24 @@ namespace Reflect
 				strings.push_back(subStr);
 			}
 			return strings;
+		}
+
+		static std::string EReflectValueTypeToString(EReflectValueType mod)
+		{
+			switch (mod)
+			{
+			case Reflect::EReflectValueType::Value:
+				return "";
+			case Reflect::EReflectValueType::Reference:
+				return "&";
+			case Reflect::EReflectValueType::Pointer:
+				return "*";
+			case Reflect::EReflectValueType::PointerReference:
+				return "*&";
+			default:
+				break;
+			}
+			return "";
 		}
 	}
 }
