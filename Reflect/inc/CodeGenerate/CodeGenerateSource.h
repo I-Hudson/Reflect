@@ -12,14 +12,14 @@ namespace Reflect
 		CodeGenerateSource() { }
 		~CodeGenerateSource() { }
 
-		void GenerateSource(const FileParsedData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions);
+		void GenerateSource(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
 
 	private:
 		
-		void WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions);
+		void WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
 
-		void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions);
-		void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions);
+		void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
+		void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
 
 		std::string MemberFormat();
 	};

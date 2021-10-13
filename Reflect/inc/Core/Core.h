@@ -20,8 +20,6 @@
 #define REFLECT_DLL
 #endif
 
-#define EXP_PARSER
-
 #define REFLECT_PROPERTY(...)
 #define NO_REFLECT(x) x
 
@@ -44,6 +42,23 @@ namespace Reflect
 	constexpr const char* ReflectCPPIncludeKey = "REFLECT_CPP_INCLUDE";
 	constexpr const char* ReflectFileGeneratePrefix = "_reflect_generated";
 	constexpr const char* ReflectIgnoreStringsFileName = "reflect_ignore_strings.txt";
+
+	constexpr const char* Reflect_CMD_Option_PCH_Include = "pchInclude";
+	constexpr const char* Reflect_CMD_Option_Reflect_Full_EXT = "reflect_full_ext";
+	constexpr const char* Reflect_CMD_Options[] =
+	{
+		Reflect_CMD_Option_PCH_Include, Reflect_CMD_Option_Reflect_Full_EXT
+	};
+
+	struct ReflectAddtionalOptions
+	{
+		std::unordered_map<std::string, std::string> options =
+		{
+			{ Reflect::Reflect_CMD_Option_PCH_Include, "" },
+			{ Reflect::Reflect_CMD_Option_Reflect_Full_EXT, "false" },
+
+		};
+	};
 }
 
 #define REFLECT_GET_VERSION() \

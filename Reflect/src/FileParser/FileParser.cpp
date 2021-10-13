@@ -24,12 +24,13 @@ namespace Reflect
 	FileParser::~FileParser()
 	{ }
 
-	void FileParser::ParseDirectory(const std::string& directory)
+	void FileParser::ParseDirectory(const std::string& directory, const ReflectAddtionalOptions& options)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
 		m_filesParsed.clear();
 		m_filesToRemove.clear();
+		m_options = options;
 
 		std::filesystem::path dirPath(directory);
 		std::error_code err;
@@ -228,144 +229,93 @@ namespace Reflect
 		std::vector<std::string> reflectFlags;
 		while (true)
 		{
-#ifdef EXP_PARSER
-			if (CheckForEndOfFile(fileData, endOfContainerCursor))
-				break;
-
-			c = FindNextChar(fileData, emptyChars);
-			std::string word = FindNextWord(fileData, generalEndChars);
-			if (CheckForTypeAlias(word))
+			if (m_options.options.at(Reflect_CMD_Option_Reflect_Full_EXT) == "true")
 			{
-				FindNextChar(fileData, ';');
-				continue;
-			}
+				if (CheckForEndOfFile(fileData, endOfContainerCursor))
+					break;
 
-			// Check for child strcuts/class
-
-			if (CheckForVisibility(word))
-			{
-				++fileData.Cursor;
-				continue;
-			}
-
-			// Check for constructor/destructor
-			if (CheckForConstructor(fileData, conatinerData, word))
-				continue;
-
-			if (CheckForIgnoreWord(fileData, word))
-				continue;
-			
-			if (CheckForOperatorFunction(fileData, word))
-				continue;
-
-			if (CheckForComments(fileData, word))
-				continue;
-
-			if (CheckForFriends(fileData, word))
-				continue;
-
-			// We should now have a type (unless there are macros or compiler keywords).
-			if (IsWordReflectKey(word))
-			{
-				if (word == ReflectGeneratedBodykey)
+				c = FindNextChar(fileData, emptyChars);
+				std::string word = FindNextWord(fileData, generalEndChars);
+				if (CheckForTypeAlias(word))
 				{
-					c = FindNextChar(fileData, { '(', ')' });
+					FindNextChar(fileData, ';');
 					continue;
 				}
-				else if (word == ReflectPropertyKey)
+
+				// Check for child strcuts/class
+
+				if (CheckForVisibility(word))
 				{
-					// Get the flags for the property
-					reflectFlags = ReflectFlags(fileData);
+					++fileData.Cursor;
 					continue;
 				}
+
+				// Check for constructor/destructor
+				if (CheckForConstructor(fileData, conatinerData, word))
+					continue;
+
+				if (CheckForIgnoreWord(fileData, word))
+					continue;
+
+				if (CheckForOperatorFunction(fileData, word))
+					continue;
+
+				if (CheckForComments(fileData, word))
+					continue;
+
+				if (CheckForFriends(fileData, word))
+					continue;
+
+				// We should now have a type (unless there are macros or compiler keywords).
+				if (IsWordReflectKey(word))
+				{
+					if (word == ReflectGeneratedBodykey)
+					{
+						c = FindNextChar(fileData, { '(', ')' });
+						continue;
+					}
+					else if (word == ReflectPropertyKey)
+					{
+						// Get the flags for the property
+						reflectFlags = ReflectFlags(fileData);
+						continue;
+					}
+				}
+				else
+				{
+					// We think we have function or memeber.
+					fileData.Cursor -= (int)word.size();
+				}
+
+				if (CheckForEndOfFile(fileData, endOfContainerCursor))
+					break;
+
+				EReflectType refectType = CheckForReflectType(fileData);
+				if (refectType == EReflectType::Member)
+				{
+					conatinerData.Members.push_back(GetMember(fileData, reflectFlags));
+				}
+				else if (refectType == EReflectType::Function)
+				{
+					if (!CheckForConstructor(fileData, conatinerData, word))
+					{
+						ReflectFunctionData funcData = GetFunction(fileData, reflectFlags);
+						if (!funcData.Name.empty())
+						{
+							conatinerData.Functions.push_back(funcData);
+						}
+					}
+				}
+				//else
+				//{
+				//	assert(false);
+				//	continue;
+				//}
+				reflectFlags = {};
 			}
 			else
 			{
-				// We think we have function or memeber.
-				fileData.Cursor -= (int)word.size();
 			}
-
-			if (CheckForEndOfFile(fileData, endOfContainerCursor))
-				break;
-
-			EReflectType refectType = CheckForReflectType(fileData);
-			if (refectType == EReflectType::Member)
-			{
-				conatinerData.Members.push_back(GetMember(fileData, reflectFlags));
-			}
-			else if (refectType == EReflectType::Function)
-			{
-				if (!CheckForConstructor(fileData, conatinerData, word))
-				{
-					ReflectFunctionData funcData = GetFunction(fileData, reflectFlags);
-					if (!funcData.Name.empty())
-					{
-						conatinerData.Functions.push_back(funcData);
-					}
-				}
-			}
-			//else
-			//{
-			//	assert(false);
-			//	continue;
-			//}
-			reflectFlags = {};
-#else
-			int reflectStart = static_cast<int>(fileData.Data.find(PropertyKey, fileData.Cursor));
-			if (reflectStart == static_cast<int>(std::string::npos) || reflectStart > endOfContainerCursor)
-			{
-				// There are no more properties to reflect or we have found a new container to reflect.
-				break;
-			}
-			fileData.Cursor = reflectStart + static_cast<int>(strlen(PropertyKey));
-
-			// Get the reflect flags.
-			auto propFlags = ReflectFlags(fileData);
-
-			// Get the type and name of the property to reflect.
-			auto [type, name, isConst] = ReflectTypeAndName(fileData, {});
-
-			char c = FindNextChar(fileData, { ' ' });
-			bool defaultMemberValue = c == '=';
-			while (c != ';' && (c != '(' || defaultMemberValue) && c != '\n')
-			{
-				++fileData.Cursor;
-				c = FindNextChar(fileData, { ' ', '=' });
-			}
-
-			// Find out if the property is a function or member variable.
-			if (c == ';')
-			{
-				// Member
-				// We have found a member variable 
-				ReflectMemberData memberData = {};
-				memberData.Type = type;
-				memberData.Name = name;
-				memberData.ReflectValueType = type.back() == '*' || type.back() == '&' ? (type.back() == '*' ? ReflectValueType::Pointer : ReflectValueType::Reference) : ReflectValueType::Value;
-				memberData.TypeSize = DEFAULT_TYPE_SIZE;
-				memberData.ContainerProps = propFlags;
-				memberData.IsConst = isConst;
-				conatinerData.Members.push_back(memberData);
-			}
-			else if (c == '(')
-			{
-				ReflectFunctionData funcData = {};
-				funcData.Type = type;
-				funcData.Name = name;
-				funcData.TypeSize = DEFAULT_TYPE_SIZE;
-				funcData.ContainerProps = propFlags;
-				conatinerData.Functions.push_back(funcData);
-
-				// Function
-				ReflectGetFunctionParameters(fileData);
-			}
-			else if (c == '\n')
-			{
-				assert(false && "[FileParser::ParseFile] Unknown reflect type. This must be a member variable or function. Make sure ')' or ';' is used before a new line.");
-			}
-
-			++fileData.Cursor;
-#endif
 		}
 	}
 
@@ -959,128 +909,6 @@ namespace Reflect
 			exit(0);
 		}
 	}
-
-#ifndef EXP_PARSER
-	bool FileParser::RefectCheckForEndOfLine(const FileParsedData& fileData)
-	{
-		char c = fileData.Data[fileData.Cursor];
-		if (c == ' ' || c == '(' || c == ';')
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	bool FileParser::ReflectTypeCheck(const std::string& type)
-	{
-		if (type == "const")
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	std::tuple<std::string, std::string, bool> FileParser::ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters)
-	{
-		std::string type;
-		bool typeFound = false;
-		std::string name;
-		bool nameFound = false;
-		bool isConst = false;
-
-		while (true)
-		{
-			char c = fileData.Data[fileData.Cursor];
-			if (c == '}')
-			{
-				// Break here if we have finished
-				break;
-			}
-
-			if (RefectCheckForEndOfLine(fileData) || (std::find(endOfLineCharacters.begin(), endOfLineCharacters.end(), c) != endOfLineCharacters.end()))
-			{
-				if (!typeFound)
-				{
-					if (!type.empty())
-					{
-						typeFound = true;
-						CheckForConst(fileData, type, typeFound, isConst);
-					}
-				}
-				else if (!nameFound)
-				{
-					if (!name.empty())
-					{
-						nameFound = true;
-					}
-				}
-			}
-			else if (c != '\n' && c != '\t') /*if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_')*/
-			{
-				if (!typeFound)
-				{
-					type += c;
-				}
-				else if (!nameFound)
-				{
-					name += c;
-				}
-			}
-
-			if ((typeFound && nameFound))
-			{
-				break;
-			}
-			++fileData.Cursor;
-		}
-		return std::make_tuple<std::string, std::string>(type.c_str(), name.c_str(), isConst);
-	}
-
-	void FileParser::CheckForConst(FileParsedData& fileData, std::string& type, bool& typeFound, bool& isConst)
-	{
-		const int len = 6;
-		std::string tmp;
-		if (isConst)
-		{
-			return;
-		}
-
-		for (int i = fileData.Cursor - (len - 1); i < fileData.Cursor; ++i)
-		{
-			if (i < 0)
-			{
-				break;
-			}
-			tmp += fileData.Data[i];
-		}
-		if (tmp == "const")
-		{
-			type += ' ';
-			typeFound = false;
-			isConst = true;
-			return;
-		}
-
-		tmp = "";
-		for (int i = fileData.Cursor + 1; i < fileData.Cursor + len; ++i)
-		{
-			if (i > static_cast<int>(fileData.Data.size()))
-			{
-				break;
-			}
-			tmp += fileData.Data[i];
-		}
-		if (tmp == "const")
-		{
-			type += ' ' + tmp;
-			fileData.Cursor += 5;
-			typeFound = false;
-			isConst = true;
-		}
-	}
-#endif
 
 	int FileParser::CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character)
 	{

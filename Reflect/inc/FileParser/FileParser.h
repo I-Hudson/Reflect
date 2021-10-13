@@ -18,7 +18,7 @@ namespace Reflect
 		FileParser();
 		~FileParser();
 
-		void ParseDirectory(const std::string& directory);
+		void ParseDirectory(const std::string& directory, const ReflectAddtionalOptions& addtionalOptions);
 		void SetIgnoreStrings(const std::vector<std::string>& ignoreStrings);
 
 		const FileParsedData& GetFileParsedData(int index) const { return m_filesParsed.at(index); }
@@ -74,19 +74,11 @@ namespace Reflect
 		std::vector<ReflectTypeNameData> ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view);
 
 		void CheckStringViewBounds(const FileParsedData& fileData, int cursor, std::string_view view);
-
-#ifndef EXP_PARSER
-		bool RefectCheckForEndOfLine(const FileParsedData& fileData);
-		bool ReflectTypeCheck(const std::string& type);
-
-		std::tuple<std::string, std::string, bool> ReflectTypeAndName(FileParsedData& fileData, const std::vector<char>& endOfLineCharacters);
-		void CheckForConst(FileParsedData& fileData, std::string& type, bool& typeFound, bool& isConst);
-
-#endif
 		int CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character);
 	private:
 		std::vector<FileParsedData> m_filesParsed;
 		std::vector<std::string> m_filesToRemove;
 		std::vector<std::string> m_ignoreStrings;
+		ReflectAddtionalOptions m_options;
 	};
 }

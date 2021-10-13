@@ -15,7 +15,7 @@ namespace Reflect
 	CodeGenerate::~CodeGenerate()
 	{ }
 
-	void CodeGenerate::Reflect(const FileParsedData& data, const CodeGenerateAddtionalOptions& addtionalOptions)
+	void CodeGenerate::Reflect(const FileParsedData& data, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 

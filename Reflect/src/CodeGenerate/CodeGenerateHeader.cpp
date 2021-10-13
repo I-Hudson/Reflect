@@ -16,7 +16,7 @@ namespace Reflect
 #define WRITE_PUBLIC() file << "public:\\\n"
 #define WRITE_PRIVATE() file << "private:\\\n"
 
-	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -34,7 +34,7 @@ namespace Reflect
 		WriteMacros(data, file, addtionalOptions);
 	}
 
-	void CodeGenerateHeader::WriteMacros(const FileParsedData& data, std::ofstream& file, const CodeGenerateAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::WriteMacros(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		for (const auto& reflectData : data.ReflectData)
 		{
@@ -60,7 +60,7 @@ namespace Reflect
 		file << "#define CURRENT_FILE_ID " + GetCurrentFileID(data.FileName) + "\n";
 	}
 
-	void CodeGenerateHeader::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const CodeGenerateAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		file << "#define " + currentFileId + "_PROPERTIES \\\n";
 		WRITE_PRIVATE();
@@ -68,7 +68,7 @@ namespace Reflect
 		WRITE_CLOSE();
 	}
 
-	void CodeGenerateHeader::WriteMemberPropertiesOffsets(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const CodeGenerateAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::WriteMemberPropertiesOffsets(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		file << "#define " + currentFileId + "_PROPERTIES_OFFSET \\\n";
 		WRITE_PRIVATE();
@@ -79,7 +79,7 @@ namespace Reflect
 		WRITE_CLOSE();
 	}
 
-	void CodeGenerateHeader::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const CodeGenerateAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		file << "#define " + currentFileId + "_PROPERTIES_GET \\\n";
 		WRITE_PUBLIC();
@@ -89,7 +89,7 @@ namespace Reflect
 		WRITE_CLOSE();
 	}
 
-	void CodeGenerateHeader::WriteFunctions(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const CodeGenerateAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::WriteFunctions(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		//TODO: Pass in parameters in someway. Prob need to use templates.
 
@@ -167,7 +167,7 @@ namespace Reflect
 		WRITE_CLOSE();
 	}
 
-	void CodeGenerateHeader::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const CodeGenerateAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		file << "#define " + currentFileId + "_FUNCTION_GET \\\n";
 		WRITE_PUBLIC();

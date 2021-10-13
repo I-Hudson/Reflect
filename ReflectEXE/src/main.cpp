@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 
 		Reflect::FileParser parser;
 		Reflect::CodeGenerate codeGenerate;
-		Reflect::CodeGenerateAddtionalOptions options = { };
+		Reflect::ReflectAddtionalOptions options = { };
 
 		std::vector<std::string> directories;
 		for (size_t i = 0; i < argc; ++i)
@@ -24,10 +24,12 @@ int main(int argc, char* argv[])
 			else
 			{
 				std::string arg = argv[i];
-				if (arg.find("pchInclude=") != std::string::npos)
+				std::string argKey = arg.substr(0, arg.find('='));
+				std::unordered_map<const std::string, std::string>::iterator itr = options.options.find(argKey);
+				if (itr != options.options.end())
 				{
-					options.IncludePCHString = arg.substr(strlen("pchInclude="));
-				}
+					itr->second = arg.substr(arg.find('=') + 1);
+;				}
 			}
 		}
 
@@ -47,7 +49,7 @@ int main(int argc, char* argv[])
 
 		for (auto& dir : directories)
 		{
-			parser.ParseDirectory(dir);
+			parser.ParseDirectory(dir, options);
 			for (auto& file : parser.GetAllFileParsedData())
 			{
 				codeGenerate.Reflect(file, options);
