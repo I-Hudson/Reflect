@@ -13,28 +13,133 @@ struct ReflectMember;
 
 namespace Reflect
 {
+	struct ReflectType
+	{
+		bool operator!=(const ReflectType& other)
+		{
+			return m_typeName != other.m_typeName ||
+				m_typeSize != other.m_typeSize;
+		}
+		bool operator==(const ReflectType& other)
+		{
+			return !(*this != other);
+		}
+
+		std::string GetTypeName() const { return m_typeName; }
+		std::size_t GetTypeSize() const { return m_typeSize; }
+
+		std::string GetValueTypeName() const { return m_valueTypeName; }
+		std::size_t GetValueTypeSize() const { return m_valueTypeSize; }
+
+		virtual void ClearValue(void* data) const = 0;
+		virtual void Copy(void* src, void* dst) const = 0;
+		virtual void Copy_s(void* src, void* dst, size_t dst_size) const = 0;
+
+	protected:
+		std::string m_typeName;
+		std::size_t m_typeSize;
+
+		// Store the value type (ex. int* would be int).
+		std::string m_valueTypeName;
+		std::size_t m_valueTypeSize;
+
+		EReflectValueType m_typeValue;
+		EReflectValueModifier m_modifier;
+	};
+
+	template<typename Type>
+	struct ReflectTypeCPP : public ReflectType
+	{
+		using value_type = std::remove_pointer_t<std::remove_reference_t<Type>>;
+	
+		ReflectTypeCPP()
+		{
+			m_typeName = Util::GetTypeName<Type>();
+			m_typeSize = Util::GetTypeSize<Type>();
+
+			m_valueTypeName = Util::GetValueTypeName<Type>();
+			m_valueTypeSize = Util::GetValueTypeSize<Type>();
+		}
+
+		virtual void ClearValue(void* data) const override
+		{
+			if constexpr (!std::is_default_constructible_v<value_type>)
+			{
+				memset(data, 0, sizeof(value_type));
+			}
+			else
+			{
+				Type* t = static_cast<Type*>(data);
+				*t = Type();
+			}
+		}
+
+		virtual void Copy(void* src, void* dst) const override
+		{
+			if (std::is_pointer_v<Type>)
+			{
+				value_type* from = static_cast<value_type*>(src);
+				value_type* to = static_cast<value_type*>(dst);
+				// TODO: Not perfect, but should do for now.
+				memcpy(to, from, sizeof(value_type*));
+			}
+			else
+			{
+				Type* from = static_cast<Type*>(src);
+				Type* to = static_cast<Type*>(dst);
+				*to = *from;
+			}
+		}
+
+		/// <summary>
+		/// Safe call for copy. Check the 'value_type' size against dst_size.
+		/// </summary>
+		/// <param name="src"></param>
+		/// <param name="dst"></param>
+		/// <param name="dst_size"></param>
+		virtual void Copy_s(void* src, void* dst, size_t dst_size) const override
+		{
+			if (!src || !dst)
+			{
+				Log_Error("[ReflectTypeCPP::Copy_s] src: '%p' or dst: '%p' are not valid.", src, dst);
+			}
+			else if (sizeof(value_type) != dst_size)
+			{
+				Log_Error("[ReflectTypeCPP::Copy_s] dst_size: '%i' does not match value_type size: '%i'.", dst_size, sizeof(value_type));
+			}
+			else
+			{
+				Copy(src, dst);
+			}
+		}
+
+	};
+
 	struct ReflectTypeNameData
 	{
 		std::string Type;
 		std::string Name;
-		int TypeSize;
-		ReflectMemberType ReflectMemberType;
-		bool IsConst;
+		EReflectValueType ReflectValueType;
+		EReflectValueModifier ReflectModifier;
 		std::vector<std::string> ContainerProps;
 
+		int TypeSize;
+		bool IsConst;
+
 		ReflectTypeNameData()
-			: Type("Unkown")
-			, Name("Unkown")
+			: Type("")
+			, Name("")
+
 			, TypeSize(0)
-			, ReflectMemberType(ReflectMemberType::Value)
 			, IsConst(false)
 		{ }
 
-		ReflectTypeNameData(const std::string& type, const std::string& name, const int& typeSize, const Reflect::ReflectMemberType& memberType, const bool& isConst)
+		template<typename T>
+		ReflectTypeNameData(const std::string& type, const std::string& name, const int& typeSize, const Reflect::EReflectValueType& memberType, const bool& isConst)
 			: Type(type)
 			, Name(name)
 			, TypeSize(typeSize)
-			, ReflectMemberType(memberType)
+			, ReflectValueType(memberType)
 			, IsConst(isConst)
 		{ }
 
@@ -61,19 +166,19 @@ namespace Reflect
 
 	struct ReflectMemberData : public ReflectTypeNameData
 	{
-		ReflectType ReflectType = ReflectType::Member;
+		EReflectType ReflectType = EReflectType::Member;
 	};
 
 	struct ReflectFunctionData : public ReflectTypeNameData
 	{
-		ReflectType ReflectType = ReflectType::Function;
+		EReflectType ReflectType = EReflectType::Function;
 		std::vector<ReflectTypeNameData> Parameters;
 	};
 
 	struct ReflectContainerData : public ReflectTypeNameData
 	{
 		std::string Name;
-		ReflectType ReflectType;
+		EReflectType ReflectType;
 		int ReflectGenerateBodyLine;
 
 		std::vector<ReflectMemberData> Members;
@@ -87,18 +192,24 @@ namespace Reflect
 		std::string FilePath;
 		std::string FileName;
 		int GeneratedBodyLineOffset;
+		std::vector<std::string> CPPIncludes;
 
 		std::vector<ReflectContainerData> ReflectData;
 	};
 
 	struct ReflectMemberProp
 	{
-		ReflectMemberProp(const char* name, const char* type, int offset, std::vector<std::string> const& strProperties)
+		ReflectMemberProp(const char* name, ReflectType* typeCPP, int offset, std::vector<std::string> const& strProperties)
 			: Name(name)
-			, Type(type)
+			, Type(typeCPP)
 			, Offset(offset)
 			, StrProperties(strProperties)
 		{ }
+
+		~ReflectMemberProp()
+		{
+			delete Type;
+		}
 
 		bool ContainsProperty(std::vector<std::string> const& flags)
 		{
@@ -116,7 +227,7 @@ namespace Reflect
 		}
 
 		const char* Name;
-		const char* Type;
+		ReflectType* Type;
 		int Offset;
 		std::vector<std::string> StrProperties;
 	};
@@ -152,7 +263,7 @@ namespace Reflect
 		}
 
 		template<typename T>
-		REFLECT_DLL void AddArg(T* obj)
+		void AddArg(T* obj)
 		{
 			m_args.push_back(Arg(Reflect::Util::GetTypeName(*obj), obj));
 		}
@@ -161,7 +272,7 @@ namespace Reflect
 		std::vector<Arg> m_args;
 	};
 
-	using FunctionPtr = Reflect::ReflectReturnCode(*)(void* objectPtr, void* returnValue, FunctionPtrArgs& args);
+	using FunctionPtr = Reflect::EReflectReturnCode(*)(void* objectPtr, void* returnValue, FunctionPtrArgs& args);
 
 	struct ReflectFunction
 	{
@@ -179,17 +290,24 @@ namespace Reflect
 		//	return (*Func)(ObjectPtr, returnValue, funcArgs);
 		//}
 
-		REFLECT_DLL Reflect::ReflectReturnCode Invoke(void* returnValue = nullptr, FunctionPtrArgs functionArgs = FunctionPtrArgs())
+		//TODO: FunctionPtr returnValuePointer needs to be a pointer to a pointer. This will allow pointers to be returned from functions.
+		template<typename T>
+		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
+		{
+			return Invoke((void*)returnValue, std::move(functionArgs));
+		}
+
+		Reflect::EReflectReturnCode Invoke(void* returnValue = nullptr, FunctionPtrArgs functionArgs = FunctionPtrArgs())
 		{
 			if (IsValid())
 			{
 				(*m_func)(m_objectPtr, returnValue, functionArgs);
-				return ReflectReturnCode::SUCCESS;
+				return EReflectReturnCode::SUCCESS;
 			}
-			return ReflectReturnCode::INVALID_FUNCTION_POINTER;
+			return EReflectReturnCode::INVALID_FUNCTION_POINTER;
 		}
 
-		REFLECT_DLL bool IsValid() const
+		bool IsValid() const
 		{
 			return m_objectPtr != nullptr;
 		}
@@ -221,13 +339,13 @@ namespace Reflect
 
 	struct ReflectMember
 	{
-		ReflectMember(const char* memberName, std::string memberType, void* memberPtr)
+		ReflectMember(const char* memberName, ReflectType* type, void* memberPtr)
 			: m_name(memberName)
-			, m_type(memberType)
+			, m_type(type)
 			, m_ptr(memberPtr)
 		{}
 
-		REFLECT_DLL bool IsValid() const
+		bool IsValid() const
 		{
 			return m_ptr != nullptr;
 		}
@@ -236,13 +354,13 @@ namespace Reflect
 
 		std::string GetName() { return m_name; }
 
-		std::string GetTypeName() { return m_type; }
+		const ReflectType* GetType() const { return m_type; }
 
 		template<typename T>
-		REFLECT_DLL T* ConvertToType()
+		T* ConvertToType()
 		{
-			const char* convertType = Reflect::Util::GetTypeName<T>();
-			if (convertType != m_type)
+			std::string convertType = Reflect::Util::GetTypeName<T>();
+			if (!IsValid() || convertType != m_type->GetTypeName())
 			{
 				return nullptr;
 			}
@@ -251,16 +369,17 @@ namespace Reflect
 
 	private:
 		const char* m_name;
-		std::string m_type;
+		ReflectType* m_type;
 		void* m_ptr;
 		int m_offset;
 	};
 
 	struct IReflect
 	{
-		REFLECT_DLL virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
-		REFLECT_DLL virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", "void", nullptr); };
-		REFLECT_DLL virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
+		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
+		virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", nullptr, nullptr); };
+		virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
+		virtual std::vector<ReflectMember> GetAllMembers() { return {}; };
 	};
 }
 

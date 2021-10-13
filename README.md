@@ -11,8 +11,12 @@ C++17 required
 To build the project run the GENERATE_PROJECT.bat file in the root directory and premake should take care of the rest.
 
 ## Command line args
-Use pchInclude= to add a pch header to all genertaed .cpp files.
+pchInclude (optional): This will add an include to all generated .cpp files to the supplied header.
 Example: pchInclude=pch.h
+reflect_full_ext (optional): This will attempted to reflect any class/struct which has the appropriate REFLECT_ tag (REFLECT_CLASS()/REFLECT_STRUCT()).
+This must be either ture or false.
+This is an extension feature and is not guaranteed to work as Reflect doesn't have all the information about the code.
+Example: reflect_full_ext=true
 
 ## Example 
 ```cpp

@@ -6,11 +6,6 @@
 
 namespace Reflect
 {
-	struct CodeGenerateAddtionalOptions
-	{
-		std::string IncludePCHString = "";
-	};
-
 	/// <summary>
 	/// Generate a new file and place the reflect code there.
 	/// </summary>
@@ -20,7 +15,7 @@ namespace Reflect
 		REFLECT_DLL CodeGenerate();
 		REFLECT_DLL ~CodeGenerate();
 
-		REFLECT_DLL void Reflect(const FileParsedData& data, const CodeGenerateAddtionalOptions& addtionalOptions);
+		REFLECT_DLL void Reflect(const FileParsedData& data, const ReflectAddtionalOptions& addtionalOptions);
 		static void IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude = false);
 
 	private:

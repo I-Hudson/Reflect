@@ -12,10 +12,9 @@ int main(int argc, char* argv[])
 
 		Reflect::FileParser parser;
 		Reflect::CodeGenerate codeGenerate;
-		Reflect::CodeGenerateAddtionalOptions options = { };
+		Reflect::ReflectAddtionalOptions options = { };
 
 		std::vector<std::string> directories;
-
 		for (size_t i = 0; i < argc; ++i)
 		{
 			if (std::filesystem::is_directory(argv[i]))
@@ -25,16 +24,32 @@ int main(int argc, char* argv[])
 			else
 			{
 				std::string arg = argv[i];
-				if (arg.find("pchInclude=") != std::string::npos)
+				std::string argKey = arg.substr(0, arg.find('='));
+				std::unordered_map<const std::string, std::string>::iterator itr = options.options.find(argKey);
+				if (itr != options.options.end())
 				{
-					options.IncludePCHString = arg.substr(strlen("pchInclude="));
-				}
+					itr->second = arg.substr(arg.find('=') + 1);
+;				}
 			}
+		}
+
+		std::ifstream iFile(Reflect::ReflectIgnoreStringsFileName);
+		if (iFile.is_open())
+		{
+			iFile.seekg(0, iFile.end);
+			size_t size = iFile.tellg();
+			iFile.seekg(0, iFile.beg);
+
+			std::string data;
+			data.resize(size);
+			iFile.read(data.data(), size);
+			iFile.close();
+			parser.SetIgnoreStrings(Reflect::Util::SplitString(data.data(), '\n'));
 		}
 
 		for (auto& dir : directories)
 		{
-			parser.ParseDirectory(dir);
+			parser.ParseDirectory(dir, options);
 			for (auto& file : parser.GetAllFileParsedData())
 			{
 				codeGenerate.Reflect(file, options);

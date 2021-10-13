@@ -1,13 +1,13 @@
 #include "TestStrcuts.h"
 
-int Player::GetOnlineFriendsCount(int const& maxPlayerCount)
+int Player::GetOnlineFriendsCount(int const& maxPlayerCount) const
 {
 	return maxPlayerCount;
 }
 
-std::string Player::GetId() const
+std::string* Player::GetId()
 {
-	return Id;
+	return &Id;
 }
 
 void Player::PrintHelloWorld()
