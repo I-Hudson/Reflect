@@ -1,3 +1,4 @@
+
 # Reflect
 
 This goal of this project was to create something similar to Unreal Engine's header tool and to see how auto generated code could be done.
@@ -11,9 +12,9 @@ C++17 required
 To build the project run the GENERATE_PROJECT.bat file in the root directory and premake should take care of the rest.
 
 ## Command line args
-pchInclude (optional): This will add an include to all generated .cpp files to the supplied header.
-Example: pchInclude=pch.h
-reflect_full_ext (optional): This will attempted to reflect any class/struct which has the appropriate REFLECT_ tag (REFLECT_CLASS()/REFLECT_STRUCT()).
+- pchInclude (optional): This will add an include to all generated .cpp files to the supplied header.
+Example: pchInclude=pch.h 
+- reflect_full_ext (optional): This will attempted to reflect any class/struct which has the appropriate REFLECT_ tag (REFLECT_CLASS()/REFLECT_STRUCT()).
 This must be either ture or false.
 This is an extension feature and is not guaranteed to work as Reflect doesn't have all the information about the code.
 Example: reflect_full_ext=true
@@ -46,8 +47,7 @@ public:
 
 ## How to use
 There are two ways to use this tool. The first and easiest is through the .exe console app. Run the console and add the folders in which you want the tools to search for header files.
-Example:
-C:\Reflect.exe C:\HeaderFiles
+Example: C:\Reflect.exe C:\HeaderFiles
 The tool will interate over all the header files in C:\HeaderFiles and look for the Reflect macros. If one is found then a new .h and .cpp will be generated into a new folder called "Generated" in the same directroy as the original header file.
 
 The second way to use this tool is through the .lib and header files. Include the header files from the release .zip and link to the .lib. From here you will need to call the code generated functions from somewhere in your project.
