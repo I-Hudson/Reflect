@@ -925,8 +925,8 @@ namespace Reflect
 						CheckStringViewBounds(fileData, copyCursor, view);
 					}
 					parameter.Type = Util::Reverse(parameter.Type);
-					Util::RemoveString(parameter.Type, ReferenceKey);
-					Util::RemoveString(parameter.Type, PointerKey);
+					Util::RemoveCharReverse(parameter.Type, ReferenceKey);
+					Util::RemoveCharReverse(parameter.Type, PointerKey);
 
 					str = {};
 					parameters.push_back(parameter);

@@ -79,26 +79,22 @@ namespace Reflect
 			return str;
 		}
 
-		static void RemoveChar(std::string& str, const char c)
+		static void RemoveChar(std::string& str, const char& c)
 		{
 			size_t index = str.find(c);
 			std::string::iterator itr = str.begin() + (index != -1 ? index : str.size());
 			str.erase(itr);
 		}
-		static void RemoveChar(std::string& str, const std::string c)
+		static void RemoveCharReverse(std::string& str, const char& c)
 		{
-			assert(c.size() == 1);
-			RemoveChar(str, c.at(0));
+			size_t index = str.rfind(c);
+			std::string::iterator itr = str.begin() + (index != -1 ? index : str.size());
+			str.erase(itr);
 		}
 
-		static void RemoveCharAll(std::string& str, const char c)
+		static void RemoveCharAll(std::string& str, const char& c)
 		{
 			str.erase(std::remove(str.begin(), str.end(), c), str.end());
-		}
-		static void RemoveCharAll(std::string& str, const std::string c)
-		{
-			assert(c.size() == 1);
-			RemoveCharAll(str, c.at(0));
 		}
 
 		static void RemoveString(std::string& str, const std::string& remove, bool removeFromback = true)

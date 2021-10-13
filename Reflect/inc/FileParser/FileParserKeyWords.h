@@ -2,42 +2,42 @@
 
 namespace Reflect
 {
-	const std::string ClassKey = "class";
-	const std::string StructKey = "struct";
-	const std::string ContainerKeys[] =
+	constexpr const char* ClassKey = "class";
+	constexpr const char* StructKey = "struct";
+	constexpr const char* ContainerKeys[] =
 	{
 		ClassKey, StructKey
 	};
 
-	const std::string TypedefKey = "typedef";
-	const std::string UsingKey = "using";
-	const std::string AliasKeys[] =
+	constexpr const char* TypedefKey = "typedef";
+	constexpr const char* UsingKey = "using";
+	constexpr const char* AliasKeys[] =
 	{
 		TypedefKey, UsingKey
 	};
 
-	const std::string PublicKey = "public";
-	const std::string ProtectedKey = "protected";
-	const std::string PrivateKey = "private";
-	const std::string VisabilityKeys[] = 
+	constexpr const char* PublicKey = "public";
+	constexpr const char* ProtectedKey = "protected";
+	constexpr const char* PrivateKey = "private";
+	constexpr const char* VisabilityKeys[] = 
 	{
 		PublicKey, ProtectedKey, PrivateKey
 	};
 
-	const std::string ReferenceKey = "&";
-	const std::string PointerKey = "*";
+	constexpr char ReferenceKey = '&';
+	constexpr char PointerKey = '*';
 
-	const std::string ConstKey = "const";
-	const std::string StaticKey = "static";
-	const std::string VolatileKey = "volatile";
-	const std::string VirtualKey = "virtual";
-	const std::string ValueModifierKeys[] =
+	constexpr const char* ConstKey = "const";
+	constexpr const char* StaticKey = "static";
+	constexpr const char* VolatileKey = "volatile";
+	constexpr const char* VirtualKey = "virtual";
+	constexpr const char* ValueModifierKeys[] =
 	{
 		ConstKey, StaticKey, VolatileKey, VirtualKey
 	};
 
-	const std::string PointerTypeIdKey = "__ptr64";
-	const std::string TemplateKey = "template";
-	const std::string OperatorKey = "operator";
-	const std::string FriendKey = "friend";
+	constexpr const char* PointerTypeIdKey = "__ptr64";
+	constexpr const char* TemplateKey = "template";
+	constexpr const char* OperatorKey = "operator";
+	constexpr const char* FriendKey = "friend";
 }
