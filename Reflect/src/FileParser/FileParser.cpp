@@ -229,13 +229,14 @@ namespace Reflect
 		std::vector<std::string> reflectFlags;
 		while (true)
 		{
+			if (CheckForEndOfFile(fileData, endOfContainerCursor))
+				break;
+
 			if (m_options.options.at(Reflect_CMD_Option_Reflect_Full_EXT) == "true")
 			{
-				if (CheckForEndOfFile(fileData, endOfContainerCursor))
-					break;
-
 				c = FindNextChar(fileData, emptyChars);
 				std::string word = FindNextWord(fileData, generalEndChars);
+
 				if (CheckForTypeAlias(word))
 				{
 					FindNextChar(fileData, ';');
@@ -311,11 +312,35 @@ namespace Reflect
 				//	assert(false);
 				//	continue;
 				//}
-				reflectFlags = {};
 			}
 			else
 			{
+				if (CheckForEndOfFile(fileData, endOfContainerCursor))
+					break;
+
+				fileData.Cursor = fileData.Data.find(ReflectPropertyKey, fileData.Cursor);
+				if (fileData.Cursor == std::string::npos)
+				{
+					break;
+				}
+
+				fileData.Cursor += strlen(ReflectPropertyKey);
+				reflectFlags = ReflectFlags(fileData);
+				FindNextChar(fileData, generalEndChars);
+
+
+				EReflectType refectType = CheckForReflectType(fileData);
+				if (refectType == EReflectType::Member)
+				{
+					conatinerData.Members.push_back(GetMember(fileData, reflectFlags));
+				}
+				else if (refectType == EReflectType::Function)
+				{
+					conatinerData.Functions.push_back(GetFunction(fileData, reflectFlags));
+				}
 			}
+
+			reflectFlags = {};
 		}
 	}
 
