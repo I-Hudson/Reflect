@@ -63,7 +63,7 @@ namespace Reflect
 
 		// All files have been loaded.
 		// Now we need to parse them to find all the information we want from them.
-		// TODO this could also be threaded.
+		// TODO: this could also be threaded.
 		for (auto& file : m_filesParsed)
 		{
 			if (!ParseFile(file))
@@ -206,6 +206,38 @@ namespace Reflect
 		containerData.Type = containerName;
 		containerData.TypeSize = DEFAULT_TYPE_SIZE;
 		fileData.ReflectData.push_back(containerData);
+
+		// We are inheriting thigns.
+		if (fileData.Data[fileData.Cursor] == ':')
+		{
+			++fileData.Cursor;
+			std::string type;
+			while (fileData.Data.at(fileData.Cursor) != '{')
+			{
+				if (fileData.Data.at(fileData.Cursor) == ',')
+				{
+					Util::RemoveCharAll(type, ' ');
+					Util::RemoveString(type, PublicKey);
+					Util::RemoveString(type, ProtectedKey);
+					Util::RemoveString(type, PrivateKey);
+					containerData.Inheritance.push_back(type);
+					type.clear();
+				}
+				else
+				{
+					type += fileData.Data.at(fileData.Cursor);
+				}
+				++fileData.Cursor;
+			}
+			Util::RemoveCharAll(type, ' ');
+			Util::RemoveCharAll(type, '\n');
+			Util::RemoveCharAll(type, '\t');
+			Util::RemoveCharAll(type, '\r');
+			Util::RemoveString(type, PublicKey);
+			Util::RemoveString(type, ProtectedKey);
+			Util::RemoveString(type, PrivateKey);
+			containerData.Inheritance.push_back(type);
+		}
 
 		return true;
 	}

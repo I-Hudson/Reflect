@@ -23,12 +23,17 @@ struct vec3
 	};
 };
 
+class Interface
+{
+
+};
+
 /// <summary>
 /// Example class.
 /// </summary>
 
 REFLECT_STRUCT()
-struct S : REFLECT_BASE()
+struct S : REFLECT_BASE(), public Interface
 {
 	REFLECT_GENERATED_BODY()
 
