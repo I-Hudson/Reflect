@@ -178,6 +178,7 @@ namespace Reflect
 	struct ReflectContainerData : public ReflectTypeNameData
 	{
 		std::string Name;
+		std::string PrettyName;
 		std::vector<std::string> Inheritance;
 		EReflectType ReflectType;
 		int ReflectGenerateBodyLine;

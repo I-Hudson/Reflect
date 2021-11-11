@@ -75,6 +75,9 @@ namespace Reflect
 
 		void CheckStringViewBounds(const FileParsedData& fileData, int cursor, std::string_view view);
 		int CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character);
+
+		std::string PrettyString(std::string str);
+
 	private:
 		std::vector<FileParsedData> m_filesParsed;
 		std::vector<std::string> m_filesToRemove;

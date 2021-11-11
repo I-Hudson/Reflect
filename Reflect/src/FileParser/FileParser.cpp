@@ -203,6 +203,7 @@ namespace Reflect
 			++fileData.Cursor;
 		}
 		containerData.Name = containerName;
+		containerData.PrettyName = PrettyString(containerName);
 		containerData.Type = containerName;
 		containerData.TypeSize = DEFAULT_TYPE_SIZE;
 		fileData.ReflectData.push_back(containerData);
@@ -350,13 +351,13 @@ namespace Reflect
 				if (CheckForEndOfFile(fileData, endOfContainerCursor))
 					break;
 
-				fileData.Cursor = fileData.Data.find(ReflectPropertyKey, fileData.Cursor);
+				fileData.Cursor = (int)fileData.Data.find(ReflectPropertyKey, fileData.Cursor);
 				if (fileData.Cursor == std::string::npos)
 				{
 					break;
 				}
 
-				fileData.Cursor += strlen(ReflectPropertyKey);
+				fileData.Cursor += (int)strlen(ReflectPropertyKey);
 				reflectFlags = ReflectFlags(fileData);
 				FindNextChar(fileData, generalEndChars);
 
@@ -909,7 +910,7 @@ namespace Reflect
 					std::size_t defaultValueIndex = str.find('=');
 					if (defaultValueIndex != std::string::npos)
 					{
-						cursor = ((view.size() - 1) - str.size()) + defaultValueIndex;
+						cursor = (int)(((int)view.size() - 1) - (int)str.size()) + (int)defaultValueIndex;
 					}
 
 					// Extract the name, type for the parameter.
@@ -980,5 +981,19 @@ namespace Reflect
 			--cursorStart;
 		}
 		return count;
+	}
+
+	std::string FileParser::PrettyString(std::string str)
+	{
+		std::replace(str.begin(), str.end(), '_', ' ');
+		for (size_t i = 1; i < str.size(); ++i)
+		{
+			if (isupper(str[i]))
+			{
+				str.insert(str.begin() + i, ' ');
+				++i;
+			}
+		}
+		return str;
 	}
 }
