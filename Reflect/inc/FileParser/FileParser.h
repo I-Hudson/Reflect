@@ -12,7 +12,7 @@ namespace Reflect
 	/// <summary>
 	/// Parse a single file. This should extract all the info like functions and variables.
 	/// </summary>
-	class FileParser
+	class REFLECT_API FileParser
 	{
 	public:
 		FileParser();

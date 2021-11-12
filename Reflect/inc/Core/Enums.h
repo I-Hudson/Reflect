@@ -14,7 +14,7 @@ namespace Reflect
 		Public = 1 << 2,
 		Friend = 1 << 3,
 	};
-	REFLECT_DLL EReflectFlags StringToReflectFlags(const std::string& str);
+	REFLECT_API EReflectFlags StringToReflectFlags(const std::string& str);
 
 	enum class EReflectType
 	{
@@ -52,7 +52,7 @@ namespace Reflect
 		INVALID_FUNCTION_POINTER,
 		INVALID_MEMBER,
 	};
-	REFLECT_DLL std::string ReflectReturnCodeToString(const EReflectReturnCode& code);
+	REFLECT_API std::string ReflectReturnCodeToString(const EReflectReturnCode& code);
 }
 
 /// <summary>
@@ -60,7 +60,7 @@ namespace Reflect
 /// </summary>
 /// <typeparam name="E"></typeparam>
 /// <returns></returns>
-template <typename E, E> REFLECT_DLL std::string EnumToString()
+template <typename E, E> REFLECT_API std::string EnumToString()
 {
 	std::string value = FUNC_SIG;
 	int startIndex = static_cast<int>(value.find_last_of(',')) + 1;

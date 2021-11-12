@@ -14,11 +14,11 @@
 #endif
 
 #ifdef REFLECT_DLL_EXPORT
-#define REFLECT_DLL __declspec(dllexport)
+#define REFLECT_API __declspec(dllexport)
 #elif defined (REFLECT_DLL_IMPORT)
-#define REFLECT_DLL __declspec(dllimport)
+#define REFLECT_API __declspec(dllimport)
 #else 
-#define REFLECT_DLL
+#define REFLECT_API
 #endif
 
 #define REFLECT_PROPERTY(...)

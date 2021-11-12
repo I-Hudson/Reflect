@@ -9,13 +9,13 @@ namespace Reflect
 	/// <summary>
 	/// Generate a new file and place the reflect code there.
 	/// </summary>
-	class CodeGenerate
+	class REFLECT_API CodeGenerate
 	{
 	public:
-		REFLECT_DLL CodeGenerate();
-		REFLECT_DLL ~CodeGenerate();
+		CodeGenerate();
+		~CodeGenerate();
 
-		REFLECT_DLL void Reflect(const FileParsedData& data, const ReflectAddtionalOptions& addtionalOptions);
+		void Reflect(const FileParsedData& data, const ReflectAddtionalOptions& addtionalOptions);
 		static void IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude = false);
 
 	private:

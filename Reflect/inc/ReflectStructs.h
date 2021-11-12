@@ -376,7 +376,7 @@ namespace Reflect
 		int m_offset;
 	};
 
-	struct IReflect
+	struct REFLECT_API IReflect
 	{
 		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
 		virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", nullptr, nullptr); };
