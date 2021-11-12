@@ -202,6 +202,9 @@ namespace Reflect
 			}
 			++fileData.Cursor;
 		}
+		for (const std::string str : m_ignoreStrings)
+			Util::RemoveString(containerName, str);
+
 		containerData.Name = containerName;
 		containerData.PrettyName = PrettyString(containerName);
 		containerData.Type = containerName;
