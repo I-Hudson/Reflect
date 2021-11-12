@@ -206,11 +206,12 @@ namespace Reflect
 		containerData.PrettyName = PrettyString(containerName);
 		containerData.Type = containerName;
 		containerData.TypeSize = DEFAULT_TYPE_SIZE;
-		fileData.ReflectData.push_back(containerData);
 
 		// We are inheriting thigns.
-		if (fileData.Data[fileData.Cursor] == ':')
+		bool inheritance = fileData.Data.find(':', fileData.Cursor) < fileData.Data.find('{', fileData.Cursor);
+		if (inheritance)
 		{
+			FindNextChar(fileData, ':');
 			++fileData.Cursor;
 			std::string type;
 			while (fileData.Data.at(fileData.Cursor) != '{')
@@ -240,6 +241,7 @@ namespace Reflect
 			containerData.Inheritance.push_back(type);
 		}
 
+		fileData.ReflectData.push_back(containerData);
 		return true;
 	}
 
