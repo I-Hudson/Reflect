@@ -60,7 +60,7 @@ namespace Reflect
 /// </summary>
 /// <typeparam name="E"></typeparam>
 /// <returns></returns>
-template <typename E, E> REFLECT_API std::string EnumToString()
+template <typename E, E> std::string EnumToString()
 {
 	std::string value = FUNC_SIG;
 	int startIndex = static_cast<int>(value.find_last_of(',')) + 1;

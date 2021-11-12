@@ -12,17 +12,17 @@ namespace Reflect
 	/// <summary>
 	/// Parse a single file. This should extract all the info like functions and variables.
 	/// </summary>
-	class REFLECT_API FileParser
+	class FileParser
 	{
 	public:
-		FileParser();
-		~FileParser();
+		REFLECT_API FileParser();
+		REFLECT_API ~FileParser();
 
-		void ParseDirectory(const std::string& directory, const ReflectAddtionalOptions& addtionalOptions);
-		void SetIgnoreStrings(const std::vector<std::string>& ignoreStrings);
+		REFLECT_API void ParseDirectory(const std::string& directory, const ReflectAddtionalOptions& addtionalOptions);
+		REFLECT_API void SetIgnoreStrings(const std::vector<std::string>& ignoreStrings);
 
-		const FileParsedData& GetFileParsedData(int index) const { return m_filesParsed.at(index); }
-		const std::vector<FileParsedData>& GetAllFileParsedData() const { return m_filesParsed; }
+		REFLECT_API const FileParsedData& GetFileParsedData(int index) const { return m_filesParsed.at(index); }
+		REFLECT_API const std::vector<FileParsedData>& GetAllFileParsedData() const { return m_filesParsed; }
 
 	private:
 		std::ifstream OpenFile(const std::string& filePath);
