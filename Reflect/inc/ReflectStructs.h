@@ -201,7 +201,7 @@ namespace Reflect
 
 	struct ReflectMemberProp
 	{
-		ReflectMemberProp(const char* name, ReflectType* typeCPP, int offset, std::vector<std::string> const& strProperties)
+		ReflectMemberProp(const char* name, ReflectType* typeCPP, size_t offset, std::vector<std::string> const& strProperties)
 			: Name(name)
 			, Type(typeCPP)
 			, Offset(offset)
@@ -230,7 +230,7 @@ namespace Reflect
 
 		const char* Name;
 		ReflectType* Type;
-		int Offset;
+		size_t Offset;
 		std::vector<std::string> StrProperties;
 	};
 
