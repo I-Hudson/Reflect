@@ -42,7 +42,9 @@ namespace Reflect
 			WriteFunctionGet(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteMemberPropertiesOffsets(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteMemberGet(reflectData, file, CurrentFileId, addtionalOptions);
+#ifdef REFLET_TYPE_INFO
 			WriteGenerateTypeInfo(reflectData, file, CurrentFileId, addtionalOptions);
+#endif 
 
 			WRITE_CURRENT_FILE_ID(data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine) + "_GENERATED_BODY \\\n";
 			file << CurrentFileId + "_PROPERTIES \\\n";
@@ -50,8 +52,9 @@ namespace Reflect
 			file << CurrentFileId + "_FUNCTION_GET \\\n";
 			file << CurrentFileId + "_PROPERTIES_OFFSET \\\n";
 			file << CurrentFileId + "_PROPERTIES_GET \\\n";
+#ifdef REFLET_TYPE_INFO
 			file << CurrentFileId + "_GENERATE_TYPE_INFO \\\n";
-
+#endif
 			WRITE_CLOSE();
 		}
 

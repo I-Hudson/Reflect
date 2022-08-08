@@ -26,7 +26,9 @@ namespace Reflect
 
 		for (auto& reflectData : data.ReflectData)
 		{
+#ifdef REFLET_TYPE_INFO
 			WriteGenerateTypeInfo(reflectData, file, addtionalOptions);
+#endif
 			WriteMemberProperties(reflectData, file, addtionalOptions);
 			WriteFunctionGet(reflectData, file, addtionalOptions);
 			WriteMemberGet(reflectData, file, addtionalOptions);
@@ -134,6 +136,7 @@ namespace Reflect
 		file << "}\n\n";
 	}
 
+#ifdef REFLET_TYPE_INFO
 	void CodeGenerateSource::WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		auto generateFunctions = [&data]() -> std::string
@@ -198,6 +201,7 @@ namespace Reflect
 		file << "\t" + generateFunctions() + "\n";
 		file << "};\n\n";
 	}
+#endif
 
 	std::string CodeGenerateSource::MemberFormat()
 	{

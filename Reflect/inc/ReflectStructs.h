@@ -436,7 +436,7 @@ namespace Reflect
 		virtual std::vector<ReflectMember> GetAllMembers() { return {}; };
 	};
 
-#define REFLET_TYPE_INFO
+//#define REFLET_TYPE_INFO
 #ifdef REFLET_TYPE_INFO
 	class ReflectTypeFunction
 	{
