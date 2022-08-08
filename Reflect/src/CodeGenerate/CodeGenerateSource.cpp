@@ -61,7 +61,7 @@ namespace Reflect
 			for (const auto& member : data.Members)
 			{
 				file << "\tReflect::ReflectMemberProp(\"" + member.Name + 
-					"\", new Reflect::ReflectTypeCPP<" + CodeGenerateHeader::GetType(member, false) + ">(), " +
+					"\", new Reflect::ReflectTypeCPP<" + CodeGenerateHeader::GetType(member, false) + ">(Reflect::EReflectType::Member), " +
 					 "__REFLECT__" + member.Name + "(), " + 
 					getMemberProps(member.ContainerProps) + "),\n";
 			}
@@ -143,7 +143,7 @@ namespace Reflect
 				auto generateSingleArg = [&data](const ReflectTypeNameData& arg) -> std::string
 				{
 					std::string str;
-					str += "std::make_unique<ReflectTypeCPP<" + arg.RawType + ">>(\"" + arg.Name + "\")";
+					str += "std::make_unique<ReflectTypeCPP<" + arg.RawType + ">>(Reflect::EReflectType::Parameter, \"" + arg.Name + "\")";
 					return str;
 				};
 
@@ -166,7 +166,7 @@ namespace Reflect
 				str += "std::make_unique<Reflect::ReflectTypeFunction>";
 				str += "((void*)ownerClass, ";
 				str += "ownerClass->__REFLECT_FUNC__" + func.Name + ", ";
-				str += "std::make_unique<ReflectTypeCPP<" + func.Type + ">>(\"" + func.Name + "\"), ";
+				str += "std::make_unique<ReflectTypeCPP<" + func.Type + ">>(Reflect::EReflectType::Function, \"" + func.Name + "\"), ";
 				str += "std::move(" + func.Name + "_Args))";
 				return str;
 			};
@@ -190,7 +190,9 @@ namespace Reflect
 		file << "public:\n";
 		file << "\tReflect::ReflectTypeInfo GetTypeInfo(" + data.Name + "* ownerClass)\n\t{\n";
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> functions = GenerateFunctions(ownerClass);\n";
-		file << "\t\treturn ReflectTypeInfo(ownerClass, std::make_unique<ReflectTypeCPP<" + data.Name + ">>(), std::move(functions));\n";
+		file << "\t\treturn ReflectTypeInfo(ownerClass, ";
+		file << "std::make_unique<ReflectTypeCPP<" + data.Name + ">>(Reflect::EReflectType::Class), ";
+		file << "std::move(functions)); \n";
 		file << "\t}\n";
 		WRITE_PRIVATE();
 		file << "\t" + generateFunctions() + "\n";

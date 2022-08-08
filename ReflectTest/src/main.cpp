@@ -87,7 +87,7 @@ void GetAllMemebers()
 void GetFunctionRefReturn()
 {
 	Player player;
-	Reflect::ReflectFunction func = player.GetFunction("GetId");
+	Reflect::ReflectFunction func = player.GetFunction("GetIdPtr");
 	if (!func.IsValid())
 	{
 		return;
@@ -95,8 +95,8 @@ void GetFunctionRefReturn()
 
 	std::string* baseStringPtr;
 	func.Invoke(&baseStringPtr);
-	std::string* stringPtr = (std::string*)&baseStringPtr;
-	std::string& stringRef = *((std::string*)&baseStringPtr);
+	std::string* stringPtr = baseStringPtr;
+	std::string& stringRef = *baseStringPtr;
 	*stringPtr = "Pointer ID";
 	stringRef = "ReferenceID";
 }
@@ -135,7 +135,7 @@ int main(void)
 	GetMemberWithFlags();
 	GetAllMemebers();
 	GetTypeInfo();
-	//GetFunctionRefReturn();
+	GetFunctionRefReturn();
 
 	return 0;
 }

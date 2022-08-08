@@ -2,6 +2,32 @@
 
 namespace Reflect
 {
+	bool Reflect::ReflectType::IsClass() const
+	{
+		return m_eReflectType == EReflectType::Class;
+	}
+
+	bool ReflectType::IsStruct() const
+	{
+		return m_eReflectType == EReflectType::Struct;
+	}
+
+	bool ReflectType::IsMember() const
+	{
+		return m_eReflectType == EReflectType::Member;
+	}
+
+	bool ReflectType::IsFunction() const
+	{
+		return m_eReflectType == EReflectType::Function;
+	}
+
+	bool ReflectType::IsParameter() const
+	{
+		return m_eReflectType == EReflectType::Parameter;
+	}
+
+
 #ifdef REFLET_TYPE_INFO
 	ReflectTypeFunction::ReflectTypeFunction(void* ownerClass, FunctionPtr funcPtr
 		, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args)

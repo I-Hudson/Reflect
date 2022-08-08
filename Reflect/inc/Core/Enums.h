@@ -22,6 +22,7 @@ namespace Reflect
 		Struct,
 		Member,
 		Function,
+		Parameter,
 
 		Unknown
 	};

@@ -13,9 +13,6 @@ struct ReflectMember;
 
 namespace Reflect
 {
-	template<typename T>
-	class GenerateTypeInfoForType;
-
 	struct ReflectType
 	{
 		bool operator!=(const ReflectType& other)
@@ -36,6 +33,12 @@ namespace Reflect
 
 		std::string GetGivenName() const { return m_givenName; }
 
+		bool IsClass() const;
+		bool IsStruct() const;
+		bool IsMember() const;
+		bool IsFunction() const;
+		bool IsParameter() const;
+
 		virtual void ClearValue(void* data) const = 0;
 		virtual void Copy(void* src, void* dst) const = 0;
 		virtual void Copy_s(void* src, void* dst, size_t dst_size) const = 0;
@@ -52,6 +55,7 @@ namespace Reflect
 		EReflectValueModifier m_modifier;
 
 		std::string m_givenName;
+		EReflectType m_eReflectType;
 	};
 
 	template<typename Type>
@@ -59,7 +63,7 @@ namespace Reflect
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<Type>>;
 	
-		ReflectTypeCPP(std::string givenName = "")
+		ReflectTypeCPP(EReflectType eType, std::string givenName = "")
 		{
 			m_typeName = Util::GetTypeName<Type>();
 			m_typeSize = Util::GetTypeSize<Type>();
@@ -68,6 +72,7 @@ namespace Reflect
 			m_valueTypeSize = Util::GetValueTypeSize<Type>();
 
 			m_givenName = givenName;
+			m_eReflectType = eType;
 		}
 
 		virtual void ClearValue(void* data) const override
@@ -129,7 +134,7 @@ namespace Reflect
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<void>>;
 
-		ReflectTypeCPP(std::string givenName = "")
+		ReflectTypeCPP(EReflectType eType, std::string givenName = "")
 		{
 			m_typeName = "void";
 			m_typeSize = 0;
@@ -138,6 +143,7 @@ namespace Reflect
 			m_valueTypeSize = 0;
 
 			m_givenName = givenName;
+			m_eReflectType = eType;
 		}
 
 		virtual void ClearValue(void* data) const override

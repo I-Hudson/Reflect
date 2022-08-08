@@ -73,6 +73,9 @@ private:
 	REFLECT_PROPERTY()
 	std::string GetId();
 
+	REFLECT_PROPERTY()
+	std::string* GetIdPtr();
+
 private:
 	std::string Id = { };
 

@@ -10,6 +10,11 @@ std::string Player::GetId()
 	return Id;
 }
 
+std::string* Player::GetIdPtr()
+{
+	return &Id;
+}
+
 void Player::PrintHelloWorld()
 {
 	printf("Hello World!");
