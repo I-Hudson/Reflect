@@ -171,9 +171,19 @@ namespace Reflect
 	{
 		file << "#define " + currentFileId + "_FUNCTION_GET \\\n";
 		WRITE_PUBLIC();
+#ifdef REFLET_TYPE_INFO
+		file << "\tstatic Reflect::RefectTypeInfo GetTypeInfo();\\\n";
+		file << "\tReflect::RefectTypeInfo GetTypeInfo(" + data.Name + "* classPtr);\\\n";
+#endif
 		file << "\tvirtual Reflect::ReflectFunction GetFunction(const char* functionName) override;\\\n";
 		WRITE_CLOSE();
 	}
+
+#ifdef REFLET_TYPE_INFO
+	void CodeGenerateHeader::WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
+	{
+	}
+#endif
 
 	std::string CodeGenerateHeader::GetType(const Reflect::ReflectTypeNameData& arg, bool defaultReturnPointer)
 	{

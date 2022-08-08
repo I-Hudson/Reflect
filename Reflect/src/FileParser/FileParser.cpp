@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <string.h>
 
+#define EXP_PARSER
+
 namespace Reflect
 {
 	constexpr int DEFAULT_TYPE_SIZE = 0;
@@ -153,7 +155,6 @@ namespace Reflect
 	{
 		// Check if we can reflect this class/struct. 
 		int reflectStart = static_cast<int>(fileData.Data.find(keyword, fileData.Cursor));
-		std::string subStr = fileData.Data.substr(fileData.Cursor);
 		if (reflectStart == std::string::npos)
 		{
 			// Can't reflect this class/struct. Return.
@@ -406,7 +407,7 @@ namespace Reflect
 	{
 		int cursor = fileData.Cursor;
 		char lastCharacter = '\0';
-		char c = '\0';
+		char c = fileData.Data[cursor];
 		bool foundStartOfContainer = false;
 		std::stack<char> symbols;
 		while (true)

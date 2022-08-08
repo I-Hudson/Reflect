@@ -29,6 +29,7 @@ namespace Reflect
 			WriteMemberProperties(reflectData, file, addtionalOptions);
 			WriteFunctionGet(reflectData, file, addtionalOptions);
 			WriteMemberGet(reflectData, file, addtionalOptions);
+			WriteGenerateTypeInfo(reflectData, file, addtionalOptions);
 		}
 	}
 
@@ -112,6 +113,15 @@ namespace Reflect
 
 	void CodeGenerateSource::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
 	{
+#ifdef REFLET_TYPE_INFO
+		file << "Reflect::RefectTypeInfo " + data.Name + "::GetTypeInfo()\n{\n";
+		file << "\treturn Reflect::GenerateTypeInfoForType<" + data.Name + ">().GetTypeInfo(nullptr);\n";
+		file << "}\n\n";
+		file << "Reflect::RefectTypeInfo " + data.Name + "::GetTypeInfo(" + data.Name + "* classPtr)\n{\n";
+		file << "\treturn Reflect::GenerateTypeInfoForType<" + data.Name + ">().GetTypeInfo(this);\n";
+		file << "}\n\n";
+#endif
+
 		file << "Reflect::ReflectFunction " + data.Name + "::GetFunction(const char* functionName)\n{\n";
 		for (const auto& func : data.Functions)
 		{
@@ -122,6 +132,11 @@ namespace Reflect
 		}
 		file << "\treturn __super::GetFunction(functionName);\n";
 		file << "}\n\n";
+	}
+
+	void CodeGenerateSource::WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
+	{
+
 	}
 
 	std::string CodeGenerateSource::MemberFormat()

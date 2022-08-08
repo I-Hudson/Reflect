@@ -21,6 +21,8 @@ namespace Reflect
 		void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
 		void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
 
+		void WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
+
 		std::string MemberFormat();
 	};
 }

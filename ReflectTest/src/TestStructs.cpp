@@ -5,9 +5,9 @@ int Player::GetOnlineFriendsCount(int const& maxPlayerCount) const
 	return maxPlayerCount;
 }
 
-std::string* Player::GetId()
+std::string Player::GetId()
 {
-	return &Id;
+	return Id;
 }
 
 void Player::PrintHelloWorld()

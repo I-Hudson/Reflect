@@ -55,6 +55,7 @@ void GetMemberWithFlags()
 
 void GetAllMemebers()
 {
+	return;
 	int testI = 45;
 	S s;
 	s.Friends = 78;
@@ -100,6 +101,16 @@ void GetFunctionRefReturn()
 	stringRef = "ReferenceID";
 }
 
+void GetTypeInfo()
+{
+#ifdef REFLET_TYPE_INFO
+	Player player;
+	Player::GetTypeInfo();
+	auto typeinfo = player.GetTypeInfo(&player);
+	std::cout << "TypeInfo: class name '" << typeinfo.GetInfo()->GetTypeName() << "'\n";
+#endif
+}
+
 int main(void)
 {
 	FuncNoReturn();
@@ -107,6 +118,7 @@ int main(void)
 	FuncWithParameters();
 	GetMemberWithFlags();
 	GetAllMemebers();
+	GetTypeInfo();
 	//GetFunctionRefReturn();
 
 	return 0;

@@ -13,6 +13,9 @@ struct ReflectMember;
 
 namespace Reflect
 {
+	template<typename T>
+	class GenerateTypeInfoForType;
+
 	struct ReflectType
 	{
 		bool operator!=(const ReflectType& other)
@@ -383,6 +386,69 @@ namespace Reflect
 		virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
 		virtual std::vector<ReflectMember> GetAllMembers() { return {}; };
 	};
+
+#define REFLET_TYPE_INFO
+#ifdef REFLET_TYPE_INFO
+	class ReflectTypeFunction
+	{
+	public:
+		ReflectTypeFunction(void* ownerClass, FunctionPtr funcPtr
+			, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args);
+
+		//TODO: FunctionPtr returnValuePointer needs to be a pointer to a pointer. This will allow pointers to be returned from functions.
+		template<typename T>
+		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
+		{
+			if (IsValid())
+			{
+				return CallInternal((void*)returnValue, std::move(functionArgs));
+			}
+			return EReflectReturnCode::INVALID_FUNCTION_POINTER;
+		}
+		Reflect::EReflectReturnCode Invoke(void* returnValue = nullptr, FunctionPtrArgs functionArgs = FunctionPtrArgs());
+		
+		bool IsValid() const;
+
+		ReflectType* GetInfo() const;
+		const ReflectType* GetArgInfo(int index) const;
+		std::vector<ReflectType*> GetArgsInfo() const;
+
+	protected:
+		EReflectReturnCode CallInternal(void* returnValue, FunctionPtrArgs functionArgs);
+
+	protected:
+		void* m_ownerClass = nullptr;
+		FunctionPtr m_func = nullptr;
+
+		std::unique_ptr<ReflectType> m_info;
+		int m_numOfArgs;
+		std::vector<std::unique_ptr<ReflectType>> m_argsInfo;
+	};
+
+	class RefectTypeInfo
+	{
+	public:
+		RefectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
+
+		ReflectType* GetInfo() const;
+		ReflectTypeFunction* GetFunction(const char* functionName) const;
+
+	private:
+		void* m_ownerClass = nullptr;
+		std::unique_ptr<ReflectType> m_info;
+		std::vector<std::unique_ptr<ReflectTypeFunction>> m_functions;
+	};
+
+	template<typename T>
+	class GenerateTypeInfoForType
+	{
+	public:
+		RefectTypeInfo GetTypeInfo(T* ownerClass) 
+		{ 
+			return RefectTypeInfo(ownerClass, std::make_unique<ReflectTypeCPP<T>>(), {}); 
+		}
+	};
+#endif
 }
 
 #define REFLECT_BASE() public Reflect::IReflect
