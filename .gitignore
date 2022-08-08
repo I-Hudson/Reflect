@@ -16,3 +16,6 @@ BuildScripts/BuiltZips/
 *.mk
 *.project
 *.txt
+/compileData.scor
+/compileData.scor.incl
+/compileData.scor.t0000
