@@ -26,6 +26,7 @@ namespace Reflect
 
 	constexpr char ReferenceKey = '&';
 	constexpr char PointerKey = '*';
+	constexpr char WhiteSpaceKey = ' ';
 
 	constexpr const char* ConstKey = "const";
 	constexpr const char* StaticKey = "static";

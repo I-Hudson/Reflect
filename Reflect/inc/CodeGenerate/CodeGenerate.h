@@ -22,4 +22,7 @@ namespace Reflect
 		std::ofstream OpenFile(const std::string& filePath);
 		void CloseFile(std::ofstream& file);
 	};
+
+#define WRITE_PUBLIC() file << "public:\\\n"
+#define WRITE_PRIVATE() file << "private:\\\n"
 }

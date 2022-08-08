@@ -40,8 +40,8 @@ void FuncWithParameters()
 
 	int returnCount;
 	parameterFunc.Invoke(&returnCount, args);
-	std::cout << returnCount;
-	std::cout << Reflect::ReflectReturnCodeToString(parameterFunc.Invoke(&returnCount, args));
+	std::cout << returnCount << '\n';
+	std::cout << Reflect::ReflectReturnCodeToString(parameterFunc.Invoke(&returnCount, args)) << '\n';
 }
 
 void GetMemberWithFlags()
@@ -105,9 +105,25 @@ void GetTypeInfo()
 {
 #ifdef REFLET_TYPE_INFO
 	Player player;
-	Player::GetTypeInfo();
-	auto typeinfo = player.GetTypeInfo(&player);
-	std::cout << "TypeInfo: class name '" << typeinfo.GetInfo()->GetTypeName() << "'\n";
+	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo();
+	Reflect::ReflectTypeFunction* getOnlineFriendsCount = typeinfo.GetFunction("GetOnlineFriendsCount");
+
+	std::cout << "getOnlineFriendsCount valid: " << getOnlineFriendsCount->IsValid() << '\n';
+	std::cout << "getOnlineFriendsCount invoke: " << ReflectReturnCodeToString(getOnlineFriendsCount->Invoke()) << '\n';
+
+	typeinfo = Player::GetTypeInfo(&player);
+	getOnlineFriendsCount = typeinfo.GetFunction("GetOnlineFriendsCount");
+
+	int onlineCount = 45;
+
+	Reflect::FunctionPtrArgs funcArgs;
+	funcArgs.AddArg(&onlineCount);
+
+	int resultInt;
+
+	std::cout << "getOnlineFriendsCount valid: " << getOnlineFriendsCount->IsValid() << '\n';
+	std::cout << "getOnlineFriendsCount invoke: " << ReflectReturnCodeToString(getOnlineFriendsCount->Invoke(&resultInt, funcArgs)) << '\n';
+	std::cout << "getOnlineFriendsCount return: " << resultInt << '\n';
 #endif
 }
 

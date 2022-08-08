@@ -7,15 +7,13 @@ namespace Reflect
 		, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args)
 		: m_ownerClass(std::move(ownerClass)), m_func(std::move(funcPtr))
 		, m_info(std::move(info)), m_argsInfo(std::move(args))
-	{ }
-
-	Reflect::EReflectReturnCode ReflectTypeFunction::Invoke(void* returnValue, FunctionPtrArgs functionArgs)
 	{
-		if (IsValid())
-		{
-			return CallInternal((void*)returnValue, std::move(functionArgs));
-		}
-		return EReflectReturnCode::INVALID_FUNCTION_POINTER;
+		m_numOfArgs = static_cast<int>(m_argsInfo.size());
+	}
+
+	Reflect::EReflectReturnCode ReflectTypeFunction::Invoke(FunctionPtrArgs functionArgs)
+	{
+		return CallInternal(nullptr, std::move(functionArgs));
 	}
 
 	bool ReflectTypeFunction::IsValid() const
@@ -50,25 +48,49 @@ namespace Reflect
 
 	EReflectReturnCode ReflectTypeFunction::CallInternal(void* returnValue, FunctionPtrArgs functionArgs)
 	{
+		if (!IsValid())
+		{
+			return EReflectReturnCode::INVALID_FUNCTION_POINTER;
+		}
+		if (!VerifyArgs(functionArgs))
+		{
+			return EReflectReturnCode::FUNCTION_INVALID_ARGS;
+		}
 		return m_func(m_ownerClass, returnValue, functionArgs);
 	}
 
+	bool ReflectTypeFunction::VerifyArgs(const FunctionPtrArgs& functionArgs) const
+	{ 
+		if (m_numOfArgs != functionArgs.GetSize())
+		{
+			return false;
+		}
 
+		for (size_t i = 0; i < m_numOfArgs; ++i)
+		{
+			if (m_argsInfo.at(i).get()->GetTypeName() != functionArgs.GetArg(i).GetType())
+			{
+				return false;
+			}
+		}
 
-	RefectTypeInfo::RefectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)
+		return true;
+	}
+
+	ReflectTypeInfo::ReflectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)
 		: m_ownerClass(ownerClass), m_info(std::move(info)), m_functions(std::move(functions))
 	{ }
 
-	ReflectType* RefectTypeInfo::GetInfo() const
+	ReflectType* ReflectTypeInfo::GetInfo() const
 	{
 		return m_info.get();
 	}
 
-	ReflectTypeFunction* RefectTypeInfo::GetFunction(const char* functionName) const
+	ReflectTypeFunction* ReflectTypeInfo::GetFunction(const char* functionName) const
 	{
 		for (const auto& func : m_functions)
 		{
-			if (func->GetInfo()->GetValueTypeName() == functionName) 
+			if (func->GetInfo()->GetGivenName() == functionName) 
 			{
 				return func.get();
 			}

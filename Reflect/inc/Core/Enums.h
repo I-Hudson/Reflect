@@ -51,6 +51,8 @@ namespace Reflect
 		CAST_FAILED,
 		INVALID_FUNCTION_POINTER,
 		INVALID_MEMBER,
+
+		FUNCTION_INVALID_ARGS,
 	};
 	REFLECT_API std::string ReflectReturnCodeToString(const EReflectReturnCode& code);
 }

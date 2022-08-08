@@ -23,6 +23,8 @@ namespace Reflect
 			case EReflectReturnCode::INVALID_FUNCTION_POINTER: return "ReflectFuncReturnCode - Invalid Function Pointer";
 			case EReflectReturnCode::INVALID_MEMBER: return "ReflectFuncReturnCode - Invalid Member";
 
+			case EReflectReturnCode::FUNCTION_INVALID_ARGS: return "ReflectFuncReturnCode - Function Invalid Args";
+
 			default: throw std::runtime_error("[ReflectFuncReturnCodeToString] Missing ReflectFuncReturnCode to string conversion.");
 		}
 	}

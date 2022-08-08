@@ -26,10 +26,10 @@ namespace Reflect
 
 		for (auto& reflectData : data.ReflectData)
 		{
+			WriteGenerateTypeInfo(reflectData, file, addtionalOptions);
 			WriteMemberProperties(reflectData, file, addtionalOptions);
 			WriteFunctionGet(reflectData, file, addtionalOptions);
 			WriteMemberGet(reflectData, file, addtionalOptions);
-			WriteGenerateTypeInfo(reflectData, file, addtionalOptions);
 		}
 	}
 
@@ -114,11 +114,11 @@ namespace Reflect
 	void CodeGenerateSource::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
 	{
 #ifdef REFLET_TYPE_INFO
-		file << "Reflect::RefectTypeInfo " + data.Name + "::GetTypeInfo()\n{\n";
+		file << "Reflect::ReflectTypeInfo " + data.Name + "::GetTypeInfo()\n{\n";
 		file << "\treturn Reflect::GenerateTypeInfoForType<" + data.Name + ">().GetTypeInfo(nullptr);\n";
 		file << "}\n\n";
-		file << "Reflect::RefectTypeInfo " + data.Name + "::GetTypeInfo(" + data.Name + "* classPtr)\n{\n";
-		file << "\treturn Reflect::GenerateTypeInfoForType<" + data.Name + ">().GetTypeInfo(this);\n";
+		file << "Reflect::ReflectTypeInfo " + data.Name + "::GetTypeInfo(" + data.Name + "* classPtr)\n{\n";
+		file << "\treturn Reflect::GenerateTypeInfoForType<" + data.Name + ">().GetTypeInfo(classPtr);\n";
 		file << "}\n\n";
 #endif
 
@@ -136,7 +136,65 @@ namespace Reflect
 
 	void CodeGenerateSource::WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
 	{
+		auto generateFunctions = [&data]() -> std::string
+		{
+			auto generateFunctionArgs = [&data]()->std::string
+			{
+				auto generateSingleArg = [&data](const ReflectTypeNameData& arg) -> std::string
+				{
+					std::string str;
+					str += "std::make_unique<ReflectTypeCPP<" + arg.RawType + ">>(\"" + arg.Name + "\")";
+					return str;
+				};
 
+				std::string str;
+
+				for (const auto& func : data.Functions)
+				{
+					str += "\t\tstd::vector<std::unique_ptr<ReflectType>> " + func.Name + "_Args;\n";
+					for (const auto& arg : func.Parameters)
+					{
+						str += "\t\t" + func.Name + "_Args.emplace_back(" + generateSingleArg(arg) + ");\n";
+					}
+				}
+				return str;
+			};
+
+			auto generateSingleFunction = [&data](const ReflectFunctionData& func) -> std::string
+			{
+				std::string str;
+				str += "std::make_unique<Reflect::ReflectTypeFunction>";
+				str += "((void*)ownerClass, ";
+				str += "ownerClass->__REFLECT_FUNC__" + func.Name + ", ";
+				str += "std::make_unique<ReflectTypeCPP<" + func.Type + ">>(\"" + func.Name + "\"), ";
+				str += "std::move(" + func.Name + "_Args))";
+				return str;
+			};
+
+			std::string result = "std::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> GenerateFunctions(" + data.Name + "* ownerClass)\n\t{\n";
+			
+			result += generateFunctionArgs() + "\n";
+
+			result += "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> funcs;\n";
+			for (const auto& f : data.Functions)
+			{
+				result += "\t\tfuncs.push_back(" + generateSingleFunction(f) + ");\n";
+			}
+			result += "\t\treturn funcs;\n";
+			result += "\t}\n";
+			return result;
+		};
+
+		file << "template<>\n";
+		file << "class Reflect::GenerateTypeInfoForType<" + data.Name + ">\n{\n";
+		file << "public:\n";
+		file << "\tReflect::ReflectTypeInfo GetTypeInfo(" + data.Name + "* ownerClass)\n\t{\n";
+		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> functions = GenerateFunctions(ownerClass);\n";
+		file << "\t\treturn ReflectTypeInfo(ownerClass, std::make_unique<ReflectTypeCPP<" + data.Name + ">>(), std::move(functions));\n";
+		file << "\t}\n";
+		WRITE_PRIVATE();
+		file << "\t" + generateFunctions() + "\n";
+		file << "};\n\n";
 	}
 
 	std::string CodeGenerateSource::MemberFormat()

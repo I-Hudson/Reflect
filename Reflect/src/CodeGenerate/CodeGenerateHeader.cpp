@@ -13,9 +13,6 @@ namespace Reflect
 #define WRITE_CURRENT_FILE_ID(FileName) file << "#define " + GetCurrentFileID(FileName)
 #define WRITE_CLOSE() file << "\n\n"
 
-#define WRITE_PUBLIC() file << "public:\\\n"
-#define WRITE_PRIVATE() file << "private:\\\n"
-
 	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
@@ -45,6 +42,7 @@ namespace Reflect
 			WriteFunctionGet(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteMemberPropertiesOffsets(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteMemberGet(reflectData, file, CurrentFileId, addtionalOptions);
+			WriteGenerateTypeInfo(reflectData, file, CurrentFileId, addtionalOptions);
 
 			WRITE_CURRENT_FILE_ID(data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine) + "_GENERATED_BODY \\\n";
 			file << CurrentFileId + "_PROPERTIES \\\n";
@@ -52,6 +50,7 @@ namespace Reflect
 			file << CurrentFileId + "_FUNCTION_GET \\\n";
 			file << CurrentFileId + "_PROPERTIES_OFFSET \\\n";
 			file << CurrentFileId + "_PROPERTIES_GET \\\n";
+			file << CurrentFileId + "_GENERATE_TYPE_INFO \\\n";
 
 			WRITE_CLOSE();
 		}
@@ -121,11 +120,11 @@ namespace Reflect
 		{
 			std::string result;
 			if (func.ReflectValueType == EReflectValueType::Value)
-				result = "\t\t*(" + func.Type + "*)returnValuePtr = ";
+				result = "*(" + func.Type + "*)returnValuePtr = ";
 			else if (func.ReflectValueType == EReflectValueType::Pointer)
-				result = "\t\t*(("+ func.Type +"**)returnValuePtr) = ";
+				result = "*(("+ func.Type +"**)returnValuePtr) = ";
 			else if (func.ReflectValueType == EReflectValueType::Reference)
-				result = "\t\t*((" + func.Type + "**)returnValuePtr) = &";
+				result = "*((" + func.Type + "**)returnValuePtr) = &";
 			
 			if (func.ReflectValueType != EReflectValueType::Value && func.ReflectModifier == EReflectValueModifier::Const)
 				result += "const_cast<" + func.Type + Util::EReflectValueTypeToString(func.ReflectValueType) +">(";
@@ -142,25 +141,25 @@ namespace Reflect
 			int functionArgIndex = 0;
 			for (const auto& arg : func.Parameters)
 			{
-				file << "\t\t" + GetType(arg, true) + " " + arg.Name + "Arg = " + castToType(arg) + "(functionArgs.GetArg(" + std::to_string(functionArgIndex++) + "));\\\n";
+				file << "\t\t" + GetType(arg, true) + " " + arg.Name + "Arg = " + castToType(arg) + "(functionArgs.GetArg(" + std::to_string(functionArgIndex++) + ").Get());\\\n";
 			}
 			file << "\t\t" + data.Name + "* ptr = static_cast<" + data.Name + "*>(objectPtr);\\\n";
 			// TODO: (01/04/21) Check this cast. If it failed return ReflectFuncReturnCode::CAST_FAILED.
 			file << "\t\tif (ptr == nullptr) { return Reflect::EReflectReturnCode::CAST_FAILED; }\\\n";
 			if (func.Type != "void")
 			{
-				file << returnType(func);
+				file << "\t\tif (returnValuePtr != nullptr)\\\n\t\t{\\\n";
+				file << "\t\t\t" << returnType(func) << "ptr->" + func.Name + "(" + populateArgs(func.Parameters) + ");" << "\\\n\t\t}\\\n";
+				file << "\t\telse\\\n\t\t{\\\n\t\t\t" << "ptr->" + func.Name + "(" + populateArgs(func.Parameters) + ");\\\n\t\t}\\\n";
 			}
 			else
 			{
-				file << "\t\t";
+				file << "\t\tptr->" + func.Name + "(" + populateArgs(func.Parameters) + ");\\\n";
 			}
-			file << "ptr->" + func.Name + "(" + populateArgs(func.Parameters) + ")";
-
+			
 			if (func.ReflectValueType != EReflectValueType::Value && func.ReflectModifier == EReflectValueModifier::Const)
 				file << ")";
 
-			file << ";\\\n";
 			file << "\t\treturn Reflect::EReflectReturnCode::SUCCESS;\\\n";
 			file << "\t}\\\n";
 		}
@@ -172,8 +171,8 @@ namespace Reflect
 		file << "#define " + currentFileId + "_FUNCTION_GET \\\n";
 		WRITE_PUBLIC();
 #ifdef REFLET_TYPE_INFO
-		file << "\tstatic Reflect::RefectTypeInfo GetTypeInfo();\\\n";
-		file << "\tReflect::RefectTypeInfo GetTypeInfo(" + data.Name + "* classPtr);\\\n";
+		file << "\tstatic Reflect::ReflectTypeInfo GetTypeInfo();\\\n";
+		file << "\tstatic Reflect::ReflectTypeInfo GetTypeInfo(" + data.Name + "* classPtr);\\\n";
 #endif
 		file << "\tvirtual Reflect::ReflectFunction GetFunction(const char* functionName) override;\\\n";
 		WRITE_CLOSE();
@@ -182,6 +181,9 @@ namespace Reflect
 #ifdef REFLET_TYPE_INFO
 	void CodeGenerateHeader::WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
 	{
+		file << "#define " + currentFileId + "_GENERATE_TYPE_INFO \\\n";
+		file << "friend class Reflect::GenerateTypeInfoForType<" + data.Name + ">;\\\n";
+		WRITE_CLOSE();
 	}
 #endif
 

@@ -950,6 +950,10 @@ namespace Reflect
 					Util::RemoveCharReverse(parameter.Type, ReferenceKey);
 					Util::RemoveCharReverse(parameter.Type, PointerKey);
 
+					parameter.RawType = parameter.Type;
+					Util::RemoveString(parameter.RawType, ConstKey);
+					Util::RemoveCharAll(parameter.RawType, WhiteSpaceKey);
+
 					str = {};
 					parameters.push_back(parameter);
 				}

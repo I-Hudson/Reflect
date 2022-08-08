@@ -34,6 +34,8 @@ namespace Reflect
 		std::string GetValueTypeName() const { return m_valueTypeName; }
 		std::size_t GetValueTypeSize() const { return m_valueTypeSize; }
 
+		std::string GetGivenName() const { return m_givenName; }
+
 		virtual void ClearValue(void* data) const = 0;
 		virtual void Copy(void* src, void* dst) const = 0;
 		virtual void Copy_s(void* src, void* dst, size_t dst_size) const = 0;
@@ -48,6 +50,8 @@ namespace Reflect
 
 		EReflectValueType m_typeValue;
 		EReflectValueModifier m_modifier;
+
+		std::string m_givenName;
 	};
 
 	template<typename Type>
@@ -55,13 +59,15 @@ namespace Reflect
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<Type>>;
 	
-		ReflectTypeCPP()
+		ReflectTypeCPP(std::string givenName = "")
 		{
 			m_typeName = Util::GetTypeName<Type>();
 			m_typeSize = Util::GetTypeSize<Type>();
 
 			m_valueTypeName = Util::GetValueTypeName<Type>();
 			m_valueTypeSize = Util::GetValueTypeSize<Type>();
+
+			m_givenName = givenName;
 		}
 
 		virtual void ClearValue(void* data) const override
@@ -118,9 +124,42 @@ namespace Reflect
 
 	};
 
+	template<>
+	struct ReflectTypeCPP<void> : public ReflectType
+	{
+		using value_type = std::remove_pointer_t<std::remove_reference_t<void>>;
+
+		ReflectTypeCPP(std::string givenName = "")
+		{
+			m_typeName = "void";
+			m_typeSize = 0;
+
+			m_valueTypeName = "void";
+			m_valueTypeSize = 0;
+
+			m_givenName = givenName;
+		}
+
+		virtual void ClearValue(void* data) const override
+		{ }
+
+		virtual void Copy(void* src, void* dst) const override
+		{ }
+
+		/// <summary>
+		/// Safe call for copy. Check the 'value_type' size against dst_size.
+		/// </summary>
+		/// <param name="src"></param>
+		/// <param name="dst"></param>
+		/// <param name="dst_size"></param>
+		virtual void Copy_s(void* src, void* dst, size_t dst_size) const override
+		{ }
+	};
+
 	struct ReflectTypeNameData
 	{
 		std::string Type;
+		std::string RawType;
 		std::string Name;
 		EReflectValueType ReflectValueType;
 		EReflectValueModifier ReflectModifier;
@@ -138,9 +177,10 @@ namespace Reflect
 		{ }
 
 		template<typename T>
-		ReflectTypeNameData(const std::string& type, const std::string& name, const int& typeSize, const Reflect::EReflectValueType& memberType, const bool& isConst)
+		ReflectTypeNameData(const std::string& type, const std::string& rawType, const std::string& name, const int& typeSize, const Reflect::EReflectValueType& memberType, const bool& isConst)
 			: Type(type)
 			, Name(name)
+			, RawType(rawType)
 			, TypeSize(typeSize)
 			, ReflectValueType(memberType)
 			, IsConst(isConst)
@@ -250,6 +290,7 @@ namespace Reflect
 				, Ptr(ptr)
 			{ }
 
+			std::string GetType() const { return Type; }
 			void* Get() const { return Ptr; }
 
 		private:
@@ -262,9 +303,9 @@ namespace Reflect
 			: m_args(args)
 		{ }
 
-		void* GetArg(int index)
+		Arg GetArg(int index) const
 		{
-			return m_args.at(index).Get();
+			return m_args.at(index);
 		}
 
 		template<typename T>
@@ -272,6 +313,8 @@ namespace Reflect
 		{
 			m_args.push_back(Arg(Reflect::Util::GetTypeName(*obj), obj));
 		}
+
+		int GetSize() const { return static_cast<int>(m_args.size()); }
 
 	private:
 		std::vector<Arg> m_args;
@@ -395,17 +438,13 @@ namespace Reflect
 		ReflectTypeFunction(void* ownerClass, FunctionPtr funcPtr
 			, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args);
 
+		Reflect::EReflectReturnCode Invoke(FunctionPtrArgs functionArgs = FunctionPtrArgs());
 		//TODO: FunctionPtr returnValuePointer needs to be a pointer to a pointer. This will allow pointers to be returned from functions.
 		template<typename T>
 		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
 		{
-			if (IsValid())
-			{
-				return CallInternal((void*)returnValue, std::move(functionArgs));
-			}
-			return EReflectReturnCode::INVALID_FUNCTION_POINTER;
+			return CallInternal((void*)returnValue, std::move(functionArgs));
 		}
-		Reflect::EReflectReturnCode Invoke(void* returnValue = nullptr, FunctionPtrArgs functionArgs = FunctionPtrArgs());
 		
 		bool IsValid() const;
 
@@ -416,6 +455,9 @@ namespace Reflect
 	protected:
 		EReflectReturnCode CallInternal(void* returnValue, FunctionPtrArgs functionArgs);
 
+	private:
+		bool VerifyArgs(const FunctionPtrArgs& functionArgs) const;
+
 	protected:
 		void* m_ownerClass = nullptr;
 		FunctionPtr m_func = nullptr;
@@ -425,10 +467,10 @@ namespace Reflect
 		std::vector<std::unique_ptr<ReflectType>> m_argsInfo;
 	};
 
-	class RefectTypeInfo
+	class ReflectTypeInfo
 	{
 	public:
-		RefectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
+		ReflectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
 
 		ReflectType* GetInfo() const;
 		ReflectTypeFunction* GetFunction(const char* functionName) const;
@@ -443,9 +485,9 @@ namespace Reflect
 	class GenerateTypeInfoForType
 	{
 	public:
-		RefectTypeInfo GetTypeInfo(T* ownerClass) 
+		ReflectTypeInfo GetTypeInfo(T* ownerClass) 
 		{ 
-			return RefectTypeInfo(ownerClass, std::make_unique<ReflectTypeCPP<T>>(), {}); 
+			return ReflectTypeInfo(ownerClass, std::make_unique<ReflectTypeCPP<T>>(), {}); 
 		}
 	};
 #endif
