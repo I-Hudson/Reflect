@@ -39,7 +39,7 @@ namespace Reflect
 
 	Reflect::EReflectReturnCode ReflectTypeFunction::Invoke(FunctionPtrArgs functionArgs)
 	{
-		return CallInternal(nullptr, std::move(functionArgs));
+		return CallInternal(nullptr, nullptr, std::move(functionArgs));
 	}
 
 	bool ReflectTypeFunction::IsValid() const
@@ -72,7 +72,7 @@ namespace Reflect
 		return args;
 	}
 
-	EReflectReturnCode ReflectTypeFunction::CallInternal(void* returnValue, FunctionPtrArgs functionArgs)
+	EReflectReturnCode ReflectTypeFunction::CallInternal(void* returnValue, std::unique_ptr<ReflectType> returnType, FunctionPtrArgs functionArgs)
 	{
 		if (!IsValid())
 		{
@@ -81,6 +81,10 @@ namespace Reflect
 		if (!VerifyArgs(functionArgs))
 		{
 			return EReflectReturnCode::FUNCTION_INVALID_ARGS;
+		}
+		if (!CheckReturnType(returnType.get()))
+		{
+			return EReflectReturnCode::FUNCTION_INVALID_RETURN_TYPE;
 		}
 		return m_func(m_ownerClass, returnValue, functionArgs);
 	}
@@ -101,6 +105,15 @@ namespace Reflect
 		}
 
 		return true;
+	}
+
+	bool ReflectTypeFunction::CheckReturnType(ReflectType* returnType) const
+	{
+		if (returnType == nullptr)
+		{
+			return true;
+		}
+		return m_info->GetTypeName() == returnType->GetTypeName();
 	}
 
 	ReflectTypeInfo::ReflectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)

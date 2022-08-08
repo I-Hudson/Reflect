@@ -449,7 +449,7 @@ namespace Reflect
 		template<typename T>
 		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
 		{
-			return CallInternal((void*)returnValue, std::move(functionArgs));
+			return CallInternal((void*)returnValue, std::make_unique<ReflectTypeCPP<T>>(EReflectType::Unknown), std::move(functionArgs));
 		}
 		
 		bool IsValid() const;
@@ -459,10 +459,11 @@ namespace Reflect
 		std::vector<ReflectType*> GetArgsInfo() const;
 
 	protected:
-		EReflectReturnCode CallInternal(void* returnValue, FunctionPtrArgs functionArgs);
+		EReflectReturnCode CallInternal(void* returnValue, std::unique_ptr<ReflectType> returnType,FunctionPtrArgs functionArgs);
 
 	private:
 		bool VerifyArgs(const FunctionPtrArgs& functionArgs) const;
+		bool CheckReturnType(ReflectType* returnType) const;
 
 	protected:
 		void* m_ownerClass = nullptr;

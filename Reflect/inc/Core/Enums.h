@@ -54,6 +54,7 @@ namespace Reflect
 		INVALID_MEMBER,
 
 		FUNCTION_INVALID_ARGS,
+		FUNCTION_INVALID_RETURN_TYPE,
 	};
 	REFLECT_API std::string ReflectReturnCodeToString(const EReflectReturnCode& code);
 }
