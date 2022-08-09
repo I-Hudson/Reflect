@@ -24,6 +24,9 @@ namespace Reflect
 		REFLECT_API const FileParsedData& GetFileParsedData(int index) const { return m_filesParsed.at(index); }
 		REFLECT_API const std::vector<FileParsedData>& GetAllFileParsedData() const { return m_filesParsed; }
 
+		REFLECT_API const std::string& GetDirectoryParsed(int index) const { return m_directoriesParsed.at(index); }
+		REFLECT_API const std::vector<std::string>& GetAllDirectoriesParsed() const { return  m_directoriesParsed; }
+
 	private:
 		std::ifstream OpenFile(const std::string& filePath);
 		void CloseFile(std::ifstream& file);
@@ -82,6 +85,7 @@ namespace Reflect
 		std::vector<FileParsedData> m_filesParsed;
 		std::vector<std::string> m_filesToRemove;
 		std::vector<std::string> m_ignoreStrings;
+		std::vector<std::string> m_directoriesParsed;
 		ReflectAddtionalOptions m_options;
 	};
 }

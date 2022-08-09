@@ -2,6 +2,7 @@
 
 #include "Log.h"
 #include <unordered_map>
+#include <string_view>
 
 #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
 #define CPP_17 1
@@ -27,13 +28,17 @@
 #define BODY_MACRO_COMBINE_INNER(A, B, C, D) A##B##C##D
 #define BODY_MACRO_COMBINE(A, B, C, D) BODY_MACRO_COMBINE_INNER(A, B, C, D)
 
-#define REFLECT_GENERATED_BODY(...) BODY_MACRO_COMBINE(CURRENT_FILE_ID, _, __LINE__, _GENERATED_BODY);
+#ifdef REFLECT_SINGLE_FILE
+#define REFLECT_GENERATED_BODY(...) BODY_MACRO_COMBINE(__VA_ARGS__, _Source_h_, __LINE__, _GENERATED_BODY);
+#else
+#define REFLECT_GENERATED_BODY() BODY_MACRO_COMBINE(CURRENT_FILE_ID, _, __LINE__, _GENERATED_BODY);
+#endif
 #define REFLECT_CPP_INCLUDE(...)
 
 namespace Reflect
 {
 	#define REFLECT_MAJOR 3
-	#define REFLECT_MINOR 1
+	#define REFLECT_MINOR 2
 	#define REFLECT_PATCH 1
 
 	constexpr const char* RefectStructKey = "REFLECT_STRUCT";
@@ -46,17 +51,30 @@ namespace Reflect
 
 	constexpr const char* Reflect_CMD_Option_PCH_Include = "pchInclude";
 	constexpr const char* Reflect_CMD_Option_Reflect_Full_EXT = "reflect_full_ext";
+	//constexpr const char* Reflect_CMD_Option_Single_File_EXT = "reflect_single_file_ext";
 	constexpr const char* Reflect_CMD_Options[] =
 	{
-		Reflect_CMD_Option_PCH_Include, Reflect_CMD_Option_Reflect_Full_EXT
+		Reflect_CMD_Option_PCH_Include
+		, Reflect_CMD_Option_Reflect_Full_EXT
+		//, Reflect_CMD_Option_Single_File_EXT
 	};
 
 	struct ReflectAddtionalOptions
 	{
+		std::string_view GetOption(std::string_view optionKey) const
+		{
+			if (auto itr = options.find(optionKey.data()); itr != options.end())
+			{
+				return itr->second;
+			}
+			return "";
+		}
+
 		std::unordered_map<std::string, std::string> options =
 		{
 			{ Reflect::Reflect_CMD_Option_PCH_Include, "" },
 			{ Reflect::Reflect_CMD_Option_Reflect_Full_EXT, "false" },
+			//{ Reflect::Reflect_CMD_Option_Single_File_EXT, "false" }
 
 		};
 	};

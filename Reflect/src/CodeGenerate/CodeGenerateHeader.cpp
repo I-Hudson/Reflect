@@ -5,12 +5,17 @@
 
 namespace Reflect
 {
-	std::string GetCurrentFileID(const std::string& fileName)
+	std::string GetCurrentFileID(const std::string& containerName, const std::string& fileName)
 	{
+#ifdef REFLECT_SINGLE_FILE
+		return  containerName + "_Source_h";
+
+#else
 		return  fileName + "_Source_h";
+#endif
 	}
 
-#define WRITE_CURRENT_FILE_ID(FileName) file << "#define " + GetCurrentFileID(FileName)
+#define WRITE_CURRENT_FILE_ID(ContainerName, FileName) file << "#define " + GetCurrentFileID(ContainerName, FileName)
 #define WRITE_CLOSE() file << "\n\n"
 
 	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
@@ -35,7 +40,7 @@ namespace Reflect
 	{
 		for (const auto& reflectData : data.ReflectData)
 		{
-			const std::string CurrentFileId = GetCurrentFileID(data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine);
+			const std::string CurrentFileId = GetCurrentFileID(reflectData.Name, data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine);
 
 			WriteMemberProperties(reflectData, file, CurrentFileId, addtionalOptions);
 			WriteFunctions(reflectData, file, CurrentFileId, addtionalOptions);
@@ -46,7 +51,7 @@ namespace Reflect
 			WriteGenerateTypeInfo(reflectData, file, CurrentFileId, addtionalOptions);
 #endif 
 
-			WRITE_CURRENT_FILE_ID(data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine) + "_GENERATED_BODY \\\n";
+			WRITE_CURRENT_FILE_ID(reflectData.Name, data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine) + "_GENERATED_BODY \\\n";
 			file << CurrentFileId + "_PROPERTIES \\\n";
 			file << CurrentFileId + "_FUNCTION_DECLARE \\\n";
 			file << CurrentFileId + "_FUNCTION_GET \\\n";
@@ -58,8 +63,10 @@ namespace Reflect
 			WRITE_CLOSE();
 		}
 
+#ifndef REFLECT_SINGLE_FILE
 		file << "#undef CURRENT_FILE_ID\n";
-		file << "#define CURRENT_FILE_ID " + GetCurrentFileID(data.FileName) + "\n";
+		file << "#define CURRENT_FILE_ID " + GetCurrentFileID("", data.FileName) + "\n";
+#endif
 	}
 
 	void CodeGenerateHeader::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
@@ -85,9 +92,9 @@ namespace Reflect
 	{
 		file << "#define " + currentFileId + "_PROPERTIES_GET \\\n";
 		WRITE_PUBLIC();
-		file << "virtual Reflect::ReflectMember GetMember(const char* memberName) override;\\\n";
-		file << "virtual std::vector<Reflect::ReflectMember> GetMembers(std::vector<std::string> const& flags) override;\\\n";
-		file << "virtual std::vector<Reflect::ReflectMember> GetAllMembers() override;\\\n";
+		file << "\tvirtual Reflect::ReflectMember GetMember(const char* memberName) override;\\\n";
+		file << "\tvirtual std::vector<Reflect::ReflectMember> GetMembers(std::vector<std::string> const& flags) override;\\\n";
+		file << "\tvirtual std::vector<Reflect::ReflectMember> GetAllMembers() override;\\\n";
 		WRITE_CLOSE();
 	}
 

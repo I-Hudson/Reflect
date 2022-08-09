@@ -33,27 +33,27 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		std::ifstream iFile(Reflect::ReflectIgnoreStringsFileName);
-		if (iFile.is_open())
+		if (directories.size() > 0)
 		{
-			iFile.seekg(0, iFile.end);
-			size_t size = iFile.tellg();
-			iFile.seekg(0, iFile.beg);
-
-			std::string data;
-			data.resize(size);
-			iFile.read(data.data(), size);
-			iFile.close();
-			parser.SetIgnoreStrings(Reflect::Util::SplitString(data.data(), '\n'));
-		}
-
-		for (auto& dir : directories)
-		{
-			parser.ParseDirectory(dir, options);
-			for (auto& file : parser.GetAllFileParsedData())
+			std::ifstream iFile(Reflect::ReflectIgnoreStringsFileName);
+			if (iFile.is_open())
 			{
-				codeGenerate.Reflect(file, options);
+				iFile.seekg(0, iFile.end);
+				size_t size = iFile.tellg();
+				iFile.seekg(0, iFile.beg);
+
+				std::string data;
+				data.resize(size);
+				iFile.read(data.data(), size);
+				iFile.close();
+				parser.SetIgnoreStrings(Reflect::Util::SplitString(data.data(), '\n'));
 			}
+
+			for (auto& dir : directories)
+			{
+				parser.ParseDirectory(dir, options);
+			}
+			codeGenerate.Reflect(parser, options);
 		}
 	}
 	timer.Stop();

@@ -34,6 +34,7 @@ namespace Reflect
 		m_filesToRemove.clear();
 		m_options = options;
 
+		m_directoriesParsed.push_back(directory);
 		std::filesystem::path dirPath(directory);
 		std::error_code err;
 		if (!std::filesystem::is_directory(dirPath, err))

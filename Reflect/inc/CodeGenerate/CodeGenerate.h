@@ -2,6 +2,7 @@
 
 #include "Core/Core.h"
 #include "ReflectStructs.h"
+#include <FileParser/FileParser.h>
 #include<fstream>
 
 namespace Reflect
@@ -15,7 +16,7 @@ namespace Reflect
 		REFLECT_API CodeGenerate();
 		REFLECT_API ~CodeGenerate();
 
-		REFLECT_API void Reflect(const FileParsedData& data, const ReflectAddtionalOptions& addtionalOptions);
+		REFLECT_API void Reflect(const FileParser& parser, const ReflectAddtionalOptions& addtionalOptions);
 		REFLECT_API static void IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude = false);
 
 	private:

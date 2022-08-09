@@ -52,7 +52,7 @@ class C
 REFLECT_CLASS(AllPrivate, ShowInEditorOnly, EditorOnly)
 class Player : REFLECT_BASE()
 {
-	REFLECT_GENERATED_BODY()
+	REFLECT_GENERATED_BODY();
 
 public:
 	Player()

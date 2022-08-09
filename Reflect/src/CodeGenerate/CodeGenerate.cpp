@@ -15,25 +15,55 @@ namespace Reflect
 	CodeGenerate::~CodeGenerate()
 	{ }
 
-	void CodeGenerate::Reflect(const FileParsedData& data, const ReflectAddtionalOptions& addtionalOptions)
+	void CodeGenerate::Reflect(const FileParser& parser, const ReflectAddtionalOptions& addtionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
 		CodeGenerateHeader header;
 		CodeGenerateSource source;
 
-		if (!std::filesystem::exists(data.FilePath + "/Generated"))
+#ifdef REFLECT_SINGLE_FILE
+		//if (addtionalOptions.GetOption(Reflect::Reflect_CMD_Option_Single_File_EXT) == "true")
 		{
-			std::filesystem::create_directory(data.FilePath + "/Generated");
+			const std::string dir = parser.GetDirectoryParsed(0);
+			if (!std::filesystem::exists(dir + "/Generated"))
+			{
+				std::filesystem::create_directory(dir + "/Generated");
+			}
+
+			constexpr const char* fileName = "ReflectData";
+
+			std::ofstream fileHeader = OpenFile(dir + "/Generated/" + fileName + ReflectFileGeneratePrefix + ".h");
+			std::ofstream fileCPP = OpenFile(dir + "/Generated/" + fileName + ReflectFileGeneratePrefix + ".cpp");
+
+			for (const auto& data : parser.GetAllFileParsedData())
+			{
+				header.GenerateHeader(data, fileHeader, addtionalOptions);
+				source.GenerateSource(data, fileCPP, addtionalOptions);
+			}
+			CloseFile(fileHeader);
+			CloseFile(fileCPP);
 		}
+#else
+		//else
+		{
+			for (const auto& data : parser.GetAllFileParsedData())
+			{
+				if (!std::filesystem::exists(data.FilePath + "/Generated"))
+				{
+					std::filesystem::create_directory(data.FilePath + "/Generated");
+				}
 
-		std::ofstream file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h");
-		header.GenerateHeader(data, file, addtionalOptions);
-		CloseFile(file);
+				std::ofstream file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h");
+				header.GenerateHeader(data, file, addtionalOptions);
+				CloseFile(file);
 
-		file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
-		source.GenerateSource(data, file, addtionalOptions);
-		CloseFile(file);
+				file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
+				source.GenerateSource(data, file, addtionalOptions);
+				CloseFile(file);
+			}
+		}
+#endif
 	}
 
 	std::ofstream CodeGenerate::OpenFile(const std::string& filePath)
