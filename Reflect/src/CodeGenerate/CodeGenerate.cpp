@@ -49,16 +49,27 @@ namespace Reflect
 		{
 			for (const auto& data : parser.GetAllFileParsedData())
 			{
+				if (std::filesystem::exists(data.FilePath + "/Generated"))
+				{
+					std::filesystem::remove_all(data.FilePath + "/Generated");
+				}
+			}
+
+			for (const auto& data : parser.GetAllFileParsedData())
+			{
 				if (!std::filesystem::exists(data.FilePath + "/Generated"))
 				{
 					std::filesystem::create_directory(data.FilePath + "/Generated");
 				}
 
-				std::ofstream file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h");
+				const std::string hFile = data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h";
+				const std::string cppFile = data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp";
+
+				std::ofstream file = OpenFile(hFile);
 				header.GenerateHeader(data, file, addtionalOptions);
 				CloseFile(file);
 
-				file = OpenFile(data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp");
+				file = OpenFile(cppFile);
 				source.GenerateSource(data, file, addtionalOptions);
 				CloseFile(file);
 			}
