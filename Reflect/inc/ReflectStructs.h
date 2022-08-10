@@ -321,6 +321,8 @@ namespace Reflect
 			m_args.push_back(Arg(Reflect::Util::GetTypeName(*obj), obj));
 		}
 
+		void Clear() { m_args.clear(); }
+
 		int GetSize() const { return static_cast<int>(m_args.size()); }
 
 	private:

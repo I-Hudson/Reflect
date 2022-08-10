@@ -37,6 +37,7 @@ struct S : REFLECT_BASE(), public Interface
 {
 	REFLECT_GENERATED_BODY()
 
+public:
 	int& GetFriends() { return Friends; }
 
 	int Friends = int(1);
@@ -61,6 +62,13 @@ public:
 
 	~Player(){}
 
+	REFLECT_PROPERTY()
+	int GetAge() const { return Age; }
+	REFLECT_PROPERTY()
+	float GetHeight() const { return Height; }
+	REFLECT_PROPERTY()
+	void SetAgeAndHeight(int newAge, float newHeight);
+
 	REFLECT_PROPERTY(Public)
 	int GetOnlineFriendsCount(int const& maxPlayerCount)const;
 
@@ -83,4 +91,7 @@ private:
 		int Friends;
 	REFLECT_PROPERTY(Public)
 		int TimeOnline = 78;
+
+	REFLECT_PROPERTY() int Age = 21;
+	REFLECT_PROPERTY() float Height;
 };

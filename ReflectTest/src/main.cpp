@@ -132,18 +132,30 @@ void GetTypeInfo()
 	std::cout << "Member value: " << *memberPtr << '\n';
 	*memberPtr = 23;
 	std::cout << "Member new value: " << *memberPtr << '\n';
+
+	Reflect::ReflectTypeFunction* setAgeAndHeightFunction = typeinfo.GetFunction("SetAgeAndHeight");
+	funcArgs.Clear();
+
+	int newAge = 78;
+	funcArgs.AddArg(&newAge);
+	float newHeight = 5.6f;
+	funcArgs.AddArg(&newHeight);
+
+	setAgeAndHeightFunction->Invoke(funcArgs);
 #endif
 }
 
 int main(void)
 {
+#ifndef REFLET_TYPE_INFO
 	FuncNoReturn();
 	FuncReturnValue();
 	FuncWithParameters();
 	GetMemberWithFlags();
 	GetAllMemebers();
-	GetTypeInfo();
 	GetFunctionRefReturn();
-
+#else
+	GetTypeInfo();
+#endif
 	return 0;
 }

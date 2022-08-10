@@ -26,4 +26,8 @@ namespace Reflect
 
 #define WRITE_PUBLIC() file << "public:\\\n"
 #define WRITE_PRIVATE() file << "private:\\\n"
+#define TAB() '\t'
+#define NEW_LINE() " \n"
+#define NEW_LINE_SLASH() " \\\n"
+#define TAB_NEW_LINE() "\t\n"
 }
