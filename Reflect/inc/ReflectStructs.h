@@ -446,10 +446,12 @@ namespace Reflect
 	class ReflectTypeMember
 	{
 	public:
-		ReflectTypeMember(void* ownerClass, void* memberPtr, std::unique_ptr<ReflectType> type);
+		ReflectTypeMember(void* ownerClass, void* memberPtr, std::unique_ptr<ReflectType> type,
+			std::vector<std::string> flags);
 
 		ReflectType* GetType() const;
 		bool IsValid() const;
+		bool HasFlag(const char* flag) const;
 
 		template<typename T>
 		T* ConvertToType()
@@ -466,6 +468,7 @@ namespace Reflect
 		void* m_ownerClass = nullptr;
 		void* m_memberPtr = nullptr;
 		std::unique_ptr<ReflectType> m_type;
+		std::vector<std::string> m_flags;
 
 		friend class ReflectTypeInfo;
 	};
@@ -516,7 +519,11 @@ namespace Reflect
 			, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
 
 		ReflectType* GetInfo() const;
+		
 		ReflectTypeMember* GetMember(const char* memberName) const;
+		std::vector<ReflectTypeMember*> GetAllMembers() const;
+		std::vector<ReflectTypeMember*> GetAllMembersWithFlags(std::vector<const char*> flags) const;
+
 		ReflectTypeFunction* GetFunction(const char* functionName) const;
 
 	private:

@@ -29,8 +29,10 @@ namespace Reflect
 
 
 #ifdef REFLET_TYPE_INFO
-	ReflectTypeMember::ReflectTypeMember(void* ownerClass, void* memberPtr, std::unique_ptr<ReflectType> type)
+	ReflectTypeMember::ReflectTypeMember(void* ownerClass, void* memberPtr, std::unique_ptr<ReflectType> type
+	, std::vector<std::string> flags)
 		: m_ownerClass(ownerClass), m_memberPtr(memberPtr), m_type(std::move(type))
+		, m_flags(std::move(flags))
 	{ }
 
 	ReflectType* ReflectTypeMember::GetType() const
@@ -41,6 +43,11 @@ namespace Reflect
 	bool ReflectTypeMember::IsValid() const
 	{
 		return m_ownerClass && m_memberPtr;
+	}
+
+	bool ReflectTypeMember::HasFlag(const char* flag) const
+	{
+		return std::find(m_flags.begin(), m_flags.end(), flag) != m_flags.end();
 	}
 
 
@@ -153,6 +160,33 @@ namespace Reflect
 			}
 		}
 		return nullptr;
+	}
+
+	std::vector<ReflectTypeMember*> ReflectTypeInfo::GetAllMembers() const
+	{
+		std::vector<ReflectTypeMember*> vec;
+		std::transform(m_members.begin(), m_members.end(), std::back_inserter(vec),
+			[](const std::unique_ptr<Reflect::ReflectTypeMember>& member)
+			{
+				return member.get();
+			});
+		return vec;
+	}
+
+	std::vector<ReflectTypeMember*> ReflectTypeInfo::GetAllMembersWithFlags(std::vector<const char*> flags) const
+	{
+		std::vector<ReflectTypeMember*> vec;
+		std::for_each(m_members.begin(), m_members.end(), [&vec, flags](const std::unique_ptr<Reflect::ReflectTypeMember>& member)
+			{
+				for (const auto& flag : flags)
+				{
+					if (member->HasFlag(flag))
+					{
+						vec.push_back(member.get());
+					}
+				}
+			});
+		return vec;
 	}
 
 	ReflectTypeFunction* ReflectTypeInfo::GetFunction(const char* functionName) const

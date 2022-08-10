@@ -159,10 +159,21 @@ namespace Reflect
 	{
 		file << "\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> GenerateMembers(" + data.Name + "* ownerClass)\n\t{" << NEW_LINE();
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> members;\n" << NEW_LINE();
+		file << "\t\tstd::vector<std::string> flags;\n" << NEW_LINE();
 		for (const auto& member : data.Members)
 		{
-			file << "\t\tmembers.emplace_back(std::make_unique<Reflect::ReflectTypeMember>(ownerClass, (unsigned char*)ownerClass + offsetof(" + data.Name + ", " + member.Name + "), ";
-			file << "std::make_unique<ReflectTypeCPP<" + member.RawType + ">>(Reflect::EReflectType::Member, \"" + member.Name + "\")));" << NEW_LINE();
+			file << TAB() << TAB() << "flags.clear();" << NEW_LINE();
+			int flagIndex = 0;
+			for (const auto& flag : member.ContainerProps)
+			{
+				file << TAB() << TAB() << "flags.push_back(\"" + flag + "\");" << NEW_LINE();
+			}
+
+			file << "\t\tmembers.emplace_back(std::make_unique<Reflect::ReflectTypeMember>(ownerClass, ";
+			file << "(unsigned char*)ownerClass + offsetof(" + data.Name + ", " + member.Name + "), ";
+			file << "std::make_unique<ReflectTypeCPP<" + member.RawType + ">>(Reflect::EReflectType::Member, \"" + member.Name + "\"), ";
+			file << "flags";
+			file << ")); " << NEW_LINE() << NEW_LINE();
 		}
 		file << "\t\treturn members;" << NEW_LINE();
 		file << "\t}" << NEW_LINE();

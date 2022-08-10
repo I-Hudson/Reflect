@@ -142,6 +142,8 @@ void GetTypeInfo()
 	funcArgs.AddArg(&newHeight);
 
 	setAgeAndHeightFunction->Invoke(funcArgs);
+
+	auto members = typeinfo.GetAllMembersWithFlags({ "Public" });
 #endif
 }
 
