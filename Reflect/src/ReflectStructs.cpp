@@ -29,6 +29,21 @@ namespace Reflect
 
 
 #ifdef REFLET_TYPE_INFO
+	ReflectTypeMember::ReflectTypeMember(void* ownerClass, void* memberPtr, std::unique_ptr<ReflectType> type)
+		: m_ownerClass(ownerClass), m_memberPtr(memberPtr), m_type(std::move(type))
+	{ }
+
+	ReflectType* ReflectTypeMember::GetType() const
+	{
+		return m_type.get();
+	}
+
+	bool ReflectTypeMember::IsValid() const
+	{
+		return m_ownerClass && m_memberPtr;
+	}
+
+
 	ReflectTypeFunction::ReflectTypeFunction(void* ownerClass, FunctionPtr funcPtr
 		, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args)
 		: m_ownerClass(std::move(ownerClass)), m_func(std::move(funcPtr))
@@ -116,13 +131,28 @@ namespace Reflect
 		return m_info->GetTypeName() == returnType->GetTypeName();
 	}
 
-	ReflectTypeInfo::ReflectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)
-		: m_ownerClass(ownerClass), m_info(std::move(info)), m_functions(std::move(functions))
+	ReflectTypeInfo::ReflectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info
+		, std::vector<std::unique_ptr<ReflectTypeMember>> members
+		, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)
+		: m_ownerClass(ownerClass), m_info(std::move(info))
+		, m_members(std::move(members)), m_functions(std::move(functions))
 	{ }
 
 	ReflectType* ReflectTypeInfo::GetInfo() const
 	{
 		return m_info.get();
+	}
+
+	ReflectTypeMember* ReflectTypeInfo::GetMember(const char* memberName) const
+	{
+		for (const auto& member : m_members)
+		{
+			if (member->GetType()->GetGivenName() == memberName)
+			{
+				return member.get();
+			}
+		}
+		return nullptr;
 	}
 
 	ReflectTypeFunction* ReflectTypeInfo::GetFunction(const char* functionName) const

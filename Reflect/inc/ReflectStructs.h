@@ -216,6 +216,7 @@ namespace Reflect
 	struct ReflectMemberData : public ReflectTypeNameData
 	{
 		EReflectType ReflectType = EReflectType::Member;
+		int Offset = 0;
 	};
 
 	struct ReflectFunctionData : public ReflectTypeNameData
@@ -436,8 +437,37 @@ namespace Reflect
 		virtual std::vector<ReflectMember> GetAllMembers() { return {}; };
 	};
 
-//#define REFLET_TYPE_INFO
+#define REFLET_TYPE_INFO
 #ifdef REFLET_TYPE_INFO
+	class ReflectTypeInfo;
+
+	class ReflectTypeMember
+	{
+	public:
+		ReflectTypeMember(void* ownerClass, void* memberPtr, std::unique_ptr<ReflectType> type);
+
+		ReflectType* GetType() const;
+		bool IsValid() const;
+
+		template<typename T>
+		T* ConvertToType()
+		{
+			std::string convertType = Reflect::Util::GetTypeName<T>();
+			if (!IsValid() || convertType != m_type->GetTypeName())
+			{
+				return nullptr;
+			}
+			return static_cast<T*>(m_memberPtr);
+		}
+
+	private:
+		void* m_ownerClass = nullptr;
+		void* m_memberPtr = nullptr;
+		std::unique_ptr<ReflectType> m_type;
+
+		friend class ReflectTypeInfo;
+	};
+
 	class ReflectTypeFunction
 	{
 	public:
@@ -472,19 +502,25 @@ namespace Reflect
 		std::unique_ptr<ReflectType> m_info;
 		int m_numOfArgs;
 		std::vector<std::unique_ptr<ReflectType>> m_argsInfo;
+
+		friend class ReflectTypeInfo;
 	};
 
 	class ReflectTypeInfo
 	{
 	public:
-		ReflectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
+		ReflectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info
+			, std::vector<std::unique_ptr<ReflectTypeMember>> members
+			, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
 
 		ReflectType* GetInfo() const;
+		ReflectTypeMember* GetMember(const char* memberName) const;
 		ReflectTypeFunction* GetFunction(const char* functionName) const;
 
 	private:
 		void* m_ownerClass = nullptr;
 		std::unique_ptr<ReflectType> m_info;
+		std::vector<std::unique_ptr<ReflectTypeMember>> m_members;
 		std::vector<std::unique_ptr<ReflectTypeFunction>> m_functions;
 	};
 

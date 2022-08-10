@@ -744,6 +744,8 @@ namespace Reflect
 			Util::RemoveCharAll(type, c);
 		memberData.Type = type;
 
+		memberData.RawType = type;
+
 		fileData.Cursor = endOfLineCursor;
 		return memberData;
 	}

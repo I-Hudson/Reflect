@@ -124,6 +124,14 @@ void GetTypeInfo()
 	std::cout << "getOnlineFriendsCount valid: " << getOnlineFriendsCount->IsValid() << '\n';
 	std::cout << "getOnlineFriendsCount invoke: " << ReflectReturnCodeToString(getOnlineFriendsCount->Invoke(&resultInt, funcArgs)) << '\n';
 	std::cout << "getOnlineFriendsCount return: " << resultInt << '\n';
+
+	Reflect::ReflectTypeMember* member = typeinfo.GetMember("TimeOnline");
+	std::cout << "Member type: " << member->GetType()->GetTypeName() << '\n';
+
+	int* memberPtr = member->ConvertToType<int>();
+	std::cout << "Member value: " << *memberPtr << '\n';
+	*memberPtr = 23;
+	std::cout << "Member new value: " << *memberPtr << '\n';
 #endif
 }
 

@@ -82,5 +82,5 @@ private:
 	REFLECT_PROPERTY(EditorOnly, Public)
 		int Friends;
 	REFLECT_PROPERTY(Public)
-		int TimeOnline = 0;
+		int TimeOnline = 78;
 };

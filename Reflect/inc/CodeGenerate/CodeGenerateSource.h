@@ -23,6 +23,8 @@ namespace Reflect
 
 #ifdef REFLET_TYPE_INFO
 		void WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
+		void WriteGenerateTypeMembers(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
+		void WriteGenerateTypeFunctions(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
 #endif
 
 		std::string MemberFormat();
