@@ -464,6 +464,17 @@ namespace Reflect
 			return static_cast<T*>(m_memberPtr);
 		}
 
+		template<typename T>
+		void ModifyValue(T value)
+		{
+			T* ptr = ConvertToType<T>();
+			if (!ptr)
+			{
+				return;
+			}
+			*ptr = value;
+		}
+
 	private:
 		void* m_ownerClass = nullptr;
 		void* m_memberPtr = nullptr;

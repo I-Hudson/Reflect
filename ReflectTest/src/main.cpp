@@ -144,6 +144,8 @@ void GetTypeInfo()
 	setAgeAndHeightFunction->Invoke(funcArgs);
 
 	auto members = typeinfo.GetAllMembersWithFlags({ "Public" });
+	auto heightMember = typeinfo.GetMember("Height");
+	heightMember->ModifyValue(7.5f);
 #endif
 }
 
