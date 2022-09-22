@@ -138,10 +138,10 @@ namespace Reflect
 		return m_info->GetTypeName() == returnType->GetTypeName();
 	}
 
-	ReflectTypeInfo::ReflectTypeInfo(void* ownerClass, std::unique_ptr<ReflectType> info
+	ReflectTypeInfo::ReflectTypeInfo(void* owner_class, std::unique_ptr<ReflectType> info
 		, std::vector<std::unique_ptr<ReflectTypeMember>> members
 		, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)
-		: m_ownerClass(ownerClass), m_info(std::move(info))
+		: m_owner_class(owner_class), m_info(std::move(info))
 		, m_members(std::move(members)), m_functions(std::move(functions))
 	{ }
 

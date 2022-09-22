@@ -33,6 +33,8 @@ namespace Reflect
 		Reference,
 		Pointer,
 		PointerReference,
+
+		Unknown
 	};
 
 	enum class EReflectValueModifier

@@ -108,6 +108,8 @@ void GetTypeInfo()
 	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo();
 	Reflect::ReflectTypeFunction* getOnlineFriendsCount = typeinfo.GetFunction("GetOnlineFriendsCount");
 
+	Player* constructed = static_cast<Player*>(typeinfo.ConstructNew());
+
 	std::cout << "getOnlineFriendsCount valid: " << getOnlineFriendsCount->IsValid() << '\n';
 	std::cout << "getOnlineFriendsCount invoke: " << ReflectReturnCodeToString(getOnlineFriendsCount->Invoke()) << '\n';
 

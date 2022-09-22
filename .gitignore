@@ -6,6 +6,7 @@ CMakeFiles/
 X64/
 Generated/
 BuildScripts/BuiltZips/
+Documentation/Doxygen/gen_docs
 
 *.vcxproj
 *.vcxproj.user

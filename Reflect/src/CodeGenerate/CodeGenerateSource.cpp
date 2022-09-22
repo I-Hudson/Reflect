@@ -137,10 +137,12 @@ namespace Reflect
 		file << "\tReflect::ReflectTypeInfo GetTypeInfo(" + data.Name + "* ownerClass)\n\t{" << NEW_LINE();
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> functions = GenerateFunctions(ownerClass);" << NEW_LINE();
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> members = GenerateMembers(ownerClass);" << NEW_LINE();
-		file << "\t\treturn ReflectTypeInfo(ownerClass, ";
-		file << "std::make_unique<ReflectTypeCPP<" + data.Name + ">>(Reflect::EReflectType::Class), ";
-		file << "std::move(members), ";
-		file << "std::move(functions)); " << NEW_LINE();
+		file << "\t\tReflectTypeInfo reflect_type_info = ReflectTypeInfo(ownerClass, ";
+		file << "\t\t\tstd::make_unique<ReflectTypeCPP<" + data.Name + ">>(Reflect::EReflectType::Class)," << NEW_LINE();;
+		file << "\t\t\tstd::move(members), " << NEW_LINE();;
+		file << "\t\t\tstd::move(functions));" << NEW_LINE();
+		file << "\t\treflect_type_info.m_construct_func = [](){ return static_cast<void*>(new " + data.Name + "); }; " << NEW_LINE();
+		file << "\t\treturn reflect_type_info; " << NEW_LINE();
 		file << "\t}" << NEW_LINE();
 		WRITE_PRIVATE();
 		WriteGenerateTypeMembers(data, file, addtionalOptions);
