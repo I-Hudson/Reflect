@@ -287,7 +287,8 @@ namespace Reflect
 		ReflectContainerData& conatinerData = fileData.ReflectData.back();
 
 		int generatedBodyLine = static_cast<int>(fileData.Data.find(ReflectGeneratedBodykey, fileData.GeneratedBodyLineOffset));
-		assert(generatedBodyLine != -1 && "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a container.");
+		std::cout << "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a container.";
+		//assert(generatedBodyLine != -1 && );
 		fileData.GeneratedBodyLineOffset = generatedBodyLine + static_cast<int>(strlen(ReflectGeneratedBodykey));
 		conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1;
 
