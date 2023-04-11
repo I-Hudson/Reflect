@@ -230,7 +230,8 @@ namespace Reflect::Profile
 	}
 }
 
-#if  defined(DEBUG)
+#define PROFILE_ENABLED
+#if defined(DEBUG) || defined(PROFILE_ENABLED)
 #define REFLECT_PROFILE_BEGIN_SESSION() Reflect::Profile::Instrumentor::Get().BeginSession()
 #define REFLECT_PROFILE_END_SESSION() Reflect::Profile::Instrumentor::Get().EndSession()
 #define REFLECT_PROFILE_SAVE_SESSION(filePath) Reflect::Profile::Instrumentor::Get().SaveSession(filePath)

@@ -1,6 +1,10 @@
 #include "CodeGenerate/CodeGenerateHeader.h"
 #include "CodeGenerate/CodeGenerate.h"
+
+#include "Core/Core.h"
+
 #include "Instrumentor.h"
+
 #include <assert.h>
 
 namespace Reflect
@@ -16,9 +20,8 @@ namespace Reflect
 	}
 
 #define WRITE_CURRENT_FILE_ID(ContainerName, FileName) file << "#define " + GetCurrentFileID(ContainerName, FileName)
-#define WRITE_CLOSE() file << "\n\n"
 
-	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -33,36 +36,31 @@ namespace Reflect
 		file << "#endif " + data.FileName + ReflectFileGeneratePrefix + "_h\n";
 		file << "#define " + data.FileName + ReflectFileGeneratePrefix + "_h\n\n";
 
-		WriteMacros(data, file, addtionalOptions);
+		WriteMacros(data, file, additionalOptions);
 	}
 
-	void CodeGenerateHeader::WriteMacros(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions)
+	void CodeGenerateHeader::WriteMacros(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
+		REFLECT_PROFILE_FUNCTION();
 		for (const auto& reflectData : data.ReflectData)
 		{
 			const std::string CurrentFileId = GetCurrentFileID(reflectData.Name, data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine);
 
-#ifdef REFLET_TYPE_INFO
-			WriteGenerateTypeInfo(reflectData, file, CurrentFileId, addtionalOptions);
+#ifdef REFLECT_TYPE_INFO_ENABLED
+			m_CGHeaderTypeInfo.WriteGenerateTypeInfo(reflectData, file, CurrentFileId, additionalOptions);
 #else
-			WriteMemberProperties(reflectData, file, CurrentFileId, addtionalOptions);
-			WriteFunctionGet(reflectData, file, CurrentFileId, addtionalOptions);
-			WriteMemberPropertiesOffsets(reflectData, file, CurrentFileId, addtionalOptions);
-			WriteMemberGet(reflectData, file, CurrentFileId, addtionalOptions);
+			m_CGHeaderLegacy.WriteGeneratedData(reflectData, file, CurrentFileId, additionalOptions);
 #endif 
-			WriteFunctions(reflectData, file, CurrentFileId, addtionalOptions);
 
 			WRITE_CURRENT_FILE_ID(reflectData.Name, data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine) + "_GENERATED_BODY \\\n";
-#ifdef REFLET_TYPE_INFO
-			file << CurrentFileId + "_GENERATE_TYPE_INFO" + NEW_LINE_SLASH();
+
+#ifdef REFLECT_TYPE_INFO_ENABLED
+			m_CGHeaderTypeInfo.WriteClosingMacro(file, CurrentFileId);
 #else
-			file << CurrentFileId + "_PROPERTIES" + NEW_LINE_SLASH();
-			file << CurrentFileId + "_PROPERTIES_OFFSET" + NEW_LINE_SLASH();
-			file << CurrentFileId + "_PROPERTIES_GET" + NEW_LINE_SLASH();
-			file << CurrentFileId + "_FUNCTION_GET" + NEW_LINE_SLASH();
+			m_CGHeaderLegacy.WriteClosingMacro(file, CurrentFileId);
 #endif
-			file << CurrentFileId + "_FUNCTION_DECLARE" + NEW_LINE_SLASH();
-			WRITE_CLOSE();
+			file << CurrentFileId + "_FUNCTION_DECLARE" + NEW_LINE_SLASH;
+			WRITE_CLOSE;
 		}
 
 #ifndef REFLECT_SINGLE_FILE
@@ -71,143 +69,5 @@ namespace Reflect
 #endif
 	}
 
-	void CodeGenerateHeader::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
-	{
-		file << "#define " + currentFileId + "_PROPERTIES" + NEW_LINE_SLASH();
-		WRITE_PRIVATE();
-		file << "\tstatic Reflect::ReflectMemberProp __REFLECT_MEMBER_PROPS__[" + std::to_string(data.Members.size()) + "];" + NEW_LINE_SLASH();
-		WRITE_CLOSE();
-	}
 
-	void CodeGenerateHeader::WriteMemberPropertiesOffsets(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
-	{
-		file << "#define " + currentFileId + "_PROPERTIES_OFFSET" + NEW_LINE_SLASH();
-		WRITE_PRIVATE();
-		for (const auto& member : data.Members)
-		{
-			file << "\tstatic size_t __REFLECT__" + member.Name + "() { return offsetof(" + data.Name + ", " + member.Name + "); };" + NEW_LINE_SLASH();
-		}
-		WRITE_CLOSE();
-	}
-
-	void CodeGenerateHeader::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
-	{
-		file << "#define " + currentFileId + "_PROPERTIES_GET \\\n";
-		WRITE_PUBLIC();
-		file << "\tvirtual Reflect::ReflectMember GetMember(const char* memberName) override;" << NEW_LINE_SLASH();
-		file << "\tvirtual std::vector<Reflect::ReflectMember> GetMembers(std::vector<std::string> const& flags) override;" <<  NEW_LINE_SLASH();
-		file << "\tvirtual std::vector<Reflect::ReflectMember> GetAllMembers() override;" << NEW_LINE_SLASH();
-		WRITE_CLOSE();
-	}
-
-	void CodeGenerateHeader::WriteFunctions(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
-	{
-		//TODO: Pass in parameters in someway. Prob need to use templates.
-
-		auto populateArgs = [](const std::vector<ReflectTypeNameData>& args) -> std::string
-		{
-			std::string returnValue;
-			for (const auto& arg : args)
-			{
-				if (arg.ReflectValueType == EReflectValueType::Value)
-					returnValue += "*";
-				if (arg.ReflectValueType == EReflectValueType::Reference)
-					returnValue += "*";
-
-				returnValue += arg.Name + "Arg";
-				if (arg != args.back())
-				{
-					returnValue += ", ";
-				}
-			}
-			return returnValue;
-		};
-		auto castToType = [](const Reflect::ReflectTypeNameData& arg) -> std::string
-		{
-			if (arg.ReflectValueType == Reflect::EReflectValueType::Reference || arg.ReflectValueType == Reflect::EReflectValueType::PointerReference)
-				return "static_cast<" + arg.Type + "*>";
-			return "static_cast<" + arg.Type + "*>";
-		};
-		auto returnType = [](const Reflect::ReflectFunctionData& func) -> std::string
-		{
-			std::string result;
-			if (func.ReflectValueType == EReflectValueType::Value)
-				result = "*(" + func.Type + "*)returnValuePtr = ";
-			else if (func.ReflectValueType == EReflectValueType::Pointer)
-				result = "*(("+ func.Type +"**)returnValuePtr) = ";
-			else if (func.ReflectValueType == EReflectValueType::Reference)
-				result = "*((" + func.Type + "**)returnValuePtr) = &";
-			
-			if (func.ReflectValueType != EReflectValueType::Value && func.ReflectModifier == EReflectValueModifier::Const)
-				result += "const_cast<" + func.Type + Util::EReflectValueTypeToString(func.ReflectValueType) +">(";
-
-			return result;
-		};
-
-		file << "#define " + currentFileId + "_FUNCTION_DECLARE" + NEW_LINE_SLASH();
-		WRITE_PRIVATE();
-		for (const auto& func : data.Functions)
-		{
-			file << "\tstatic Reflect::EReflectReturnCode __REFLECT_FUNC__" + func.Name + "(void* objectPtr, void* returnValuePtr, Reflect::FunctionPtrArgs& functionArgs)" + NEW_LINE_SLASH();
-			file << "\t{" << NEW_LINE_SLASH();;
-			int functionArgIndex = 0;
-			for (const auto& arg : func.Parameters)
-			{
-				file << "\t\t" + GetType(arg, true) + " " + arg.Name + "Arg = " + castToType(arg) + "(functionArgs.GetArg(" + std::to_string(functionArgIndex++) + ").Get());" + NEW_LINE_SLASH();
-			}
-			file << "\t\t" + data.Name + "* ptr = static_cast<" + data.Name + "*>(objectPtr);" + NEW_LINE_SLASH();;
-			// TODO: (01/04/21) Check this cast. If it failed return ReflectFuncReturnCode::CAST_FAILED.
-			file << "\t\tif (ptr == nullptr) { return Reflect::EReflectReturnCode::CAST_FAILED; }" << NEW_LINE_SLASH();;
-			if (func.Type != "void")
-			{
-				file << "\t\tif (returnValuePtr != nullptr)" << NEW_LINE_SLASH() << "\t\t{" << NEW_LINE_SLASH();;
-				file << "\t\t\t" << returnType(func) << "ptr->" + func.Name + "(" + populateArgs(func.Parameters) + ");" << NEW_LINE_SLASH() "\t\t}" << NEW_LINE_SLASH();
-				file << "\t\telse\\\n\t\t{\\\n\t\t\t" << "ptr->" + func.Name + "(" + populateArgs(func.Parameters) + ");" << NEW_LINE_SLASH() "\t\t}" << NEW_LINE_SLASH();
-			}
-			else
-			{
-				file << "\t\tptr->" + func.Name + "(" + populateArgs(func.Parameters) + ");" + NEW_LINE_SLASH();
-			}
-			
-			if (func.ReflectValueType != EReflectValueType::Value && func.ReflectModifier == EReflectValueModifier::Const)
-				file << ")";
-
-			file << "\t\treturn Reflect::EReflectReturnCode::SUCCESS;" << NEW_LINE_SLASH();
-			file << "\t}\\\n";
-		}
-		WRITE_CLOSE();
-	}
-
-	void CodeGenerateHeader::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
-	{
-		file << "#define " + currentFileId + "_FUNCTION_GET" + NEW_LINE_SLASH();
-		WRITE_PUBLIC();
-		file << "\tvirtual Reflect::ReflectFunction GetFunction(const char* functionName) override;" << NEW_LINE_SLASH();
-		WRITE_CLOSE();
-	}
-
-#ifdef REFLET_TYPE_INFO
-	void CodeGenerateHeader::WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions)
-	{
-		file << "#define " + currentFileId + "_GENERATE_TYPE_INFO" + NEW_LINE_SLASH();
-		WRITE_PUBLIC();
-		file << TAB() << "static Reflect::ReflectTypeInfo GetTypeInfo();" << NEW_LINE_SLASH();
-		file << TAB() << "static Reflect::ReflectTypeInfo GetTypeInfo(" + data.Name + "* classPtr);" + NEW_LINE_SLASH();
-		WRITE_PRIVATE();
-		file << TAB() << "friend class Reflect::GenerateTypeInfoForType<" + data.Name + ">;" + NEW_LINE_SLASH();
-		WRITE_CLOSE();
-	}
-#endif
-
-	std::string CodeGenerateHeader::GetType(const Reflect::ReflectTypeNameData& arg, bool defaultReturnPointer)
-	{
-		if (arg.ReflectValueType == Reflect::EReflectValueType::Pointer)
-			return arg.Type + "*";
-		else if (arg.ReflectValueType == Reflect::EReflectValueType::Reference)
-			return arg.Type + "*";
-		else if (arg.ReflectValueType == Reflect::EReflectValueType::PointerReference)
-			return arg.Type + "*&";
-		else
-			return defaultReturnPointer ? arg.Type + "*" : arg.Type;
-	}
 }

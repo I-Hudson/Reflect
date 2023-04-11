@@ -1,37 +1,43 @@
 #include "Reflect.h"
 #include "TestStrcuts.h"
+
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest.h>
+
 #include <iostream>
 
-void FuncNoReturn()
+#ifndef REFLECT_TYPE_INFO_ENABLED
+TEST_CASE("Legacy function no return")
 {
 	// Get a function with no return value.
+
 	Player player;
 	auto playerGetId = player.GetFunction("PrintHelloWorld");
-	playerGetId.Invoke();
+	CHECK(playerGetId.Invoke() == Reflect::EReflectReturnCode::SUCCESS);
 
 	auto playerGetName = player.GetFunction("GetName");
 	std::string name;
-	playerGetName.Invoke(&name);
-	std::cout << name << '\n';
+	CHECK(playerGetName.Invoke(&name) == Reflect::EReflectReturnCode::SUCCESS);
+	CHECK(name == player.GetName());
 }
 
-void FuncReturnValue()
+TEST_CASE("Legacy function with return value")
 {
 	// Get a function with a return value std::string.
 	// The return value with be set to playerId.
 	Player player;
 	Reflect::ReflectFunction playerGetId = player.GetFunction("GetId");
 	std::string playerId;
-	playerGetId.Invoke(&playerId);
+	CHECK(playerGetId.Invoke(&playerId) == Reflect::EReflectReturnCode::SUCCESS);
+	CHECK(!playerId.empty());
 }
 
-void FuncWithParameters()
+TEST_CASE("Legacy function with parameters")
 {
-	// Get a function with no return value but which has a single
-	// parameter.
+	// Get a function with a return value but which has a single parameter.
 	Player player;
 	Reflect::ReflectFunction parameterFunc = player.GetFunction("GetOnlineFriendsCount");
-	
+
 	// Setup the parameter to send to the function. This is order
 	// sensitive.
 	Reflect::FunctionPtrArgs args;
@@ -39,21 +45,26 @@ void FuncWithParameters()
 	args.AddArg(&intParameter);
 
 	int returnCount;
-	parameterFunc.Invoke(&returnCount, args);
-	std::cout << returnCount << '\n';
-	std::cout << Reflect::ReflectReturnCodeToString(parameterFunc.Invoke(&returnCount, args)) << '\n';
+	CHECK(parameterFunc.Invoke(&returnCount, args) == Reflect::EReflectReturnCode::SUCCESS);
+	CHECK(returnCount == intParameter);
 }
 
-void GetMemberWithFlags()
+TEST_CASE("Legacy get member with flags")
 {
 	Player player;
-	auto member = player.GetMember("");
+	auto member = player.GetMember("Age");
+	int* playerAgePtr = member.ConvertToType<int>();
+	int playerAgeValue = *playerAgePtr;
+
+	CHECK(member.IsValid());
+	CHECK(playerAgePtr);
+	CHECK(playerAgeValue == player.Age);
+
 	auto membersWithPublic = player.GetMembers({ "Public" });
-	int& friendInt = *membersWithPublic[0].ConvertToType<int>();
-	friendInt = 12;
+	CHECK(!membersWithPublic.empty());
 }
 
-void GetAllMemebers()
+TEST_CASE("Legacy get all members")
 {
 	return;
 	int testI = 45;
@@ -84,37 +95,62 @@ void GetAllMemebers()
 	std::cout << "S member count: " << allMembers.size() << '\n';
 }
 
-void GetFunctionRefReturn()
+TEST_CASE("Legacy get function pointer return")
 {
 	Player player;
 	Reflect::ReflectFunction func = player.GetFunction("GetIdPtr");
-	if (!func.IsValid())
-	{
-		return;
-	}
+	CHECK(func.IsValid());
 
-	std::string* baseStringPtr;
-	func.Invoke(&baseStringPtr);
-	std::string* stringPtr = baseStringPtr;
-	std::string& stringRef = *baseStringPtr;
+	std::string* stringPtr = nullptr;
+	CHECK(func.Invoke(&stringPtr) == Reflect::EReflectReturnCode::SUCCESS);
+	CHECK(stringPtr != nullptr);
+
 	*stringPtr = "Pointer ID";
-	stringRef = "ReferenceID";
-}
+	CHECK(player.Id == *stringPtr);
 
-void GetTypeInfo()
+	std::string& stringRef = *stringPtr;
+	stringRef = "ReferenceID";
+	CHECK(player.Id == stringRef);
+}
+#endif
+
+#ifdef REFLECT_TYPE_INFO_ENABLED
+TEST_CASE("Get type info no owner")
 {
-#ifdef REFLET_TYPE_INFO
 	Player player;
 	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo();
+	CHECK(!typeinfo.GetInfo()->GetTypeName().empty());
+}
+
+TEST_CASE("Get type info with owner")
+{
+	Player player;
+	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo(&player);
+	CHECK(typeinfo.HasOwner());
+
+	Reflect::ReflectTypeMember* member = typeinfo.GetMember("vec", true);
+	member->ModifyValue(vec3(789.45f));
+}
+
+TEST_CASE("Type info construct")
+{
+	Player* constructed = static_cast<Player*>(Player::GetTypeInfo().ConstructNew());
+	CHECK(constructed != nullptr);
+	delete constructed;
+}
+
+TEST_CASE("Type info invoke invalid owner function")
+{
+	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo();
 	Reflect::ReflectTypeFunction* getOnlineFriendsCount = typeinfo.GetFunction("GetOnlineFriendsCount");
+	CHECK(getOnlineFriendsCount->Invoke() == Reflect::EReflectReturnCode::INVALID_OWNER_OBJECT);
+}
 
-	Player* constructed = static_cast<Player*>(typeinfo.ConstructNew());
-
-	std::cout << "getOnlineFriendsCount valid: " << getOnlineFriendsCount->IsValid() << '\n';
-	std::cout << "getOnlineFriendsCount invoke: " << ReflectReturnCodeToString(getOnlineFriendsCount->Invoke()) << '\n';
-
-	typeinfo = Player::GetTypeInfo(&player);
-	getOnlineFriendsCount = typeinfo.GetFunction("GetOnlineFriendsCount");
+TEST_CASE("Type info call func with 1 arg and return")
+{
+	Player player;
+	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo(&player);
+	Reflect::ReflectTypeFunction* getOnlineFriendsCountFunc = typeinfo.GetFunction("GetOnlineFriendsCount");
 
 	int onlineCount = 45;
 
@@ -122,12 +158,20 @@ void GetTypeInfo()
 	funcArgs.AddArg(&onlineCount);
 
 	int resultInt;
+	CHECK(getOnlineFriendsCountFunc->IsValid());
+	CHECK(getOnlineFriendsCountFunc->Invoke(&resultInt, funcArgs) == Reflect::EReflectReturnCode::SUCCESS);
+}
 
-	std::cout << "getOnlineFriendsCount valid: " << getOnlineFriendsCount->IsValid() << '\n';
-	std::cout << "getOnlineFriendsCount invoke: " << ReflectReturnCodeToString(getOnlineFriendsCount->Invoke(&resultInt, funcArgs)) << '\n';
-	std::cout << "getOnlineFriendsCount return: " << resultInt << '\n';
+TEST_CASE("Type info get base class")
+{
+	Player player;
+	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo(&player);
+	//typeinfo.GetInfo().in
+}
 
-	Reflect::ReflectTypeMember* member = typeinfo.GetMember("TimeOnline");
+TEST_CASE("Get type info")
+{
+	/*Reflect::ReflectTypeMember* member = typeinfo.GetMember("TimeOnline");
 	std::cout << "Member type: " << member->GetType()->GetTypeName() << '\n';
 
 	int* memberPtr = member->ConvertToType<int>();
@@ -147,21 +191,6 @@ void GetTypeInfo()
 
 	auto members = typeinfo.GetAllMembersWithFlags({ "Public" });
 	auto heightMember = typeinfo.GetMember("Height");
-	heightMember->ModifyValue(7.5f);
-#endif
+	heightMember->ModifyValue(7.5f);*/
 }
-
-int main(void)
-{
-#ifndef REFLET_TYPE_INFO
-	FuncNoReturn();
-	FuncReturnValue();
-	FuncWithParameters();
-	GetMemberWithFlags();
-	GetAllMemebers();
-	GetFunctionRefReturn();
-#else
-	GetTypeInfo();
 #endif
-	return 0;
-}

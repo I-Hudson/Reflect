@@ -8,6 +8,10 @@ project "ReflectTest"
     objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
     debugdir ("../bin/" .. outputdir .. "/%{prj.name}")
 
+    dependson 
+    {
+        "ReflectEXE",
+    }
 
     files
 	{
@@ -19,12 +23,19 @@ project "ReflectTest"
     {
 		"$(ProjectDir)src",
         "../Reflect//inc",
+
+        "../vendor/doctest/doctest",
 	}
 
     links 
 	{ 
         "Reflect",
 	}
+
+    prebuildcommands
+    {
+        "\"%{cfg.targetdir}/../ReflectEXE/ReflectEXE.exe\" \"$(SolutionDir)ReflectTest/src\"",
+    }
 
     filter "system:windows"
         cppdialect "C++17"

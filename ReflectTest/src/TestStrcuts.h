@@ -6,6 +6,7 @@
 struct vec3
 {
 	vec3(float f)
+		: x(f), y(f), z(f)
 	{ }
 
 	union
@@ -42,6 +43,7 @@ public:
 
 	int Friends = int(1);
 	int* TimeOnline = nullptr;
+	REFLECT_PROPERTY()
 	vec3 vec = vec3(1);
 };
 
@@ -51,7 +53,7 @@ class C
 };
 
 REFLECT_CLASS(AllPrivate, ShowInEditorOnly, EditorOnly)
-class Player : REFLECT_BASE()
+class Player : REFLECT_BASE(), public S
 {
 	REFLECT_GENERATED_BODY();
 
@@ -75,20 +77,19 @@ public:
 	REFLECT_PROPERTY()
 	void PrintHelloWorld();
 
+	REFLECT_PROPERTY()
 	std::string GetName() { return "Test name"; }
 
-private:
 	REFLECT_PROPERTY()
 	std::string GetId();
 
 	REFLECT_PROPERTY()
 	std::string* GetIdPtr();
 
-private:
 	std::string Id = { };
 
 	REFLECT_PROPERTY(EditorOnly, Public)
-		int Friends;
+		int Friends = 7;
 	REFLECT_PROPERTY(Public)
 		int TimeOnline = 78;
 

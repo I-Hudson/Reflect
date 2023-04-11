@@ -1,32 +1,33 @@
 #pragma once
 
-#include "Core/Core.h"
+#include "Core/Defines.h"
 #include "ReflectStructs.h"
 #include "CodeGenerate/CodeGenerate.h"
+
+#include "CodeGenerate/Headers/CG_Header_Legacy.h"
+#include "CodeGenerate/Headers/CG_Header_TypeInfo.h"
+
 #include<fstream>
 
 namespace Reflect
 {
+	struct ReflectAddtionalOptions;
+
 	class CodeGenerateHeader
 	{
 	public:
 		CodeGenerateHeader() { }
 		~CodeGenerateHeader() { }
 
-		void GenerateHeader(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
+		void GenerateHeader(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
 
-		static std::string GetType(const Reflect::ReflectTypeNameData& arg, bool defaultReturnPointer);
 	private:
-		void WriteMacros(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
-		void WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions);
-		void WriteMemberPropertiesOffsets(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions);
-		void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions);
+		void WriteMacros(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
 
-		void WriteFunctions(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions);
-		void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions);
-
-#ifdef REFLET_TYPE_INFO
-		void WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions& addtionalOptions);
+	private:
+		CG_Header_Legacy m_CGHeaderLegacy;
+#ifdef REFLECT_TYPE_INFO_ENABLED
+		CG_Header_TypeInfo m_CGHeaderTypeInfo;
 #endif
 	};
 }

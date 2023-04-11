@@ -20,6 +20,8 @@ namespace Reflect
 			case EReflectReturnCode::FAILED: return "ReflectFuncReturnCode - Failed";
 
 			case EReflectReturnCode::CAST_FAILED: return "ReflectFuncReturnCode - Cast Failed";
+
+			case EReflectReturnCode::INVALID_OWNER_OBJECT: return "ReflectFuncReturnCode - Invalid Owner Pointer";
 			case EReflectReturnCode::INVALID_FUNCTION_POINTER: return "ReflectFuncReturnCode - Invalid Function Pointer";
 			case EReflectReturnCode::INVALID_MEMBER: return "ReflectFuncReturnCode - Invalid Member";
 

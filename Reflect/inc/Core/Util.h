@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Core.h"
+#include "Core/Defines.h"
 #include "FileParser/FileParserKeyWords.h"
 #include "Core/Enums.h"
 #include <string>

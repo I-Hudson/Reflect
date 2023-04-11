@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReflectTest", "ReflectTest\ReflectTest.vcxproj", "{AA83AD9E-1639-2694-9F2D-206B0BE21C98}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CCB2CE04-B86A-1052-2172-E9AD0D49AB42} = {CCB2CE04-B86A-1052-2172-E9AD0D49AB42}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Reflect", "Reflect\Reflect.vcxproj", "{EAD1F29E-56B1-713A-5FC9-FC10CB27D89B}"
 EndProject

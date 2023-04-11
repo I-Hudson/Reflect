@@ -28,16 +28,24 @@ namespace Reflect
 	}
 
 
-#ifdef REFLET_TYPE_INFO
-	ReflectTypeMember::ReflectTypeMember(void* ownerClass, void* memberPtr, std::unique_ptr<ReflectType> type
+#ifdef REFLECT_TYPE_INFO_ENABLED
+	ReflectTypeMember::ReflectTypeMember(void* ownerClass, const char* name, void* memberPtr, std::unique_ptr<ReflectType> type
 	, std::vector<std::string> flags)
-		: m_ownerClass(ownerClass), m_memberPtr(memberPtr), m_type(std::move(type))
+		: m_ownerClass(ownerClass)
+		, m_name(name)
+		, m_memberPtr(memberPtr)
+		, m_type(std::move(type))
 		, m_flags(std::move(flags))
 	{ }
 
 	ReflectType* ReflectTypeMember::GetType() const
 	{
 		return m_type.get();
+	}
+
+	std::string_view ReflectTypeMember::GetName() const
+	{
+		return m_name;
 	}
 
 	bool ReflectTypeMember::IsValid() const
@@ -51,27 +59,35 @@ namespace Reflect
 	}
 
 
-	ReflectTypeFunction::ReflectTypeFunction(void* ownerClass, FunctionPtr funcPtr
+	ReflectTypeFunction::ReflectTypeFunction(void* ownerClass, const char* name, FunctionPtr funcPtr
 		, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args)
-		: m_ownerClass(std::move(ownerClass)), m_func(std::move(funcPtr))
-		, m_info(std::move(info)), m_argsInfo(std::move(args))
+		: m_ownerClass(std::move(ownerClass))
+		, m_name(name)
+		, m_func(std::move(funcPtr))
+		, m_info(std::move(info))
+		, m_argsInfo(std::move(args))
 	{
 		m_numOfArgs = static_cast<int>(m_argsInfo.size());
 	}
 
 	Reflect::EReflectReturnCode ReflectTypeFunction::Invoke(FunctionPtrArgs functionArgs)
 	{
-		return CallInternal(nullptr, nullptr, std::move(functionArgs));
+		return CallInternal(nullptr, std::move(functionArgs), ReflectTypeCPP<void>(EReflectType::Unknown));
 	}
 
 	bool ReflectTypeFunction::IsValid() const
 	{
-		return m_ownerClass != nullptr;
+		return VerifyOwnerObject() && VerifyFunctionPointer();
 	}
 
 	ReflectType* ReflectTypeFunction::GetInfo() const
 	{
 		return m_info.get();
+	}
+
+	std::string_view ReflectTypeFunction::GetName() const
+	{
+		return m_name;
 	}
 
 	const ReflectType* ReflectTypeFunction::GetArgInfo(int index) const
@@ -94,9 +110,13 @@ namespace Reflect
 		return args;
 	}
 
-	EReflectReturnCode ReflectTypeFunction::CallInternal(void* returnValue, std::unique_ptr<ReflectType> returnType, FunctionPtrArgs functionArgs)
+	EReflectReturnCode ReflectTypeFunction::CallInternal(void* returnValue, FunctionPtrArgs functionArgs, const ReflectType& returnType)
 	{
-		if (!IsValid())
+		if (!VerifyOwnerObject())
+		{
+			return EReflectReturnCode::INVALID_OWNER_OBJECT;
+		}
+		if (!VerifyFunctionPointer())
 		{
 			return EReflectReturnCode::INVALID_FUNCTION_POINTER;
 		}
@@ -104,11 +124,21 @@ namespace Reflect
 		{
 			return EReflectReturnCode::FUNCTION_INVALID_ARGS;
 		}
-		if (!CheckReturnType(returnType.get()))
+		if (!CheckReturnType(returnType))
 		{
 			return EReflectReturnCode::FUNCTION_INVALID_RETURN_TYPE;
 		}
 		return m_func(m_ownerClass, returnValue, functionArgs);
+	}
+
+	bool ReflectTypeFunction::VerifyOwnerObject() const
+	{
+		return m_ownerClass != nullptr;
+	}
+
+	bool ReflectTypeFunction::VerifyFunctionPointer() const
+	{
+		return m_func != nullptr;
 	}
 
 	bool ReflectTypeFunction::VerifyArgs(const FunctionPtrArgs& functionArgs) const
@@ -120,7 +150,7 @@ namespace Reflect
 
 		for (size_t i = 0; i < m_numOfArgs; ++i)
 		{
-			if (m_argsInfo.at(i).get()->GetTypeName() != functionArgs.GetArg(i).GetType())
+			if (m_argsInfo.at(i).get()->GetTypeName() != functionArgs.GetArg(static_cast<uint32_t>(i)).GetType())
 			{
 				return false;
 			}
@@ -129,20 +159,25 @@ namespace Reflect
 		return true;
 	}
 
-	bool ReflectTypeFunction::CheckReturnType(ReflectType* returnType) const
+	bool ReflectTypeFunction::CheckReturnType(const ReflectType& returnType) const
 	{
-		if (returnType == nullptr)
+		if (returnType.GetTypeName() == "void")
 		{
 			return true;
 		}
-		return m_info->GetTypeName() == returnType->GetTypeName();
+		return m_info->GetTypeName() == returnType.GetTypeName();
 	}
 
+
 	ReflectTypeInfo::ReflectTypeInfo(void* owner_class, std::unique_ptr<ReflectType> info
+		, std::vector<std::unique_ptr<ReflectTypeInfo>> inheritances
 		, std::vector<std::unique_ptr<ReflectTypeMember>> members
 		, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)
-		: m_owner_class(owner_class), m_info(std::move(info))
-		, m_members(std::move(members)), m_functions(std::move(functions))
+		: m_owner_class(owner_class)
+		, m_info(std::move(info))
+		, m_inheritances(std::move(inheritances))
+		, m_members(std::move(members))
+		, m_functions(std::move(functions))
 	{ }
 
 	ReflectType* ReflectTypeInfo::GetInfo() const
@@ -150,19 +185,45 @@ namespace Reflect
 		return m_info.get();
 	}
 
+	bool ReflectTypeInfo::HasOwner() const
+	{
+		return m_owner_class != nullptr;
+	}
+
 	ReflectTypeMember* ReflectTypeInfo::GetMember(const char* memberName) const
+	{
+		return GetMember(memberName, false);
+	}
+	ReflectTypeMember* ReflectTypeInfo::GetMember(const char* memberName, bool includeBaseClasses) const
 	{
 		for (const auto& member : m_members)
 		{
-			if (member->GetType()->GetGivenName() == memberName)
+			if (member->GetName() == memberName)
 			{
 				return member.get();
 			}
 		}
+
+		if (includeBaseClasses)
+		{
+			for (const auto& item : m_inheritances)
+			{
+				ReflectTypeMember* member = item->GetMember(memberName, includeBaseClasses);
+				if (member)
+				{
+					return member;
+				}
+			}
+		}
+
 		return nullptr;
 	}
 
 	std::vector<ReflectTypeMember*> ReflectTypeInfo::GetAllMembers() const
+	{
+		return GetAllMembers(false);
+	}
+	std::vector<ReflectTypeMember*> ReflectTypeInfo::GetAllMembers(bool includeBaseClasses) const
 	{
 		std::vector<ReflectTypeMember*> vec;
 		std::transform(m_members.begin(), m_members.end(), std::back_inserter(vec),
@@ -170,10 +231,24 @@ namespace Reflect
 			{
 				return member.get();
 			});
+
+		if (includeBaseClasses)
+		{
+			for (const auto& item : m_inheritances)
+			{
+				std::vector<ReflectTypeMember*> baseMembers = item->GetAllMembers(includeBaseClasses);
+				vec.insert(vec.end(), baseMembers.begin(), baseMembers.end());
+			}
+		}
+
 		return vec;
 	}
 
 	std::vector<ReflectTypeMember*> ReflectTypeInfo::GetAllMembersWithFlags(std::vector<const char*> flags) const
+	{
+		return GetAllMembersWithFlags(std::move(flags), false);
+	}
+	std::vector<ReflectTypeMember*> ReflectTypeInfo::GetAllMembersWithFlags(std::vector<const char*> flags, bool includeBaseClasses) const
 	{
 		std::vector<ReflectTypeMember*> vec;
 		std::for_each(m_members.begin(), m_members.end(), [&vec, flags](const std::unique_ptr<Reflect::ReflectTypeMember>& member)
@@ -186,18 +261,45 @@ namespace Reflect
 					}
 				}
 			});
+
+		if (includeBaseClasses)
+		{
+			for (const auto& item : m_inheritances)
+			{
+				std::vector<ReflectTypeMember*> baseMembers = item->GetAllMembersWithFlags(flags, includeBaseClasses);
+				vec.insert(vec.end(), baseMembers.begin(), baseMembers.end());
+			}
+		}
+
 		return vec;
 	}
 
 	ReflectTypeFunction* ReflectTypeInfo::GetFunction(const char* functionName) const
 	{
+		return GetFunction(functionName, false);
+	}
+	ReflectTypeFunction* ReflectTypeInfo::GetFunction(const char* functionName, bool includeBaseClasses) const
+	{
 		for (const auto& func : m_functions)
 		{
-			if (func->GetInfo()->GetGivenName() == functionName) 
+			if (func->GetName() == functionName)
 			{
 				return func.get();
 			}
 		}
+
+		if (includeBaseClasses)
+		{
+			for (const auto& item : m_inheritances)
+			{
+				ReflectTypeFunction* func = item->GetFunction(functionName, includeBaseClasses);
+				if (func)
+				{
+					return func;
+				}
+			}
+		}
+
 		return nullptr;
 	}
 #endif

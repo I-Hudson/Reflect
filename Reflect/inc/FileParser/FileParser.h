@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Core/Core.h"
+#include "Core/Defines.h"
 #include "ReflectStructs.h"
+
 #include <string>
 #include <fstream>
 #include <unordered_map>
@@ -9,6 +10,8 @@
 
 namespace Reflect
 {
+	struct ReflectAddtionalOptions;
+
 	/// <summary>
 	/// Parse a single file. This should extract all the info like functions and variables.
 	/// </summary>
@@ -18,7 +21,7 @@ namespace Reflect
 		REFLECT_API FileParser();
 		REFLECT_API ~FileParser();
 
-		REFLECT_API void ParseDirectory(const std::string& directory, const ReflectAddtionalOptions& addtionalOptions);
+		REFLECT_API void ParseDirectory(const std::string& directory, const ReflectAddtionalOptions* additionalOptions);
 		REFLECT_API void SetIgnoreStrings(const std::vector<std::string>& ignoreStrings);
 
 		REFLECT_API const FileParsedData& GetFileParsedData(int index) const { return m_filesParsed.at(index); }
@@ -80,12 +83,13 @@ namespace Reflect
 		int CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character);
 
 		std::string PrettyString(std::string str);
+		ReflectContainerData* FindReflectContainerData(std::string_view containerName);
 
 	private:
 		std::vector<FileParsedData> m_filesParsed;
 		std::vector<std::string> m_filesToRemove;
 		std::vector<std::string> m_ignoreStrings;
 		std::vector<std::string> m_directoriesParsed;
-		ReflectAddtionalOptions m_options;
+		const ReflectAddtionalOptions* m_options;
 	};
 }

@@ -1,6 +1,7 @@
 workspace "Reflect"
     architecture "x64"
     startproject "ReflectTest"
+    toolset "msc-v143"
 
     configurations
     {

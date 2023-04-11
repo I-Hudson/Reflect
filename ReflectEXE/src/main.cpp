@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <string_view>
 #include <string.h>
-
+#pragma optimize("", off)
 int main(int argc, char* argv[])
 {
 	REFLECT_PROFILE_BEGIN_SESSION();
@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 				if (itr != options.options.end())
 				{
 					itr->second = arg.substr(arg.find('=') + 1);
-;				}
+				}
 			}
 		}
 
@@ -51,9 +51,9 @@ int main(int argc, char* argv[])
 
 			for (auto& dir : directories)
 			{
-				parser.ParseDirectory(dir, options);
+				parser.ParseDirectory(dir, &options);
 			}
-			codeGenerate.Reflect(parser, options);
+			codeGenerate.Reflect(parser, &options);
 		}
 	}
 	timer.Stop();

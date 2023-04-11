@@ -1,12 +1,14 @@
 #pragma once
 
-#include "Core/Core.h"
+#include "Core/Defines.h"
 #include "ReflectStructs.h"
 #include <FileParser/FileParser.h>
 #include<fstream>
 
 namespace Reflect
 {
+	struct ReflectAddtionalOptions;
+
 	/// <summary>
 	/// Generate a new file and place the reflect code there.
 	/// </summary>
@@ -16,7 +18,7 @@ namespace Reflect
 		REFLECT_API CodeGenerate();
 		REFLECT_API ~CodeGenerate();
 
-		REFLECT_API void Reflect(const FileParser& parser, const ReflectAddtionalOptions& addtionalOptions);
+		REFLECT_API void Reflect(const FileParser& parser, const ReflectAddtionalOptions* additionalOptions);
 		REFLECT_API static void IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude = false);
 
 	private:
@@ -24,10 +26,13 @@ namespace Reflect
 		void CloseFile(std::ofstream& file);
 	};
 
-#define WRITE_PUBLIC() file << "public:\\\n"
-#define WRITE_PRIVATE() file << "private:\\\n"
-#define TAB() '\t'
-#define NEW_LINE() " \n"
-#define NEW_LINE_SLASH() " \\\n"
-#define TAB_NEW_LINE() "\t\n"
+#define WRITE_CLOSE file << "\n\n"
+
+#define WRITE_PUBLIC file << "public:\\\n"
+#define WRITE_PRIVATE file << "private:\\\n"
+#define TAB '\t'
+#define TAB_N(x) for(int i = 0; i < x; ++i) { file << TAB; }
+#define NEW_LINE " \n"
+#define NEW_LINE_SLASH " \\\n"
+#define TAB_NEW_LINE " \t\n"
 }

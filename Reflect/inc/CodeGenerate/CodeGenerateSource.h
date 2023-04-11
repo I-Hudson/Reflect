@@ -1,32 +1,29 @@
 #pragma once
 
-#include "Core/Core.h"
+#include "Core/Defines.h"
 #include "ReflectStructs.h"
 #include "CodeGenerate/CodeGenerate.h"
 
+#include "CodeGenerate/CPP/CG_CPP_Legacy.h"
+#include "CodeGenerate/CPP/CG_CPP_TypeInfo.h"
+
 namespace Reflect
 {
+	struct ReflectAddtionalOptions;
+
 	class CodeGenerateSource
 	{
 	public:
 		CodeGenerateSource() { }
 		~CodeGenerateSource() { }
 
-		void GenerateSource(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
+		void GenerateSource(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
 
 	private:
-		
-		void WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
-
-		void WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
-		void WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
-
-#ifdef REFLET_TYPE_INFO
-		void WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
-		void WriteGenerateTypeMembers(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
-		void WriteGenerateTypeFunctions(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions& addtionalOptions);
+		CG_CPP_Legacy m_CG_CPP_Legacy;
+#ifdef REFLECT_TYPE_INFO_ENABLED
+		CG_CPP_TypeInfo m_CG_CPP_TypeInfo;
 #endif
 
-		std::string MemberFormat();
 	};
 }

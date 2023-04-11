@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Compiler.h"
-#include "Core.h"
+#include "Core/Defines.h"
 #include <string>
 
 namespace Reflect 
@@ -52,6 +52,7 @@ namespace Reflect
 		FAILED,
 
 		CAST_FAILED,
+		INVALID_OWNER_OBJECT,
 		INVALID_FUNCTION_POINTER,
 		INVALID_MEMBER,
 
