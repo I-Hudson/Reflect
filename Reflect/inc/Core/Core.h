@@ -72,14 +72,14 @@ namespace Reflect
 
 // Compiler marcos
 #if defined(__GNUC__) || defined(__clang__)
-#define DEPRECATED(func) func __attribute__ ((deprecated))
+#define REFLECT_DEPRECATED(func) func __attribute__ ((deprecated))
 #elif defined(_MSC_VER)
 #if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201402L ) || __cplusplus >= 201402L)
-#define DEPRECATED(x) [[deprecated(x)]]
+#define REFLECT_DEPRECATED(x) [[deprecated(x)]]
 #else
-#define DEPRECATED(x) __declspec(deprecated(x))
+#define REFLECT_DEPRECATED(x) __declspec(deprecated(x))
 #endif
 #else
 #pragma message("WARNING: You need to implement DEPRECATED for this compiler")
-#define DEPRECATED(func) func
+#define REFLECT_DEPRECATED(func) func
 #endif
