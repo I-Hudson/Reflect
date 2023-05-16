@@ -84,7 +84,15 @@ namespace Reflect
 			{
 				for (auto& inheritanceItem : reflectedData.Inheritance)
 				{
-					if (FindReflectContainerData(inheritanceItem.Name) == nullptr)
+					// This is not great. Currently the solution is to try and find a reflected container with the same name 
+					// regardless of the namespace. So if you have two classes named the same in different namespaces this won't work.
+					if (ReflectContainerData* inheritanceData = FindReflectContainerData(inheritanceItem.Name); 
+						inheritanceData != nullptr)
+					{
+						inheritanceItem.IsReflected = true;
+						inheritanceItem.NameWithNamespace = inheritanceData->NameWithNamespace;
+					}
+					else
 					{
 						inheritanceItem.IsReflected = false;
 					}
@@ -269,6 +277,12 @@ namespace Reflect
 			Util::RemoveString(type, PublicKey);
 			Util::RemoveString(type, ProtectedKey);
 			Util::RemoveString(type, PrivateKey);
+
+			while (type.find("::") != std::string::npos)
+			{
+				uint64_t index = type.find("::");
+				type = type.substr(index + 2);
+			}
 			containerData.Inheritance.push_back({ type });
 		}
 

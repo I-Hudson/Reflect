@@ -1,27 +1,28 @@
 #include "TestStrcuts.h"
 
-void Player::SetAgeAndHeight(int newAge, float newHeight)
-{
-	Age = newAge;
-	Height = newHeight;
-}
 
-int Player::GetOnlineFriendsCount(int const& maxPlayerCount) const
-{
-	return maxPlayerCount;
-}
+	void Player::SetAgeAndHeight(int newAge, float newHeight)
+	{
+		Age = newAge;
+		Height = newHeight;
+	}
 
-std::string Player::GetId()
-{
-	return Id;
-}
+	int Player::GetOnlineFriendsCount(int const& maxPlayerCount) const
+	{
+		return maxPlayerCount;
+	}
 
-std::string* Player::GetIdPtr()
-{
-	return &Id;
-}
+	std::string Player::GetId()
+	{
+		return Id;
+	}
 
-void Player::PrintHelloWorld()
-{
-	printf("Hello World!");
-}
+	std::string* Player::GetIdPtr()
+	{
+		return &Id;
+	}
+
+	void Player::PrintHelloWorld()
+	{
+		printf("Hello World!");
+	}

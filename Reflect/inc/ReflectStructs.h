@@ -221,6 +221,7 @@ namespace Reflect
 	struct ReflectInheritanceData
 	{
 		std::string Name;
+		std::string NameWithNamespace;
 		bool IsReflected = true;
 	};
 

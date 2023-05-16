@@ -33,31 +33,33 @@ class Interface
 /// Example class.
 /// </summary>
 
-REFLECT_STRUCT()
-struct S : REFLECT_BASE(), public Interface
+namespace A
 {
-	REFLECT_GENERATED_BODY()
+	namespace B
+	{
+		REFLECT_STRUCT()
+		struct S : REFLECT_BASE(), public Interface
+		{
+			REFLECT_GENERATED_BODY()
 
-public:
-	int& GetFriends() { return Friends; }
+		public:
+			int& GetFriends() { return Friends; }
 
-	int Friends = int(1);
-	int* TimeOnline = nullptr;
-	REFLECT_PROPERTY()
-		vec3 vec = vec3(1);
-};
+			int Friends = int(1);
+			int* TimeOnline = nullptr;
+			REFLECT_PROPERTY()
+				vec3 vec = vec3(1);
+		};
+	}
+}
 
 class C
 {
 
 };
 
-namespace N
-{
-	namespace M
-	{
 	REFLECT_CLASS(AllPrivate, ShowInEditorOnly, EditorOnly)
-	class Player : REFLECT_BASE(), public S
+	class Player : REFLECT_BASE(), public A::B::S
 	{
 		REFLECT_GENERATED_BODY();
 
@@ -100,5 +102,3 @@ namespace N
 		REFLECT_PROPERTY() int Age = 21;
 		REFLECT_PROPERTY() float Height;
 	};
-	}
-}

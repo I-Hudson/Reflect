@@ -61,7 +61,7 @@ namespace Reflect
 			{
 				continue;
 			}
-			file << TAB << TAB << item.Name + "* " + item.Name + "_pointer = dynamic_cast<" + item.Name + "*>(ownerClass);" << NEW_LINE;
+			file << TAB << TAB << item.NameWithNamespace + "* " + item.Name + "_pointer = dynamic_cast<" + item.NameWithNamespace + "*>(ownerClass);" << NEW_LINE;
 			//file << TAB << TAB << "assert(" + item.Name + "_pointer);" << NEW_LINE;
 			file << TAB << TAB << "if(" + item.Name + "_pointer != nullptr)" << NEW_LINE;
 			file << TAB << TAB << "{" << NEW_LINE;
