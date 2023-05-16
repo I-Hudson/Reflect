@@ -44,6 +44,9 @@ namespace Reflect
 		file << "Reflect::ReflectTypeInfo " + GetTypeName(data)  + "::GetStaticTypeInfo()\n{" << NEW_LINE;
 		file << "\treturn Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(nullptr);" << NEW_LINE;
 		file << "}\n" << NEW_LINE;
+		file << "Reflect::ReflectTypeInfo " + GetTypeName(data) + "::GetStaticTypeInfo(" + GetTypeName(data) + "* ownerPointer)\n{" << NEW_LINE;
+		file << "\treturn Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(ownerPointer);" << NEW_LINE;
+		file << "}\n" << NEW_LINE;
 		file << "Reflect::ReflectTypeInfo " + GetTypeName(data)  + "::GetTypeInfo()\n{" << NEW_LINE;
 		file << "\treturn Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(this);" << NEW_LINE;
 		file << "}\n" << NEW_LINE;
@@ -65,7 +68,7 @@ namespace Reflect
 			//file << TAB << TAB << "assert(" + item.Name + "_pointer);" << NEW_LINE;
 			file << TAB << TAB << "if(" + item.Name + "_pointer != nullptr)" << NEW_LINE;
 			file << TAB << TAB << "{" << NEW_LINE;
-			file << TAB << TAB << TAB << "inheritances.push_back(std::make_unique<Reflect::ReflectTypeInfo>(" + item.Name + "_pointer->GetTypeInfo()));" << NEW_LINE;
+			file << TAB << TAB << TAB << "inheritances.push_back(std::make_unique<Reflect::ReflectTypeInfo>(" + item.NameWithNamespace + "::GetStaticTypeInfo(" + item.Name + "_pointer)));" << NEW_LINE;
 			file << TAB << TAB << "}" << NEW_LINE;
 		}
 
