@@ -109,11 +109,11 @@ namespace Reflect
 		{
 			if (!src || !dst)
 			{
-				Log_Error("[ReflectTypeCPP::Copy_s] src: '%p' or dst: '%p' are not valid.", src, dst);
+				std::cerr << "[ReflectTypeCPP::Copy_s] src: '" << src << "' or dst: '" << dst << "' are not valid.";
 			}
 			else if (sizeof(value_type) != dst_size)
 			{
-				Log_Error("[ReflectTypeCPP::Copy_s] dst_size: '%i' does not match value_type size: '%i'.", dst_size, sizeof(value_type));
+				std::cerr << "[ReflectTypeCPP::Copy_s] dst_size: '" << dst_size << "' does not match value_type size : '" << sizeof(value_type) << "'.";
 			}
 			else
 			{
