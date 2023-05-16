@@ -229,6 +229,8 @@ namespace Reflect
 		std::string Name;
 		std::string PrettyName;
 		std::vector<ReflectInheritanceData> Inheritance;
+		std::vector<std::string> Namespaces;
+		std::string NameWithNamespace;
 		EReflectType ReflectType;
 		int ReflectGenerateBodyLine;
 

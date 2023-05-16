@@ -41,4 +41,6 @@ namespace Reflect
 	constexpr const char* TemplateKey = "template";
 	constexpr const char* OperatorKey = "operator";
 	constexpr const char* FriendKey = "friend";
+
+	constexpr const char* Namespace = "namespace";
 }

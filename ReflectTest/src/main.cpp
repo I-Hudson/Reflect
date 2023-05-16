@@ -118,14 +118,14 @@ TEST_CASE("Legacy get function pointer return")
 TEST_CASE("Get type info no owner")
 {
 	Player player;
-	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo();
+	Reflect::ReflectTypeInfo typeinfo = Player::GetStaticTypeInfo();
 	CHECK(!typeinfo.GetInfo()->GetTypeName().empty());
 }
 
 TEST_CASE("Get type info with owner")
 {
 	Player player;
-	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo(&player);
+	Reflect::ReflectTypeInfo typeinfo = player.GetTypeInfo();
 	CHECK(typeinfo.HasOwner());
 
 	Reflect::ReflectTypeMember* member = typeinfo.GetMember("vec", true);
@@ -134,14 +134,14 @@ TEST_CASE("Get type info with owner")
 
 TEST_CASE("Type info construct")
 {
-	Player* constructed = static_cast<Player*>(Player::GetTypeInfo().ConstructNew());
+	Player* constructed = static_cast<Player*>(Player::GetStaticTypeInfo().ConstructNew());
 	CHECK(constructed != nullptr);
 	delete constructed;
 }
 
 TEST_CASE("Type info invoke invalid owner function")
 {
-	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo();
+	Reflect::ReflectTypeInfo typeinfo = Player::GetStaticTypeInfo();
 	Reflect::ReflectTypeFunction* getOnlineFriendsCount = typeinfo.GetFunction("GetOnlineFriendsCount");
 	CHECK(getOnlineFriendsCount->Invoke() == Reflect::EReflectReturnCode::INVALID_OWNER_OBJECT);
 }
@@ -149,7 +149,7 @@ TEST_CASE("Type info invoke invalid owner function")
 TEST_CASE("Type info call func with 1 arg and return")
 {
 	Player player;
-	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo(&player);
+	Reflect::ReflectTypeInfo typeinfo = player.GetTypeInfo();
 	Reflect::ReflectTypeFunction* getOnlineFriendsCountFunc = typeinfo.GetFunction("GetOnlineFriendsCount");
 
 	int onlineCount = 45;
@@ -165,7 +165,7 @@ TEST_CASE("Type info call func with 1 arg and return")
 TEST_CASE("Type info get base class")
 {
 	Player player;
-	Reflect::ReflectTypeInfo typeinfo = Player::GetTypeInfo(&player);
+	Reflect::ReflectTypeInfo typeinfo = player.GetTypeInfo();
 	//typeinfo.GetInfo().in
 }
 

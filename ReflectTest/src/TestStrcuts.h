@@ -44,7 +44,7 @@ public:
 	int Friends = int(1);
 	int* TimeOnline = nullptr;
 	REFLECT_PROPERTY()
-	vec3 vec = vec3(1);
+		vec3 vec = vec3(1);
 };
 
 class C
@@ -52,47 +52,53 @@ class C
 
 };
 
-REFLECT_CLASS(AllPrivate, ShowInEditorOnly, EditorOnly)
-class Player : REFLECT_BASE(), public S
+namespace N
 {
-	REFLECT_GENERATED_BODY();
+	namespace M
+	{
+	REFLECT_CLASS(AllPrivate, ShowInEditorOnly, EditorOnly)
+	class Player : REFLECT_BASE(), public S
+	{
+		REFLECT_GENERATED_BODY();
 
-public:
-	Player()
-		: Id("PlayerExampleId")
-	{ }
+	public:
+		Player()
+			: Id("PlayerExampleId")
+		{ }
 
-	~Player(){}
+		~Player() {}
 
-	REFLECT_PROPERTY()
-	int GetAge() const { return Age; }
-	REFLECT_PROPERTY()
-	float GetHeight() const { return Height; }
-	REFLECT_PROPERTY()
-	void SetAgeAndHeight(int newAge, float newHeight);
+		REFLECT_PROPERTY()
+			int GetAge() const { return Age; }
+		REFLECT_PROPERTY()
+			float GetHeight() const { return Height; }
+		REFLECT_PROPERTY()
+			void SetAgeAndHeight(int newAge, float newHeight);
 
-	REFLECT_PROPERTY(Public)
-	int GetOnlineFriendsCount(int const& maxPlayerCount)const;
+		REFLECT_PROPERTY(Public)
+			int GetOnlineFriendsCount(int const& maxPlayerCount)const;
 
-	REFLECT_PROPERTY()
-	void PrintHelloWorld();
+		REFLECT_PROPERTY()
+			void PrintHelloWorld();
 
-	REFLECT_PROPERTY()
-	std::string GetName() { return "Test name"; }
+		REFLECT_PROPERTY()
+			std::string GetName() { return "Test name"; }
 
-	REFLECT_PROPERTY()
-	std::string GetId();
+		REFLECT_PROPERTY()
+			std::string GetId();
 
-	REFLECT_PROPERTY()
-	std::string* GetIdPtr();
+		REFLECT_PROPERTY()
+			std::string* GetIdPtr();
 
-	std::string Id = { };
+		std::string Id = { };
 
-	REFLECT_PROPERTY(EditorOnly, Public)
-		int Friends = 7;
-	REFLECT_PROPERTY(Public)
-		int TimeOnline = 78;
+		REFLECT_PROPERTY(EditorOnly, Public)
+			int Friends = 7;
+		REFLECT_PROPERTY(Public)
+			int TimeOnline = 78;
 
-	REFLECT_PROPERTY() int Age = 21;
-	REFLECT_PROPERTY() float Height;
-};
+		REFLECT_PROPERTY() int Age = 21;
+		REFLECT_PROPERTY() float Height;
+	};
+	}
+}

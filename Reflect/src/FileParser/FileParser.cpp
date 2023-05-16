@@ -185,8 +185,9 @@ namespace Reflect
 			// Can't reflect this class/struct. Return.
 			return false;
 		}
-
 		ReflectContainerData containerData = {};
+
+		containerData.Namespaces = FindAllNamespaces(fileData, reflectStart);
 
 		containerData.ReflectType = type;
 		fileData.Cursor = reflectStart + static_cast<int>(keyword.length()) + 1;
@@ -237,7 +238,7 @@ namespace Reflect
 		containerData.Type = containerName;
 		containerData.TypeSize = DEFAULT_TYPE_SIZE;
 
-		// We are inheriting thigns.
+		// We are inheriting things.
 		bool inheritance = fileData.Data.find(':', fileData.Cursor) < fileData.Data.find('{', fileData.Cursor);
 		if (inheritance)
 		{
@@ -270,6 +271,15 @@ namespace Reflect
 			Util::RemoveString(type, PrivateKey);
 			containerData.Inheritance.push_back({ type });
 		}
+
+		if (!containerData.Namespaces.empty())
+		{
+			for (const std::string& str : containerData.Namespaces)
+			{
+				containerData.NameWithNamespace += str + "::";
+			}
+		}
+		containerData.NameWithNamespace += containerData.Name;
 
 		fileData.ReflectData.push_back(containerData);
 		return true;
@@ -433,6 +443,60 @@ namespace Reflect
 		}
 	}
 
+	std::vector<std::string> FileParser::FindAllNamespaces(FileParsedData fileData, int reflectStart)
+	{
+		fileData.Cursor = reflectStart;
+		std::vector<std::string> namespaces;
+		int closeBracketCount = 0;
+
+		while (fileData.Cursor != 0)
+		{
+			if (fileData.Data[fileData.Cursor] == '}')
+			{
+				++closeBracketCount;
+			}
+			else if (fileData.Data[fileData.Cursor] == '{')
+			{
+				if (closeBracketCount == 0)
+				{
+					--fileData.Cursor;
+					std::string namespaceName = FindPreviousNamespace(fileData);
+					if (!namespaceName.empty())
+					{
+						namespaces.push_back(namespaceName);
+					}
+				}
+				else
+				{
+					--closeBracketCount;
+				}
+			}
+			--fileData.Cursor;
+		}
+	
+		if (!namespaces.empty())
+		{
+			std::reverse(namespaces.begin(), namespaces.end());
+		}
+
+		return namespaces;
+	}
+
+	std::string FileParser::FindPreviousNamespace(FileParsedData& fileData)
+	{
+		FindNextChar(fileData, emptyChars, true);
+		std::string namespaceName = FindNextWord(fileData, emptyChars, true);
+
+		FindNextChar(fileData, emptyChars, true);
+		std::string namespaceAlias = FindNextWord(fileData, emptyChars, true);
+
+		if (namespaceAlias == Namespace)
+		{
+			return namespaceName;
+		}
+		return "";
+	}
+
 	int FileParser::FindEndOfConatiner(const FileParsedData& fileData)
 	{
 		REFLECT_PROFILE_FUNCTION();
@@ -530,25 +594,25 @@ namespace Reflect
 		return flags;
 	}
 
-	char FileParser::FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars)
+	char FileParser::FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars, bool reverse)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
 		FileParsedData copyFileData = fileData;
 		copyFileData.Cursor = cursor;
-		char c = FindNextChar(copyFileData, ignoreChars);
+		char c = FindNextChar(copyFileData, ignoreChars, reverse);
 		cursor = copyFileData.Cursor;
 		return c;
 	}
 
-	char FileParser::FindNextChar(FileParsedData& fileData, char charToFind)
+	char FileParser::FindNextChar(FileParsedData& fileData, char charToFind, bool reverse)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
 		char c = fileData.Data[fileData.Cursor];
 		while (c != charToFind)
 		{
-			if (++fileData.Cursor < fileData.Data.size())
+			if (reverse ? --fileData.Cursor : ++fileData.Cursor < fileData.Data.size())
 				c = fileData.Data[fileData.Cursor];
 			else
 				break;
@@ -556,31 +620,44 @@ namespace Reflect
 		return c;
 	}
 
-	char FileParser::FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars)
+	char FileParser::FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars, bool reverse)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		++fileData.Cursor;
+		reverse ? --fileData.Cursor : ++fileData.Cursor;
 		while (std::find(ignoreChars.begin(), ignoreChars.end(), fileData.Data[fileData.Cursor]) != ignoreChars.end())
 		{
-			++fileData.Cursor;
+			reverse ? --fileData.Cursor : ++fileData.Cursor;
 		}
 		return fileData.Data[fileData.Cursor];
 	}
 
-	std::string FileParser::FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars)
+	std::string FileParser::FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars, bool reverse)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
 		std::string s;
 		s += fileData.Data[fileData.Cursor];
-		char c = FindNextChar(fileData, std::vector<char>());
+		char c = FindNextChar(fileData, std::vector<char>(), reverse);
 		while (std::find(endChars.begin(), endChars.end(), c) == endChars.end())
 		{
 			s += c;
-			c = FindNextChar(fileData, std::vector<char>());
+			c = FindNextChar(fileData, std::vector<char>(), reverse);
 		}
+
+		if (reverse)
+		{
+			std::reverse(s.begin(), s.end());
+		}
+
 		return s;
+	}
+
+	std::string FileParser::FindNextWord(const FileParsedData& fileData, int& cursor, const std::vector<char>& endChars, bool reverse)
+	{
+		FileParsedData copyFileData = fileData;
+		copyFileData.Cursor = cursor;
+		return FindNextWord(copyFileData, endChars, reverse);
 	}
 
 	bool FileParser::IsWordReflectKey(std::string_view view)

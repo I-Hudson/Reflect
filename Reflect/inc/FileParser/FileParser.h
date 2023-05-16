@@ -39,20 +39,23 @@ namespace Reflect
 
 		FileParsedData LoadFile(std::ifstream& file);
 
-
 		bool ParseFile(FileParsedData& fileData);
 		bool ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const EReflectType type);
 		void ReflectContainer(FileParsedData& fileData);
 		void GetAllCPPIncludes(FileParsedData& fileData);
 
+		std::vector<std::string> FindAllNamespaces(FileParsedData fileData, int reflectStart);
+		std::string FindPreviousNamespace(FileParsedData& fileData);
+
 		int FindEndOfConatiner(const FileParsedData& fileData);
 		std::vector<std::string> ReflectFlags(FileParsedData& fileData);
 
-		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars);
-		char FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars);
-		char FindNextChar(FileParsedData& fileData, char charToFind);
+		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars, bool reverse = false);
+		char FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars, bool reverse = false);
+		char FindNextChar(FileParsedData& fileData, char charToFind, bool reverse = false);
 
-		std::string FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars);
+		std::string FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars, bool reverse = false);
+		std::string FindNextWord(const FileParsedData& fileData, int& cursor, const std::vector<char>& endChars, bool reverse = false);
 		bool IsWordReflectKey(std::string_view view);
 
 		bool CheckForTypeAlias(std::string_view view);

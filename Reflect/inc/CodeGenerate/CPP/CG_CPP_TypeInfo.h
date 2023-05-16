@@ -19,6 +19,8 @@ namespace Reflect
         void WriteGenerateTypeInheritance(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
         void WriteGenerateTypeMembers(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
         void WriteGenerateTypeFunctions(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
+
+        std::string GetTypeName(const ReflectContainerData& data) const;
     };
 #endif
 }

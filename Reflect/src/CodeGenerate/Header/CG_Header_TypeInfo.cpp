@@ -13,8 +13,8 @@ namespace Reflect
 		REFLECT_PROFILE_FUNCTION();
 		file << "#define " + currentFileId + "_GENERATE_TYPE_INFO" + NEW_LINE_SLASH;
 		WRITE_PUBLIC;
-		file << TAB << "static Reflect::ReflectTypeInfo GetTypeInfo();" << NEW_LINE_SLASH;
-		file << TAB << "static Reflect::ReflectTypeInfo GetTypeInfo(" + data.Name + "* classPtr);" + NEW_LINE_SLASH;
+		file << TAB << "static Reflect::ReflectTypeInfo GetStaticTypeInfo();" << NEW_LINE_SLASH;
+		file << TAB << "virtual Reflect::ReflectTypeInfo GetTypeInfo();" << NEW_LINE_SLASH;
 		WRITE_PRIVATE;
 		file << TAB << "friend class Reflect::GenerateTypeInfoForType<" + data.Name + ">;";
 		file << NEW_LINE << NEW_LINE;
