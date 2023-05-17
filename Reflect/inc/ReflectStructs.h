@@ -10,6 +10,102 @@ struct ReflectMember;
 
 namespace Reflect
 {
+	struct ReflectTypeNameData
+	{
+		std::string Type;
+		std::string RawType;
+		std::string Name;
+		EReflectValueType ReflectValueType;
+		EReflectValueModifier ReflectModifier;
+		std::vector<std::string> ContainerProps;
+
+		int TypeSize;
+		bool IsConst;
+
+		ReflectTypeNameData()
+			: Type("")
+			, Name("")
+
+			, TypeSize(0)
+			, IsConst(false)
+		{ }
+
+		template<typename T>
+		ReflectTypeNameData(const std::string& type, const std::string& rawType, const std::string& name, const int& typeSize, const Reflect::EReflectValueType& memberType, const bool& isConst)
+			: Type(type)
+			, Name(name)
+			, RawType(rawType)
+			, TypeSize(typeSize)
+			, ReflectValueType(memberType)
+			, IsConst(isConst)
+		{ }
+
+		bool operator!=(const ReflectTypeNameData& other) const
+		{
+			bool propsEqual = ContainerProps.size() != other.ContainerProps.size();
+			if (propsEqual)
+			{
+				for (uint32_t i = 0; i < ContainerProps.size(); ++i)
+				{
+					if (ContainerProps[i] == other.ContainerProps[i])
+					{
+						propsEqual = false;
+						break;
+					}
+				}
+			}
+			return Type != other.Type ||
+				Name != other.Name ||
+				TypeSize != other.TypeSize ||
+				propsEqual;
+		}
+	};
+
+	struct ReflectMemberData : public ReflectTypeNameData
+	{
+		EReflectType ReflectType = EReflectType::Member;
+		int Offset = 0;
+	};
+
+	struct ReflectFunctionData : public ReflectTypeNameData
+	{
+		EReflectType ReflectType = EReflectType::Function;
+		std::vector<ReflectTypeNameData> Parameters;
+	};
+
+	struct ReflectInheritanceData
+	{
+		std::string Name;
+		std::string NameWithNamespace;
+		bool IsReflected = true;
+	};
+
+	struct ReflectContainerData : public ReflectTypeNameData
+	{
+		std::string Name;
+		std::string PrettyName;
+		std::vector<ReflectInheritanceData> Inheritance;
+		std::vector<std::string> Namespaces;
+		std::string NameWithNamespace;
+		EReflectType ReflectType;
+		int ReflectGenerateBodyLine;
+
+		std::vector<ReflectMemberData> Members;
+		std::vector<ReflectFunctionData> Functions;
+	};
+
+	struct FileParsedData
+	{
+		std::string Data;
+		int Cursor;
+		std::string FilePath;
+		std::string FileName;
+		int GeneratedBodyLineOffset;
+		std::vector<std::string> CPPIncludes;
+
+		std::vector<ReflectContainerData> ReflectData;
+	};
+
 	struct ReflectType
 	{
 		bool operator!=(const ReflectType& other)
@@ -57,7 +153,7 @@ namespace Reflect
 	struct ReflectTypeCPP : public ReflectType
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<Type>>;
-	
+
 		ReflectTypeCPP(EReflectType eType, std::string givenName = "")
 		{
 			m_typeName = Util::GetTypeName<Type>();
@@ -155,140 +251,9 @@ namespace Reflect
 		{ }
 	};
 
-	struct ReflectTypeNameData
-	{
-		std::string Type;
-		std::string RawType;
-		std::string Name;
-		EReflectValueType ReflectValueType;
-		EReflectValueModifier ReflectModifier;
-		std::vector<std::string> ContainerProps;
-
-		int TypeSize;
-		bool IsConst;
-
-		ReflectTypeNameData()
-			: Type("")
-			, Name("")
-
-			, TypeSize(0)
-			, IsConst(false)
-		{ }
-
-		template<typename T>
-		ReflectTypeNameData(const std::string& type, const std::string& rawType, const std::string& name, const int& typeSize, const Reflect::EReflectValueType& memberType, const bool& isConst)
-			: Type(type)
-			, Name(name)
-			, RawType(rawType)
-			, TypeSize(typeSize)
-			, ReflectValueType(memberType)
-			, IsConst(isConst)
-		{ }
-
-		bool operator!=(const ReflectTypeNameData& other) const
-		{
-			bool propsEqual = ContainerProps.size() != other.ContainerProps.size();
-			if (propsEqual)
-			{
-				for (uint32_t i = 0; i < ContainerProps.size(); ++i)
-				{
-					if (ContainerProps[i] == other.ContainerProps[i])
-					{
-						propsEqual = false;
-						break;
-					}
-				}
-			}
-			return Type != other.Type ||
-				Name != other.Name ||
-				TypeSize != other.TypeSize ||
-				propsEqual;
-		}
-	};
-
-	struct ReflectMemberData : public ReflectTypeNameData
-	{
-		EReflectType ReflectType = EReflectType::Member;
-		int Offset = 0;
-	};
-
-	struct ReflectFunctionData : public ReflectTypeNameData
-	{
-		EReflectType ReflectType = EReflectType::Function;
-		std::vector<ReflectTypeNameData> Parameters;
-	};
-
-	struct ReflectInheritanceData
-	{
-		std::string Name;
-		std::string NameWithNamespace;
-		bool IsReflected = true;
-	};
-
-	struct ReflectContainerData : public ReflectTypeNameData
-	{
-		std::string Name;
-		std::string PrettyName;
-		std::vector<ReflectInheritanceData> Inheritance;
-		std::vector<std::string> Namespaces;
-		std::string NameWithNamespace;
-		EReflectType ReflectType;
-		int ReflectGenerateBodyLine;
-
-		std::vector<ReflectMemberData> Members;
-		std::vector<ReflectFunctionData> Functions;
-	};
-
-	struct FileParsedData
-	{
-		std::string Data;
-		int Cursor;
-		std::string FilePath;
-		std::string FileName;
-		int GeneratedBodyLineOffset;
-		std::vector<std::string> CPPIncludes;
-
-		std::vector<ReflectContainerData> ReflectData;
-	};
-
-	struct ReflectMemberProp
-	{
-		ReflectMemberProp(const char* name, ReflectType* typeCPP, size_t offset, std::vector<std::string> const& strProperties)
-			: Name(name)
-			, Type(typeCPP)
-			, Offset(offset)
-			, StrProperties(strProperties)
-		{ }
-
-		~ReflectMemberProp()
-		{
-			delete Type;
-		}
-
-		bool ContainsProperty(std::vector<std::string> const& flags)
-		{
-			for (auto const& flag : flags)
-			{
-				for (auto const& p : StrProperties)
-				{
-					if (p == flag)
-					{
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		const char* Name;
-		ReflectType* Type;
-		size_t Offset;
-		std::vector<std::string> StrProperties;
-	};
-
 	/// <summary>
-	/// Store arguments for a function ptr
-	/// </summary>
+/// Store arguments for a function ptr
+/// </summary>
 	struct FunctionPtrArgs
 	{
 	public:
@@ -332,6 +297,214 @@ namespace Reflect
 	};
 
 	using FunctionPtr = Reflect::EReflectReturnCode(*)(void* objectPtr, void* returnValue, FunctionPtrArgs& args);
+
+
+#define REFLECT_TYPE_INFO_ENABLED
+#ifdef REFLECT_TYPE_INFO_ENABLED
+	template<typename T>
+	class GenerateTypeInfoForType;
+
+	class REFLECT_API ReflectTypeInfo;
+
+	/// @brief Describe a single member variable within a class/struct.
+	class REFLECT_API ReflectTypeMember
+	{
+	public:
+		ReflectTypeMember(void* ownerClass, const char* name, void* memberPtr, std::unique_ptr<ReflectType> type,
+			std::vector<std::string> flags);
+
+		ReflectType* GetType() const;
+		std::string_view GetName() const;
+		bool IsValid() const;
+		bool HasFlag(const char* flag) const;
+		void* GetData() const;
+
+		template<typename T>
+		T* ConvertToType()
+		{
+			std::string convertType = Reflect::Util::GetTypeName<T>();
+			if (!IsValid() || convertType != m_type->GetTypeName())
+			{
+				return nullptr;
+			}
+			return static_cast<T*>(m_memberPtr);
+		}
+
+		template<typename T>
+		void ModifyValue(T value)
+		{
+			T* ptr = ConvertToType<T>();
+			if (!ptr)
+			{
+				return;
+			}
+			*ptr = value;
+		}
+
+	private:
+		void* m_ownerClass = nullptr;
+		void* m_memberPtr = nullptr;
+		std::string m_name;
+		std::unique_ptr<ReflectType> m_type;
+		std::vector<std::string> m_flags;
+
+		friend class ReflectTypeInfo;
+	};
+
+	/// @brief Describe a a single function within a class/struct.
+	class REFLECT_API ReflectTypeFunction
+	{
+	public:
+		ReflectTypeFunction(void* ownerClass, const char* name, FunctionPtr funcPtr
+			, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args);
+
+		Reflect::EReflectReturnCode Invoke(FunctionPtrArgs functionArgs = FunctionPtrArgs());
+		//TODO: FunctionPtr returnValue needs to be a pointer to a pointer. This will allow pointers to be returned from functions.
+		template<typename T>
+		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
+		{
+			return CallInternal((void*)returnValue, std::move(functionArgs), ReflectTypeCPP<T>(EReflectType::Unknown));
+		}
+
+		bool IsValid() const;
+
+		ReflectType* GetInfo() const;
+		std::string_view GetName() const;
+		const ReflectType* GetArgInfo(int index) const;
+		std::vector<ReflectType*> GetArgsInfo() const;
+
+	protected:
+		EReflectReturnCode CallInternal(void* returnValue, FunctionPtrArgs functionArgs, const ReflectType& returnType);
+
+	private:
+		bool VerifyOwnerObject() const;
+		bool VerifyFunctionPointer() const;
+		bool VerifyArgs(const FunctionPtrArgs& functionArgs) const;
+		bool CheckReturnType(const ReflectType& returnType) const;
+
+	protected:
+		std::unique_ptr<ReflectType> m_info;
+		std::string m_name;
+
+		void* m_ownerClass = nullptr;
+		FunctionPtr m_func = nullptr;
+
+		int m_numOfArgs;
+		std::vector<std::unique_ptr<ReflectType>> m_argsInfo;
+
+		friend class ReflectTypeInfo;
+	};
+
+	/// @brief Describe from a high level the class/struct. This should contain basic info such as object name, size, 
+	class REFLECT_API ReflectTypeInfo
+	{
+		using ConstructFunc = void* (*)();
+
+	public:
+		ReflectTypeInfo(void* owner_class, std::unique_ptr<ReflectType> info
+			, std::vector<std::unique_ptr<ReflectTypeInfo>> inheritances
+			, std::vector<std::unique_ptr<ReflectTypeMember>> members
+			, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
+
+		/// @brief Return type info.
+		/// @return ReflectType*
+		ReflectType* GetInfo() const;
+
+		/// @brief Return weather or not this instance of 'ReflectTypeInfo' has an
+		/// owner class/struct tied to it.
+		/// @return bool
+		bool HasOwner() const;
+
+		/// @brief Construct a new object. Creates a heap allocated object with 'new'. Reflect does not manage the lifetime of this object.
+		/// @return void*.
+		void* ConstructNew() { if (m_construct_func) { return m_construct_func(); } return nullptr; }
+
+		/// @brief Return a ReflectTypeMember* if found.
+		/// @return ReflectTypeMember*
+		ReflectTypeMember* GetMember(const char* memberName) const;
+		ReflectTypeMember* GetMember(const char* memberName, bool includeBaseClasses) const;
+
+		/// @brief Return all members.
+		/// @return std::vector<ReflectTypeMember*>.
+		std::vector<ReflectTypeMember*> GetAllMembers() const;
+		std::vector<ReflectTypeMember*> GetAllMembers(bool includeBaseClasses) const;
+
+		/// @brief Return all members with flags given.
+		/// @return std::vector<ReflectTypeMember*>.
+		std::vector<ReflectTypeMember*> GetAllMembersWithFlags(std::vector<const char*> flags) const;
+		std::vector<ReflectTypeMember*> GetAllMembersWithFlags(std::vector<const char*> flags, bool includeBaseClasses) const;
+
+		/// @brief Return a ReflectTypeFunction* if found.
+		/// @return ReflectTypeFunction*.
+		ReflectTypeFunction* GetFunction(const char* functionName) const;
+		ReflectTypeFunction* GetFunction(const char* functionName, bool includeBaseClasses) const;
+
+	private:
+		/// @breif Pointer to an instance of which this TypeInfo is made from. This will be nullptr if no instance pointer is given.
+		void* m_owner_class = nullptr;
+
+		/// @brief Construct function.
+		ConstructFunc m_construct_func = nullptr;
+
+		/// @brief Base info of this class/struct type.
+		std::unique_ptr<ReflectType> m_info;
+		/// @brief All class/structs this class/struct inheritances from.
+		std::vector<std::unique_ptr<ReflectTypeInfo>> m_inheritances;
+		/// @brief Store all the members for this type.
+		std::vector<std::unique_ptr<ReflectTypeMember>> m_members;
+		/// @brief Store all the functions for this type.
+		std::vector<std::unique_ptr<ReflectTypeFunction>> m_functions;
+
+		template<typename>
+		friend class GenerateTypeInfoForType;
+	};
+
+	/// @brief Template for generating a type's info. Must have a specialisation for each type.
+	template<typename T>
+	class GenerateTypeInfoForType
+	{
+	public:
+		ReflectTypeInfo GetTypeInfo(T* ownerClass)
+		{
+			assert(false && "[GenerateTypeInfoForType] This must have a template specialisation.");
+			return ReflectTypeInfo(ownerClass, std::make_unique<ReflectTypeCPP<T>>(), {});
+		}
+	};
+#else 
+	struct ReflectMemberProp
+	{
+		ReflectMemberProp(const char* name, ReflectType* typeCPP, size_t offset, std::vector<std::string> const& strProperties)
+			: Name(name)
+			, Type(typeCPP)
+			, Offset(offset)
+			, StrProperties(strProperties)
+		{ }
+
+		~ReflectMemberProp()
+		{
+			delete Type;
+		}
+
+		bool ContainsProperty(std::vector<std::string> const& flags)
+		{
+			for (auto const& flag : flags)
+			{
+				for (auto const& p : StrProperties)
+				{
+					if (p == flag)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		const char* Name;
+		ReflectType* Type;
+		size_t Offset;
+		std::vector<std::string> StrProperties;
+	};
 
 	struct ReflectFunction
 	{
@@ -432,188 +605,19 @@ namespace Reflect
 		void* m_ptr;
 		int m_offset;
 	};
+#endif
 
 	struct REFLECT_API IReflect
 	{
-		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr);};
+#ifndef REFLECT_TYPE_INFO_ENABLED
+		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr); };
 		virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", nullptr, nullptr); };
 		virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
 		virtual std::vector<ReflectMember> GetAllMembers() { return {}; };
-	};
-
-#define REFLECT_TYPE_INFO_ENABLED
-#ifdef REFLECT_TYPE_INFO_ENABLED
-	template<typename T>
-	class GenerateTypeInfoForType;
-
-	class REFLECT_API ReflectTypeInfo;
-
-	/// @brief Describe a single member variable within a class/struct.
-	class REFLECT_API ReflectTypeMember
-	{
-	public:
-		ReflectTypeMember(void* ownerClass, const char* name, void* memberPtr, std::unique_ptr<ReflectType> type,
-			std::vector<std::string> flags);
-
-		ReflectType* GetType() const;
-		std::string_view GetName() const;
-		bool IsValid() const;
-		bool HasFlag(const char* flag) const;
-
-		template<typename T>
-		T* ConvertToType()
-		{
-			std::string convertType = Reflect::Util::GetTypeName<T>();
-			if (!IsValid() || convertType != m_type->GetTypeName())
-			{
-				return nullptr;
-			}
-			return static_cast<T*>(m_memberPtr);
-		}
-
-		template<typename T>
-		void ModifyValue(T value)
-		{
-			T* ptr = ConvertToType<T>();
-			if (!ptr)
-			{
-				return;
-			}
-			*ptr = value;
-		}
-
-	private:
-		void* m_ownerClass = nullptr;
-		void* m_memberPtr = nullptr;
-		std::string m_name;
-		std::unique_ptr<ReflectType> m_type;
-		std::vector<std::string> m_flags;
-
-		friend class ReflectTypeInfo;
-	};
-
-	/// @brief Describe a a single function within a class/struct.
-	class REFLECT_API ReflectTypeFunction
-	{
-	public:
-		ReflectTypeFunction(void* ownerClass, const char* name, FunctionPtr funcPtr
-			, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args);
-
-		Reflect::EReflectReturnCode Invoke(FunctionPtrArgs functionArgs = FunctionPtrArgs());
-		//TODO: FunctionPtr returnValue needs to be a pointer to a pointer. This will allow pointers to be returned from functions.
-		template<typename T>
-		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
-		{
-			return CallInternal((void*)returnValue, std::move(functionArgs), ReflectTypeCPP<T>(EReflectType::Unknown));
-		}
-		
-		bool IsValid() const;
-
-		ReflectType* GetInfo() const;
-		std::string_view GetName() const;
-		const ReflectType* GetArgInfo(int index) const;
-		std::vector<ReflectType*> GetArgsInfo() const;
-
-	protected:
-		EReflectReturnCode CallInternal(void* returnValue, FunctionPtrArgs functionArgs, const ReflectType& returnType);
-
-	private:
-		bool VerifyOwnerObject() const;
-		bool VerifyFunctionPointer() const;
-		bool VerifyArgs(const FunctionPtrArgs& functionArgs) const;
-		bool CheckReturnType(const ReflectType& returnType) const;
-
-	protected:
-		std::unique_ptr<ReflectType> m_info;
-		std::string m_name;
-
-		void* m_ownerClass = nullptr;
-		FunctionPtr m_func = nullptr;
-
-		int m_numOfArgs;
-		std::vector<std::unique_ptr<ReflectType>> m_argsInfo;
-
-		friend class ReflectTypeInfo;
-	};
-
-	/// @brief Describe from a high level the class/struct. This should contain basic info such as object name, size, 
-	class REFLECT_API ReflectTypeInfo
-	{
-		using ConstructFunc = void*(*)();
-
-	public:
-		ReflectTypeInfo(void* owner_class, std::unique_ptr<ReflectType> info
-			, std::vector<std::unique_ptr<ReflectTypeInfo>> inheritances
-			, std::vector<std::unique_ptr<ReflectTypeMember>> members
-			, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
-
-		/// @brief Return type info.
-		/// @return ReflectType*
-		ReflectType* GetInfo() const;
-		
-		/// @brief Return weather or not this instance of 'ReflectTypeInfo' has an
-		/// owner class/struct tied to it.
-		/// @return bool
-		bool HasOwner() const;
-
-		/// @brief Construct a new object. Creates a heap allocated object with 'new'. Reflect does not manage the lifetime of this object.
-		/// @return void*.
-		void* ConstructNew() { if (m_construct_func) { return m_construct_func(); } return nullptr; }
-
-		/// @brief Return a ReflectTypeMember* if found.
-		/// @return ReflectTypeMember*
-		ReflectTypeMember* GetMember(const char* memberName) const;
-		ReflectTypeMember* GetMember(const char* memberName, bool includeBaseClasses) const;
-
-		/// @brief Return all members.
-		/// @return std::vector<ReflectTypeMember*>.
-		std::vector<ReflectTypeMember*> GetAllMembers() const;
-		std::vector<ReflectTypeMember*> GetAllMembers(bool includeBaseClasses) const;
-
-		/// @brief Return all members with flags given.
-		/// @return std::vector<ReflectTypeMember*>.
-		std::vector<ReflectTypeMember*> GetAllMembersWithFlags(std::vector<const char*> flags) const;
-		std::vector<ReflectTypeMember*> GetAllMembersWithFlags(std::vector<const char*> flags, bool includeBaseClasses) const;
-
-		/// @brief Return a ReflectTypeFunction* if found.
-		/// @return ReflectTypeFunction*.
-		ReflectTypeFunction* GetFunction(const char* functionName) const;
-		ReflectTypeFunction* GetFunction(const char* functionName, bool includeBaseClasses) const;
-
-	private:
-		/// @breif Pointer to an instance of which this TypeInfo is made from. This will be nullptr if no instance pointer is given.
-		void* m_owner_class = nullptr; 
-
-		/// @brief Construct function.
-		ConstructFunc m_construct_func = nullptr;
-		
-		/// @brief Base info of this class/struct type.
-		std::unique_ptr<ReflectType> m_info;
-		/// @brief All class/structs this class/struct inheritances from.
-		std::vector<std::unique_ptr<ReflectTypeInfo>> m_inheritances;
-		/// @brief Store all the members for this type.
-		std::vector<std::unique_ptr<ReflectTypeMember>> m_members;
-		/// @brief Store all the functions for this type.
-		std::vector<std::unique_ptr<ReflectTypeFunction>> m_functions;
-
-		template<typename>
-		friend class GenerateTypeInfoForType;
-	};
-
-	/// @brief Template for generating a type's info. Must have a specialisation for each type.
-	template<typename T>
-	class GenerateTypeInfoForType
-	{
-	public:
-		ReflectTypeInfo GetTypeInfo(T* ownerClass) 
-		{ 
-			assert(false && "[GenerateTypeInfoForType] This must have a template specialisation.");
-			return ReflectTypeInfo(ownerClass, std::make_unique<ReflectTypeCPP<T>>(), {}); 
-		}
-	};
 #endif
+	};
 }
 
-#define REFLECT_BASE() public Reflect::IReflect
+#define REFLECT_BASE public Reflect::IReflect
 #define REFLECT_STRUCT(...)
 #define REFLECT_CLASS(...)

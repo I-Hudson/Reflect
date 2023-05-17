@@ -29,6 +29,9 @@ namespace Reflect
 
 
 #ifdef REFLECT_TYPE_INFO_ENABLED
+	//-------------------------------------
+	// ReflectTypeMember
+	//-------------------------------------
 	ReflectTypeMember::ReflectTypeMember(void* ownerClass, const char* name, void* memberPtr, std::unique_ptr<ReflectType> type
 	, std::vector<std::string> flags)
 		: m_ownerClass(ownerClass)
@@ -58,7 +61,14 @@ namespace Reflect
 		return std::find(m_flags.begin(), m_flags.end(), flag) != m_flags.end();
 	}
 
+	void* ReflectTypeMember::GetData() const
+	{
+		return m_memberPtr;
+	}
 
+	//-------------------------------------
+	// ReflectTypeFunction
+	//-------------------------------------
 	ReflectTypeFunction::ReflectTypeFunction(void* ownerClass, const char* name, FunctionPtr funcPtr
 		, std::unique_ptr<ReflectType> info, std::vector<std::unique_ptr<ReflectType>> args)
 		: m_ownerClass(std::move(ownerClass))
@@ -168,7 +178,9 @@ namespace Reflect
 		return m_info->GetTypeName() == returnType.GetTypeName();
 	}
 
-
+	//-------------------------------------
+	// ReflectTypeInfo
+	//-------------------------------------
 	ReflectTypeInfo::ReflectTypeInfo(void* owner_class, std::unique_ptr<ReflectType> info
 		, std::vector<std::unique_ptr<ReflectTypeInfo>> inheritances
 		, std::vector<std::unique_ptr<ReflectTypeMember>> members

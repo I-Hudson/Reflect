@@ -4,7 +4,7 @@
 #include "Generated/TestClass_reflect_generated.h"
 
 REFLECT_CLASS()
-class ClassToRefect : REFLECT_BASE()
+class ClassToRefect : REFLECT_BASE
 {
 	REFLECT_GENERATED_BODY();
 

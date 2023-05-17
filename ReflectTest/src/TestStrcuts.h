@@ -38,7 +38,7 @@ namespace A
 	namespace B
 	{
 		REFLECT_STRUCT()
-		struct S : REFLECT_BASE(), public Interface
+		struct S : REFLECT_BASE, public Interface
 		{
 			REFLECT_GENERATED_BODY()
 
@@ -59,7 +59,7 @@ class C
 };
 
 	REFLECT_CLASS(AllPrivate, ShowInEditorOnly, EditorOnly)
-	class Player : REFLECT_BASE(), public A::B::S
+	class Player : public A::B::S
 	{
 		REFLECT_GENERATED_BODY();
 
