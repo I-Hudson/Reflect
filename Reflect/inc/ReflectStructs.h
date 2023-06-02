@@ -406,6 +406,32 @@ namespace Reflect
 			, std::vector<std::unique_ptr<ReflectTypeMember>> members
 			, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
 
+		ReflectTypeInfo(const ReflectTypeInfo& other) = delete;
+		ReflectTypeInfo(ReflectTypeInfo&& other) noexcept
+		{
+			(*this) = std::move(other);
+		}
+
+		ReflectTypeInfo& operator=(const ReflectTypeInfo& other) = delete;
+		ReflectTypeInfo& operator=(ReflectTypeInfo&& other) noexcept
+		{
+			m_owner_class = std::move(other.m_owner_class);
+			m_construct_func = std::move(other.m_construct_func);
+			m_info = std::move(other.m_info);
+			m_inheritances = std::move(other.m_inheritances);
+			m_members = std::move(other.m_members);
+			m_functions = std::move(other.m_functions);
+
+			other.m_owner_class = nullptr;
+			other.m_construct_func = nullptr;
+			other.m_info.reset();
+			other.m_inheritances.clear();
+			other.m_members.clear();
+			other.m_functions.clear();
+
+			return *this;
+		}
+
 		/// @brief Return type info.
 		/// @return ReflectType*
 		ReflectType* GetInfo() const;
