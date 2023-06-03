@@ -1,6 +1,7 @@
 #include "CodeGenerate/CPP/CG_CPP_Legacy.h"
 #include "CodeGenerate/Headers/CG_Header_Legacy.h"
 #include "CodeGenerate/CodeGenerate.h"
+#include "CodeGenerate/CG_Utils.h"
 
 #include "Core/Core.h"
 #include "Instrumentor.h"
@@ -43,10 +44,11 @@ namespace Reflect::CodeGeneration
 			file << "Reflect::ReflectMemberProp " + data.NameWithNamespace + "::__REFLECT_MEMBER_PROPS__[" + std::to_string(data.Members.size()) + "] = {" << NEW_LINE;
 			for (const auto& member : data.Members)
 			{
-				file << "\tReflect::ReflectMemberProp(\"" + member.Name +
-					"\", new Reflect::ReflectTypeCPP<" + CG_Header_Legacy::GetType(member, false) + ">(Reflect::EReflectType::Member), " +
-					"__REFLECT__" + member.Name + "(), " +
-					getMemberProps(member.ContainerProps) + ")," << NEW_LINE;
+				file << "\tReflect::ReflectMemberProp(\"" + member.Name + "\", ";
+				file << "new " << CG_Utils::WriteReflectTypeCPPDeclare(member.RawType);
+				file << CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Member, member.ReflectValueType, member.TypeInheritance, member.Name) << ", ";
+				file << "__REFLECT__" + member.Name + "(), ";
+				file << getMemberProps(member.ContainerProps) + ")," + NEW_LINE;
 			}
 			file << "};\n" << NEW_LINE;
 		}

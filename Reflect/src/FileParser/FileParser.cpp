@@ -34,8 +34,6 @@ namespace Reflect::Parser
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		m_filesParsed.clear();
-		m_filesToRemove.clear();
 		m_options = options;
 
 		m_directoriesParsed.push_back(directory);
@@ -79,28 +77,6 @@ namespace Reflect::Parser
 			}
 		}
 
-		for (auto& file : m_filesParsed)
-		{
-			for (auto& reflectedData : file.ReflectData)
-			{
-				for (auto& inheritanceItem : reflectedData.Inheritance)
-				{
-					// This is not great. Currently the solution is to try and find a reflected container with the same name 
-					// regardless of the namespace. So if you have two classes named the same in different namespaces this won't work.
-					if (Parser::ReflectContainerData* inheritanceData = FindReflectContainerData(inheritanceItem.Name); 
-						inheritanceData != nullptr)
-					{
-						inheritanceItem.IsReflected = true;
-						inheritanceItem.NameWithNamespace = inheritanceData->NameWithNamespace;
-					}
-					else
-					{
-						inheritanceItem.IsReflected = false;
-					}
-				}
-			}
-		}
-
 		for (auto const& fileToRemove : m_filesToRemove)
 		{
 			auto itr = std::find_if(m_filesParsed.begin(), m_filesParsed.end(), [fileToRemove](FileParsedData const& data)
@@ -110,6 +86,15 @@ namespace Reflect::Parser
 			assert(itr != m_filesParsed.end() && "[FileParser::ParseDirectory] Remove file to parse dose not exists.");
 			m_filesParsed.erase(itr);
 		}
+		m_filesToRemove.clear();
+
+		LinkAllInheritances();
+	}
+
+	void FileParser::Clear()
+	{
+		m_filesParsed.clear();
+		m_filesToRemove.clear();
 	}
 
 	void FileParser::SetIgnoreStrings(const std::vector<std::string>& ignoreStrings)
@@ -172,6 +157,10 @@ namespace Reflect::Parser
 	bool FileParser::ParseFile(FileParsedData& fileData)
 	{
 		REFLECT_PROFILE_FUNCTION();
+		if (fileData.Parsed)
+		{
+			return !fileData.ReflectData.empty();
+		}
 
 		bool reflectItem = false;
 		while (ReflectContainerHeader(fileData, Keys::RefectStructKey, EReflectType::Struct) 
@@ -181,6 +170,7 @@ namespace Reflect::Parser
 			GetAllCPPIncludes(fileData);
 			reflectItem = true;
 		}
+		fileData.Parsed = true;
 		return reflectItem;
 	}
 
@@ -608,6 +598,54 @@ namespace Reflect::Parser
 		}
 
 		return flags;
+	}
+
+	void FileParser::LinkAllInheritances()
+	{
+		for (auto& file : m_filesParsed)
+		{
+			for (auto& reflectedData : file.ReflectData)
+			{
+				// Go through all our struct/class inheritance
+				for (auto& inheritanceItem : reflectedData.Inheritance)
+				{
+					// This is not great. Currently the solution is to try and find a reflected container with the same name 
+					// regardless of the namespace. So if you have two classes named the same in different namespaces this won't work.
+					if (Parser::ReflectContainerData* inheritanceData = FindReflectContainerData(inheritanceItem.Name);
+						inheritanceData != nullptr)
+					{
+						inheritanceItem.IsReflected = true;
+						inheritanceItem.NameWithNamespace = inheritanceData->NameWithNamespace;
+					}
+					else
+					{
+						inheritanceItem.IsReflected = false;
+					}
+				}
+			}
+		}
+
+		for (auto& file : m_filesParsed)
+		{
+			for (auto& reflectedData : file.ReflectData)
+			{
+				for (auto& member : reflectedData.Members)
+				{
+					for (auto& typeInheritance : member.TypeInheritance)
+					{
+						// This is not great. Currently the solution is to try and find a reflected container with the same name 
+						// regardless of the namespace. So if you have two classes named the same in different namespaces this won't work.
+						if (Parser::ReflectContainerData* inheritanceData = FindReflectContainerData(typeInheritance.Name);
+							inheritanceData != nullptr)
+						{
+							typeInheritance = *inheritanceData;
+						}
+					}
+				}
+			}
+		}
+
+
 	}
 
 	char FileParser::FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars, bool reverse)

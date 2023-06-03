@@ -62,7 +62,7 @@ namespace Reflect
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<Type>>;
 
-		ReflectTypeCPP(EReflectType eType, EReflectValueType valueType, std::vector<ReflectType*> inheritance, std::string givenName = "")
+		ReflectTypeCPP(EReflectType eType, EReflectValueType valueType, std::vector<std::unique_ptr<ReflectType>> inheritance, std::string givenName = "")
 		{
 			m_typeName = Util::GetTypeName<Type>();
 			m_typeSize = Util::GetTypeSize<Type>();
@@ -133,7 +133,7 @@ namespace Reflect
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<void>>;
 
-		ReflectTypeCPP(EReflectType eType, EReflectValueType valueType, std::vector<ReflectType*> inheritance, std::string givenName = "")
+		ReflectTypeCPP(EReflectType eType, EReflectValueType valueType, std::vector<std::unique_ptr<ReflectType>> inheritance, std::string givenName = "")
 		{
 			m_typeName = "void";
 			m_typeSize = 0;

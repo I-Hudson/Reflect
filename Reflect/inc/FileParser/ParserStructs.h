@@ -16,6 +16,8 @@ namespace Reflect::Parser
 		EReflectValueModifier ReflectModifier = EReflectValueModifier::None;
 		std::vector<std::string> ContainerProps;
 
+		std::vector<ReflectTypeNameData> TypeInheritance;
+
 		int TypeSize;
 		bool IsConst;
 
@@ -101,5 +103,6 @@ namespace Reflect::Parser
 		std::vector<std::string> CPPIncludes;
 
 		std::vector<Parser::ReflectContainerData> ReflectData;
+		bool Parsed = false;
 	};
 }

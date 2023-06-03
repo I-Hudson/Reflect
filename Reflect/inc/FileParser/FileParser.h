@@ -25,6 +25,8 @@ namespace Reflect::Parser
 		REFLECT_API ~FileParser();
 
 		REFLECT_API void ParseDirectory(const std::string& directory, const ReflectAddtionalOptions* additionalOptions);
+		/// @brief Clear all parsed file data.
+		REFLECT_API void Clear();
 		REFLECT_API void SetIgnoreStrings(const std::vector<std::string>& ignoreStrings);
 
 		REFLECT_API const FileParsedData& GetFileParsedData(int index) const { return m_filesParsed.at(index); }
@@ -52,6 +54,8 @@ namespace Reflect::Parser
 
 		int FindEndOfConatiner(const FileParsedData& fileData);
 		std::vector<std::string> ReflectFlags(FileParsedData& fileData);
+
+		void LinkAllInheritances();
 
 		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars, bool reverse = false);
 		char FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars, bool reverse = false);
