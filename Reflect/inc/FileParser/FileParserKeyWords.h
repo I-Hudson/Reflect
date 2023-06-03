@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Reflect
+namespace Reflect::Keys
 {
 	constexpr const char* ClassKey = "class";
 	constexpr const char* StructKey = "struct";

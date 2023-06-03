@@ -32,11 +32,11 @@ namespace Reflect
 		std::string GetTypeName()
 		{
 			std::string name = typeid(T).name();
-			for (const std::string& key : ContainerKeys)
+			for (const std::string& key : Keys::ContainerKeys)
 			{
 				RemoveString(name, key);
 			}
-			RemoveString(name, PointerTypeIdKey);
+			RemoveString(name, Keys::PointerTypeIdKey);
 			RemoveCharAll(name, ' ');
 			return name;
 		}
@@ -50,8 +50,8 @@ namespace Reflect
 		std::string GetValueTypeName()
 		{
 			std::string name = GetTypeName<T>();
-			RemoveCharAll(name, ReferenceKey);
-			RemoveCharAll(name, PointerKey);
+			RemoveCharAll(name, Keys::ReferenceKey);
+			RemoveCharAll(name, Keys::PointerKey);
 			return name;
 		}
 		template<typename T>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Defines.h"
-#include "ReflectStructs.h"
+#include "FileParser/ParserStructs.h"
 #include "CodeGenerate/CodeGenerate.h"
 
 #include "CodeGenerate/CPP/CG_CPP_Legacy.h"
@@ -10,14 +10,17 @@
 namespace Reflect
 {
 	struct ReflectAddtionalOptions;
+}
 
+namespace Reflect::CodeGeneration
+{
 	class CodeGenerateSource
 	{
 	public:
 		CodeGenerateSource() { }
 		~CodeGenerateSource() { }
 
-		void GenerateSource(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
+		void GenerateSource(const Parser::FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
 
 	private:
 		CG_CPP_Legacy m_CG_CPP_Legacy;

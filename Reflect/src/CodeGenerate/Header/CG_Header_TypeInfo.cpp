@@ -5,10 +5,10 @@
 #include "Core/Core.h"
 #include "Instrumentor.h"
 
-namespace Reflect
+namespace Reflect::CodeGeneration
 {
 #ifdef REFLECT_TYPE_INFO_ENABLED
-	void CG_Header_TypeInfo::WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
+	void CG_Header_TypeInfo::WriteGenerateTypeInfo(const Parser::ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "#define " + currentFileId + "_GENERATE_TYPE_INFO" + NEW_LINE_SLASH;

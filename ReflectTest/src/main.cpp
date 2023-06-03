@@ -68,9 +68,9 @@ TEST_CASE("Legacy get all members")
 {
 	return;
 	int testI = 45;
-	S s;
+	A::B::S s;
 	s.Friends = 78;
-	S otherS;
+	A::B::S otherS;
 
 	auto allMembers = s.GetAllMembers();
 	auto member = allMembers[0];

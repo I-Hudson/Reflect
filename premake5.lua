@@ -17,6 +17,7 @@ workspace "Reflect"
     
     defines
     {
+        "REFLECT_TYPE_INFO_ENABLED",
     }
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"

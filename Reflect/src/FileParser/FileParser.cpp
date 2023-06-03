@@ -2,6 +2,7 @@
 #include "FileParser/FileParserKeyWords.h"
 
 #include "Core/Core.h"
+#include "Core/Util.h"
 #include "Instrumentor.h"
 
 #include <sstream>
@@ -14,7 +15,7 @@
 
 #define EXP_PARSER
 
-namespace Reflect
+namespace Reflect::Parser
 {
 	constexpr int DEFAULT_TYPE_SIZE = 0;
 
@@ -86,7 +87,7 @@ namespace Reflect
 				{
 					// This is not great. Currently the solution is to try and find a reflected container with the same name 
 					// regardless of the namespace. So if you have two classes named the same in different namespaces this won't work.
-					if (ReflectContainerData* inheritanceData = FindReflectContainerData(inheritanceItem.Name); 
+					if (Parser::ReflectContainerData* inheritanceData = FindReflectContainerData(inheritanceItem.Name); 
 						inheritanceData != nullptr)
 					{
 						inheritanceItem.IsReflected = true;
@@ -193,7 +194,7 @@ namespace Reflect
 			// Can't reflect this class/struct. Return.
 			return false;
 		}
-		ReflectContainerData containerData = {};
+		Parser::ReflectContainerData containerData = {};
 
 		containerData.Namespaces = FindAllNamespaces(fileData, reflectStart);
 
@@ -258,9 +259,9 @@ namespace Reflect
 				if (fileData.Data.at(fileData.Cursor) == ',')
 				{
 					Util::RemoveCharAll(type, ' ');
-					Util::RemoveString(type, PublicKey);
-					Util::RemoveString(type, ProtectedKey);
-					Util::RemoveString(type, PrivateKey);
+					Util::RemoveString(type, Keys::PublicKey);
+					Util::RemoveString(type, Keys::ProtectedKey);
+					Util::RemoveString(type, Keys::PrivateKey);
 					containerData.Inheritance.push_back({ type });
 					type.clear();
 				}
@@ -274,9 +275,9 @@ namespace Reflect
 			Util::RemoveCharAll(type, '\n');
 			Util::RemoveCharAll(type, '\t');
 			Util::RemoveCharAll(type, '\r');
-			Util::RemoveString(type, PublicKey);
-			Util::RemoveString(type, ProtectedKey);
-			Util::RemoveString(type, PrivateKey);
+			Util::RemoveString(type, Keys::PublicKey);
+			Util::RemoveString(type, Keys::ProtectedKey);
+			Util::RemoveString(type, Keys::PrivateKey);
 
 			while (type.find("::") != std::string::npos)
 			{
@@ -308,7 +309,7 @@ namespace Reflect
 		// Good, we have a reflected container class/struct.
 		// First find out which it is and verify that we are inheriting from "ReflectObject".
 		std::stack<char> bracketStack;
-		ReflectContainerData& conatinerData = fileData.ReflectData.back();
+		Parser::ReflectContainerData& conatinerData = fileData.ReflectData.back();
 
 		int generatedBodyLine = static_cast<int>(fileData.Data.find(ReflectGeneratedBodykey, fileData.GeneratedBodyLineOffset));
 		std::cout << "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a container.";
@@ -392,7 +393,7 @@ namespace Reflect
 				{
 					if (!CheckForConstructor(fileData, conatinerData, word))
 					{
-						ReflectFunctionData funcData = GetFunction(fileData, reflectFlags);
+						Parser::ReflectFunctionData funcData = GetFunction(fileData, reflectFlags);
 						if (!funcData.Name.empty())
 						{
 							conatinerData.Functions.push_back(funcData);
@@ -504,7 +505,7 @@ namespace Reflect
 		FindNextChar(fileData, emptyChars, true);
 		std::string namespaceAlias = FindNextWord(fileData, emptyChars, true);
 
-		if (namespaceAlias == Namespace)
+		if (namespaceAlias == Keys::Namespace)
 		{
 			return namespaceName;
 		}
@@ -684,19 +685,19 @@ namespace Reflect
 	bool FileParser::CheckForTypeAlias(std::string_view view)
 	{
 		REFLECT_PROFILE_FUNCTION();
-		return view == TypedefKey ||
-			view == UsingKey;
+		return view == Keys::TypedefKey ||
+			view == Keys::UsingKey;
 	}
 
 	bool FileParser::CheckForVisibility(std::string_view view)
 	{
 		REFLECT_PROFILE_FUNCTION();
-		return view == PublicKey ||
-			view == ProtectedKey ||
-			view == PrivateKey;
+		return view == Keys::PublicKey ||
+			view == Keys::ProtectedKey ||
+			view == Keys::PrivateKey;
 	}
 
-	bool FileParser::CheckForConstructor(FileParsedData& fileData, ReflectContainerData& container, std::string_view view)
+	bool FileParser::CheckForConstructor(FileParsedData& fileData, Parser::ReflectContainerData& container, std::string_view view)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -738,7 +739,7 @@ namespace Reflect
 
 		int i;
 		std::string line = GetFunctionLine(fileData, i);
-		size_t index = line.find(OperatorKey);
+		size_t index = line.find(Keys::OperatorKey);
 		if (index != std::string::npos)
 		{
 			SkipFunctionBody(fileData);
@@ -766,7 +767,7 @@ namespace Reflect
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		if (view == FriendKey)
+		if (view == Keys::FriendKey)
 		{
 			FindNextChar(fileData, ';');
 			return true;
@@ -783,10 +784,10 @@ namespace Reflect
 		Util::RemoveString(str, name);
 
 		modifer = CheckForMemberModifers(str);
-		Util::RemoveString(str, ConstKey);
-		Util::RemoveString(str, StaticKey);
-		Util::RemoveString(str, VolatileKey);
-		Util::RemoveString(str, VirtualKey);
+		Util::RemoveString(str, Keys::ConstKey);
+		Util::RemoveString(str, Keys::StaticKey);
+		Util::RemoveString(str, Keys::VolatileKey);
+		Util::RemoveString(str, Keys::VirtualKey);
 
 		if (str.find('<') == std::string::npos && str.find('>') == std::string::npos)
 		{
@@ -802,17 +803,17 @@ namespace Reflect
 		}
 	}
 
-	ReflectFunctionData FileParser::GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags)
+	Parser::ReflectFunctionData FileParser::GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		ReflectFunctionData functionData;
+		Parser::ReflectFunctionData functionData;
 
 		int endOfLineCursor;
 		std::string line = GetFunctionLine(fileData, endOfLineCursor);
 
 		uint32_t cBracket = (uint32_t)line.find_last_of(')');
-		size_t functionConst = (uint32_t)line.find(ConstKey, cBracket);
+		size_t functionConst = (uint32_t)line.find(Keys::ConstKey, cBracket);
 		if (functionConst != std::string::npos)
 		{
 			functionData.IsConst = true;
@@ -954,7 +955,7 @@ namespace Reflect
 		int member_cursor = find_closest_char(memberStartChars);
 		int function_cursor = find_closest_char(functionStartChars);
 
-		bool isTemplate = data.Data.find(TemplateKey, data.Cursor) < member_cursor;
+		bool isTemplate = data.Data.find(Keys::TemplateKey, data.Cursor) < member_cursor;
 
 		if (member_cursor < function_cursor && !isTemplate)
 		{
@@ -1007,8 +1008,8 @@ namespace Reflect
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		size_t referenceIndex = view.find(ReferenceKey);
-		size_t pointerIndex = view.find(PointerKey);
+		size_t referenceIndex = view.find(Keys::ReferenceKey);
+		size_t pointerIndex = view.find(Keys::PointerKey);
 
 		// Get the type. We need this as the code generation will need to add some casting 
 		// if the type is not a value.
@@ -1029,10 +1030,10 @@ namespace Reflect
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		size_t constIndex = view.find(ConstKey);
-		size_t staticIndex = view.find(StaticKey);
-		size_t volatileIndex = view.find(VolatileKey);
-		size_t virtualIndex = view.find(VirtualKey);
+		size_t constIndex = view.find(Keys::ConstKey);
+		size_t staticIndex = view.find(Keys::StaticKey);
+		size_t volatileIndex = view.find(Keys::VolatileKey);
+		size_t virtualIndex = view.find(Keys::VirtualKey);
 
 		if (constIndex != std::string::npos)
 			return EReflectValueModifier::Const;
@@ -1068,7 +1069,7 @@ namespace Reflect
 		return fileData.Data.substr(fileData.Cursor, endCursor - fileData.Cursor);
 	}
 
-	std::vector<ReflectTypeNameData> FileParser::ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view)
+	std::vector<Parser::ReflectTypeNameData> FileParser::ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -1076,7 +1077,7 @@ namespace Reflect
 		if (view.at(0) == '(')
 			++cursor;
 
-		std::vector<ReflectTypeNameData> parameters;
+		std::vector<Parser::ReflectTypeNameData> parameters;
 		std::string str;
 		char c = view.at(cursor);
 		while (cursor < view.size())
@@ -1087,7 +1088,7 @@ namespace Reflect
 			{
 				if (str.size() > 0 && !Util::StringContains(str, emptyChars))
 				{
-					ReflectTypeNameData parameter;
+					Parser::ReflectTypeNameData parameter;
 
 					std::size_t defaultValueIndex = str.find('=');
 					if (defaultValueIndex != std::string::npos)
@@ -1115,12 +1116,12 @@ namespace Reflect
 						CheckStringViewBounds(fileData, copyCursor, view);
 					}
 					parameter.Type = Util::Reverse(parameter.Type);
-					Util::RemoveCharReverse(parameter.Type, ReferenceKey);
-					Util::RemoveCharReverse(parameter.Type, PointerKey);
+					Util::RemoveCharReverse(parameter.Type, Keys::ReferenceKey);
+					Util::RemoveCharReverse(parameter.Type, Keys::PointerKey);
 
 					parameter.RawType = parameter.Type;
-					Util::RemoveString(parameter.RawType, ConstKey);
-					Util::RemoveCharAll(parameter.RawType, WhiteSpaceKey);
+					Util::RemoveString(parameter.RawType, Keys::ConstKey);
+					Util::RemoveCharAll(parameter.RawType, Keys::WhiteSpaceKey);
 
 					str = {};
 					parameters.push_back(parameter);

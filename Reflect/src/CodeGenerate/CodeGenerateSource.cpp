@@ -4,9 +4,9 @@
 #include "Core/Core.h"
 #include "Instrumentor.h"
 
-namespace Reflect
+namespace Reflect::CodeGeneration
 {
-	void CodeGenerateSource::GenerateSource(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CodeGenerateSource::GenerateSource(const Parser::FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -36,7 +36,7 @@ namespace Reflect
 		}
 	}
 
-	//void CodeGenerateSource::WriteFunctionBindings(const ReflectContainerData& data, std::ofstream& file)
+	//void CodeGenerateSource::WriteFunctionBindings(const Parser::ReflectContainerData& data, std::ofstream& file)
 	//{
 	//	file << "\t" + data.Name << "* ptr = dynamic_cast<" + data.Name + "*>(this);" << NEW_LINE;
 	//	file << "\tassert(ptr != nullptr && \"[" + data.Name + ContainerPrefix + "::" + "SetupReflectBindings()] 'ptr' should not be null.\");\n" << NEW_LINE;

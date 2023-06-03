@@ -5,17 +5,17 @@
 
 #include "Instrumentor.h"
 
-namespace Reflect
+namespace Reflect::CodeGeneration
 {
 #ifdef REFLECT_TYPE_INFO_ENABLED
 
-    void CG_CPP_TypeInfo::Generate(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+    void CG_CPP_TypeInfo::Generate(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
     {
 		REFLECT_PROFILE_FUNCTION();
         WriteGenerateTypeInfo(data, file, additionalOptions);
     }
 
-	void CG_CPP_TypeInfo::WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CG_CPP_TypeInfo::WriteGenerateTypeInfo(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "template<>" << NEW_LINE;
@@ -52,7 +52,7 @@ namespace Reflect
 		file << "}\n" << NEW_LINE;
 	}
 
-	void CG_CPP_TypeInfo::WriteGenerateTypeInheritance(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CG_CPP_TypeInfo::WriteGenerateTypeInheritance(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "\tstd::vector<std::unique_ptr<Reflect::ReflectTypeInfo>> GenerateInheritance(" + GetTypeName(data) + "* ownerClass)\n\t{" << NEW_LINE;
@@ -77,7 +77,7 @@ namespace Reflect
 		file << "\t}" << NEW_LINE;
 	}
 
-	void CG_CPP_TypeInfo::WriteGenerateTypeMembers(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CG_CPP_TypeInfo::WriteGenerateTypeMembers(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> GenerateMembers(" + GetTypeName(data)  + "* ownerClass)\n\t{" << NEW_LINE;
@@ -105,12 +105,12 @@ namespace Reflect
 		file << "\t}" << NEW_LINE;
 	}
 
-	void CG_CPP_TypeInfo::WriteGenerateTypeFunctions(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CG_CPP_TypeInfo::WriteGenerateTypeFunctions(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		auto generateFunctionArgs = [&data]()->std::string
 		{
-			auto generateSingleArg = [&data](const ReflectTypeNameData& arg) -> std::string
+			auto generateSingleArg = [&data](const Parser::ReflectTypeNameData& arg) -> std::string
 			{
 				std::string str;
 				str += "std::make_unique<ReflectTypeCPP<" + arg.RawType + ">>(Reflect::EReflectType::Parameter, \"" + arg.Name + "\")";
@@ -130,7 +130,7 @@ namespace Reflect
 			return str;
 		};
 
-		auto generateSingleFunction = [&data, this](const ReflectFunctionData& func) -> std::string
+		auto generateSingleFunction = [&data, this](const Parser::ReflectFunctionData& func) -> std::string
 		{
 			std::string str;
 			str += "std::make_unique<Reflect::ReflectTypeFunction>";
@@ -155,7 +155,7 @@ namespace Reflect
 		file << "\t}" << NEW_LINE;
 	}
 
-	std::string CG_CPP_TypeInfo::GetTypeName(const ReflectContainerData& data) const
+	std::string CG_CPP_TypeInfo::GetTypeName(const Parser::ReflectContainerData& data) const
 	{
 		return data.NameWithNamespace;
 	}

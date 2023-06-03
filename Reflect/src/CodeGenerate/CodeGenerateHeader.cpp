@@ -7,7 +7,7 @@
 
 #include <assert.h>
 
-namespace Reflect
+namespace Reflect::CodeGeneration
 {
 	std::string GetCurrentFileID(const std::string& containerName, const std::string& fileName)
 	{
@@ -21,7 +21,7 @@ namespace Reflect
 
 #define WRITE_CURRENT_FILE_ID(ContainerName, FileName) file << "#define " + GetCurrentFileID(ContainerName, FileName)
 
-	void CodeGenerateHeader::GenerateHeader(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CodeGenerateHeader::GenerateHeader(const Parser::FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -39,7 +39,7 @@ namespace Reflect
 		WriteMacros(data, file, additionalOptions);
 	}
 
-	void CodeGenerateHeader::WriteMacros(const FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CodeGenerateHeader::WriteMacros(const Parser::FileParsedData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		for (const auto& reflectData : data.ReflectData)

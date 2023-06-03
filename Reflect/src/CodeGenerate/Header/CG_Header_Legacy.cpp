@@ -2,12 +2,13 @@
 #include "CodeGenerate/CodeGenerate.h"
 
 #include "Core/Core.h"
+#include "Core/Util.h"
 
 #include "Instrumentor.h"
 
-namespace Reflect
+namespace Reflect::CodeGeneration
 {
-	std::string CG_Header_Legacy::GetType(const Reflect::ReflectTypeNameData& arg, bool defaultReturnPointer)
+	std::string CG_Header_Legacy::GetType(const Parser::ReflectTypeNameData& arg, bool defaultReturnPointer)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		if (arg.ReflectValueType == Reflect::EReflectValueType::Pointer)
@@ -20,7 +21,7 @@ namespace Reflect
 			return defaultReturnPointer ? arg.Type + "*" : arg.Type;
 	}
 
-	void CG_Header_Legacy::WriteGeneratedData(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
+	void CG_Header_Legacy::WriteGeneratedData(const Parser::ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		WriteMemberProperties(data, file, currentFileId, additionalOptions);
@@ -50,7 +51,7 @@ namespace Reflect
 		file << NEW_LINE_SLASH;
 	}
 
-	void CG_Header_Legacy::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
+	void CG_Header_Legacy::WriteMemberProperties(const Parser::ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "#define " + currentFileId + "_PROPERTIES" + NEW_LINE_SLASH;
@@ -59,7 +60,7 @@ namespace Reflect
 		WRITE_CLOSE;
 	}
 
-	void CG_Header_Legacy::WriteMemberPropertiesOffsets(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
+	void CG_Header_Legacy::WriteMemberPropertiesOffsets(const Parser::ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "#define " + currentFileId + "_PROPERTIES_OFFSET" + NEW_LINE_SLASH;
@@ -71,7 +72,7 @@ namespace Reflect
 		WRITE_CLOSE;
 	}
 
-	void CG_Header_Legacy::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
+	void CG_Header_Legacy::WriteMemberGet(const Parser::ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "#define " + currentFileId + "_PROPERTIES_GET \\\n";
@@ -82,11 +83,11 @@ namespace Reflect
 		WRITE_CLOSE;
 	}
 
-	void CG_Header_Legacy::WriteFunctions(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
+	void CG_Header_Legacy::WriteFunctions(const Parser::ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		//TODO: Pass in parameters in someway. Prob need to use templates.
-		auto populateArgs = [](const std::vector<ReflectTypeNameData>& args) -> std::string
+		auto populateArgs = [](const std::vector<Parser::ReflectTypeNameData>& args) -> std::string
 		{
 			std::string returnValue;
 			for (const auto& arg : args)
@@ -108,7 +109,7 @@ namespace Reflect
 			}
 			return returnValue;
 		};
-		auto castToType = [](const Reflect::ReflectTypeNameData& arg) -> std::string
+		auto castToType = [](const Reflect::Parser::ReflectTypeNameData& arg) -> std::string
 		{
 			if (arg.ReflectValueType == Reflect::EReflectValueType::Reference || arg.ReflectValueType == Reflect::EReflectValueType::PointerReference)
 			{
@@ -116,7 +117,7 @@ namespace Reflect
 			}
 			return "static_cast<" + arg.Type + "*>";
 		};
-		auto returnType = [](const Reflect::ReflectFunctionData& func) -> std::string
+		auto returnType = [](const Reflect::Parser::ReflectFunctionData& func) -> std::string
 		{
 			std::string result;
 			if (func.ReflectValueType == EReflectValueType::Value)
@@ -172,7 +173,7 @@ namespace Reflect
 		WRITE_CLOSE;
 	}
 
-	void CG_Header_Legacy::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
+	void CG_Header_Legacy::WriteFunctionGet(const Parser::ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "#define " + currentFileId + "_FUNCTION_GET" + NEW_LINE_SLASH;

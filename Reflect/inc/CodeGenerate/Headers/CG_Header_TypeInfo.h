@@ -1,18 +1,20 @@
 #pragma once
 
 #include "Core/Defines.h"
-#include "ReflectStructs.h"
+#include "FileParser/ParserStructs.h"
 
 namespace Reflect
 {
-#ifdef REFLECT_TYPE_INFO_ENABLED
-
     struct ReflectAddtionalOptions;
+}
 
+namespace Reflect::CodeGeneration
+{
+#ifdef REFLECT_TYPE_INFO_ENABLED
     class CG_Header_TypeInfo
     {
     public:
-        void WriteGenerateTypeInfo(const ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions);
+        void WriteGenerateTypeInfo(const Parser::ReflectContainerData& data, std::ofstream& file, const std::string& currentFileId, const ReflectAddtionalOptions* additionalOptions);
         void WriteClosingMacro(std::ofstream& file, std::string_view currentFileId);
     };
 #endif

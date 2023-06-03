@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Defines.h"
-#include "ReflectStructs.h"
+#include "ParserStructs.h"
 
 #include <string>
 #include <fstream>
@@ -11,7 +11,10 @@
 namespace Reflect
 {
 	struct ReflectAddtionalOptions;
+}
 
+namespace Reflect::Parser
+{
 	/// <summary>
 	/// Parse a single file. This should extract all the info like functions and variables.
 	/// </summary>
@@ -60,7 +63,7 @@ namespace Reflect
 
 		bool CheckForTypeAlias(std::string_view view);
 		bool CheckForVisibility(std::string_view view);
-		bool CheckForConstructor(FileParsedData& fileData, ReflectContainerData& container, std::string_view view);
+		bool CheckForConstructor(FileParsedData& fileData, Parser::ReflectContainerData& container, std::string_view view);
 		bool CheckForIgnoreWord(FileParsedData& fileData, std::string_view view);
 		bool CheckForOperatorFunction(FileParsedData& fileData, std::string_view view);
 		bool CheckForComments(FileParsedData& fileData, std::string& line);
@@ -68,7 +71,7 @@ namespace Reflect
 
 		void GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer);
 
-		ReflectFunctionData GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags);
+		Parser::ReflectFunctionData GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags);
 		ReflectMemberData GetMember(FileParsedData& fileData, const std::vector<std::string>& flags);
 
 		void SkipFunctionBody(FileParsedData& fileData);
@@ -80,7 +83,7 @@ namespace Reflect
 		EReflectValueModifier CheckForMemberModifers(std::string_view view);
 
 		std::string GetFunctionLine(const FileParsedData& fileData, int& endCursor);
-		std::vector<ReflectTypeNameData> ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view);
+		std::vector<Parser::ReflectTypeNameData> ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view);
 
 		void CheckStringViewBounds(const FileParsedData& fileData, int cursor, std::string_view view);
 		int CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character);

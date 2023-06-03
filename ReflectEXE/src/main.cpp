@@ -10,8 +10,8 @@ int main(int argc, char* argv[])
 	{
 		REFLECT_PROFILE_SCOPE("MAIN");
 
-		Reflect::FileParser parser;
-		Reflect::CodeGenerate codeGenerate;
+		Reflect::Parser::FileParser parser;
+		Reflect::CodeGeneration::CodeGenerate codeGenerate;
 		Reflect::ReflectAddtionalOptions options = { };
 
 		std::vector<std::string> directories;

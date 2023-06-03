@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <filesystem>
 
-namespace Reflect
+namespace Reflect::CodeGeneration
 {
 	constexpr const char* ContainerPrefix = "ReflectObject";
 
@@ -18,7 +18,7 @@ namespace Reflect
 	CodeGenerate::~CodeGenerate()
 	{ }
 
-	void CodeGenerate::Reflect(const FileParser& parser, const ReflectAddtionalOptions* additionalOptions)
+	void CodeGenerate::Reflect(const Parser::FileParser& parser, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 

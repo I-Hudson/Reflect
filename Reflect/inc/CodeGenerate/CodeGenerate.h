@@ -1,14 +1,17 @@
 #pragma once
 
 #include "Core/Defines.h"
-#include "ReflectStructs.h"
-#include <FileParser/FileParser.h>
+#include "FileParser/FileParser.h"
+
 #include<fstream>
 
 namespace Reflect
 {
 	struct ReflectAddtionalOptions;
+}
 
+namespace Reflect::CodeGeneration
+{
 	/// <summary>
 	/// Generate a new file and place the reflect code there.
 	/// </summary>
@@ -18,7 +21,7 @@ namespace Reflect
 		REFLECT_API CodeGenerate();
 		REFLECT_API ~CodeGenerate();
 
-		REFLECT_API void Reflect(const FileParser& parser, const ReflectAddtionalOptions* additionalOptions);
+		REFLECT_API void Reflect(const Parser::FileParser& parser, const ReflectAddtionalOptions* additionalOptions);
 		REFLECT_API static void IncludeHeader(const std::string& headerToInclude, std::ofstream& file, bool windowsInclude = false);
 
 	private:

@@ -5,9 +5,9 @@
 #include "Core/Core.h"
 #include "Instrumentor.h"
 
-namespace Reflect
+namespace Reflect::CodeGeneration
 {
-	void CG_CPP_Legacy::Generate(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CG_CPP_Legacy::Generate(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		WriteMemberProperties(data, file, additionalOptions);
@@ -15,7 +15,7 @@ namespace Reflect
 		WriteMemberGet(data, file, additionalOptions);
 	}
 
-	void CG_CPP_Legacy::WriteMemberProperties(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CG_CPP_Legacy::WriteMemberProperties(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 		auto getMemberProps = [](const std::vector<std::string>& flags) -> std::string
@@ -40,7 +40,7 @@ namespace Reflect
 
 		if (data.Members.size() > 0)
 		{
-			file << "Reflect::ReflectMemberProp " + data.Name + "::__REFLECT_MEMBER_PROPS__[" + std::to_string(data.Members.size()) + "] = {" << NEW_LINE;
+			file << "Reflect::ReflectMemberProp " + data.NameWithNamespace + "::__REFLECT_MEMBER_PROPS__[" + std::to_string(data.Members.size()) + "] = {" << NEW_LINE;
 			for (const auto& member : data.Members)
 			{
 				file << "\tReflect::ReflectMemberProp(\"" + member.Name +
@@ -52,10 +52,10 @@ namespace Reflect
 		}
 	}
 
-	void CG_CPP_Legacy::WriteMemberGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CG_CPP_Legacy::WriteMemberGet(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
-		file << "Reflect::ReflectMember " + data.Name + "::GetMember(const char* memberName)\n{" << NEW_LINE;
+		file << "Reflect::ReflectMember " + data.NameWithNamespace + "::GetMember(const char* memberName)\n{" << NEW_LINE;
 		if (data.Members.size() > 0)
 		{
 			TAB_N(1);
@@ -76,7 +76,7 @@ namespace Reflect
 		file << "\treturn __super::GetMember(memberName);" << NEW_LINE;
 		file << "}\n" << NEW_LINE;
 
-		file << "std::vector<Reflect::ReflectMember> " + data.Name + "::GetMembers(std::vector<std::string> const& flags)\n{" << NEW_LINE;
+		file << "std::vector<Reflect::ReflectMember> " + data.NameWithNamespace + "::GetMembers(std::vector<std::string> const& flags)\n{" << NEW_LINE;
 		file << "\tstd::vector<Reflect::ReflectMember> members = __super::GetMembers(flags);" << NEW_LINE;
 		if (data.Members.size() > 0)
 		{
@@ -96,7 +96,7 @@ namespace Reflect
 		file << "\treturn members;" << NEW_LINE;
 		file << "}\n" << NEW_LINE;
 
-		file << "std::vector<Reflect::ReflectMember> " + data.Name + "::GetAllMembers()\n{" << NEW_LINE;
+		file << "std::vector<Reflect::ReflectMember> " + data.NameWithNamespace + "::GetAllMembers()\n{" << NEW_LINE;
 		file << "\tstd::vector<Reflect::ReflectMember> members = __super::GetAllMembers();" << NEW_LINE;
 		if (data.Members.size() > 0)
 		{
@@ -111,10 +111,10 @@ namespace Reflect
 		file << "}\n" << NEW_LINE;
 	}
 
-	void CG_CPP_Legacy::WriteFunctionGet(const ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	void CG_CPP_Legacy::WriteFunctionGet(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
-		file << "Reflect::ReflectFunction " + data.Name + "::GetFunction(const char* functionName)\n{" << NEW_LINE;
+		file << "Reflect::ReflectFunction " + data.NameWithNamespace + "::GetFunction(const char* functionName)\n{" << NEW_LINE;
 		for (const auto& func : data.Functions)
 		{
 			TAB_N(1);
@@ -122,7 +122,7 @@ namespace Reflect
 			TAB_N(1);
 			file << "{" << NEW_LINE;
 			TAB_N(2);
-			file << "return Reflect::ReflectFunction(this, " + data.Name + "::__REFLECT_FUNC__" + func.Name + ");" << NEW_LINE;
+			file << "return Reflect::ReflectFunction(this, " + data.NameWithNamespace + "::__REFLECT_FUNC__" + func.Name + ");" << NEW_LINE;
 			TAB_N(1);
 			file << "}" << NEW_LINE;
 		}
