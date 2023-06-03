@@ -10,23 +10,30 @@ namespace Reflect::CodeGeneration
         return str;
     }
 
-    std::string CG_Utils::WriteReflectTypeCPPParentheses(EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectTypeNameData>& inheritance, std::string_view name)
+    std::string CG_Utils::WriteReflectTypeCPPParentheses(EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectInheritanceData>& inheritance, std::string_view name)
     {
         std::string str;
         str += "(";
         str += "static_cast<::Reflect::EReflectType>(" + std::to_string(static_cast<int>(reflectType)) + "), ";
         str += "static_cast<::Reflect::EReflectValueType>(" + std::to_string(static_cast<int>(valueType)) + "), ";
-        str += "std::move(std::vector<std::unique_ptr<::Reflect::ReflectType>>\n";
-        //if (!inheritance.empty())
+        if (!inheritance.empty())
         {
-            str += "\t{";
-            for (const Parser::ReflectTypeNameData& type : inheritance)
-            {
-                str += "\t\tstd::make_unique<" + WriteReflectTypeCPPDeclare(type.Type) + ">" + WriteReflectTypeCPPParentheses(reflectType, type.ReflectValueType, type.TypeInheritance, type.Name) + ", \n";
-            }
-            str += "\t}";
+            str += "std::move(" + std::string(name) + "_InheritanceTypes), ";
         }
-        str += "), \n";
+        else
+        {
+            str += "std::vector<std::unique_ptr<::Reflect::ReflectType>>(), ";
+        }
+        //str += "Reflect::vector_from_il<std::unique_ptr<::Reflect::ReflectType>>(\n";
+        //{
+        //    str += "\t{\n";
+        //    for (const Parser::ReflectInheritanceData& type : inheritance)
+        //    {
+        //        str += "\t\tstd::make_unique<" + WriteReflectTypeCPPDeclare(type.NameWithNamespace) + ">" + WriteReflectTypeCPPParentheses(reflectType, EReflectValueType::Unknown, type.Inheritances, type.Name) + ", \n";
+        //    }
+        //    str += "\t}\n";
+        //}
+        //str += "), \n";
         str += "\""; str += name; str += "\"";
         str += ")";
         return str;
@@ -47,7 +54,7 @@ namespace Reflect::CodeGeneration
         return WriteReflectTypeCPP(parameterData.Type, EReflectType::Parameter, parameterData.ReflectValueType, parameterData.TypeInheritance, parameterData.Name);
     }
 
-    std::string CG_Utils::WriteReflectTypeCPP(std::string_view type, EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectTypeNameData>& inheritance, std::string_view name)
+    std::string CG_Utils::WriteReflectTypeCPP(std::string_view type, EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectInheritanceData>& inheritance, std::string_view name)
     {
         std::string str;
         str += WriteReflectTypeCPPDeclare(type);

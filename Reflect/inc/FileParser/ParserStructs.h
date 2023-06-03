@@ -7,6 +7,15 @@
 
 namespace Reflect::Parser
 {
+	struct ReflectInheritanceData
+	{
+		std::string Name;
+		std::string NameWithNamespace;
+		bool IsReflected = true;
+
+		std::vector<ReflectInheritanceData> Inheritances;
+	};
+
 	struct ReflectTypeNameData
 	{
 		std::string Type;
@@ -16,7 +25,7 @@ namespace Reflect::Parser
 		EReflectValueModifier ReflectModifier = EReflectValueModifier::None;
 		std::vector<std::string> ContainerProps;
 
-		std::vector<ReflectTypeNameData> TypeInheritance;
+		std::vector<ReflectInheritanceData> TypeInheritance;
 
 		int TypeSize;
 		bool IsConst;
@@ -70,13 +79,6 @@ namespace Reflect::Parser
 	{
 		EReflectType ReflectType = EReflectType::Function;
 		std::vector<ReflectTypeNameData> Parameters;
-	};
-
-	struct ReflectInheritanceData
-	{
-		std::string Name;
-		std::string NameWithNamespace;
-		bool IsReflected = true;
 	};
 
 	struct ReflectContainerData : public Parser::ReflectTypeNameData

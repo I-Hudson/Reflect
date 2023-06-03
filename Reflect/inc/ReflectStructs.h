@@ -4,6 +4,7 @@
 #include "Core/Enums.h"
 #include "Core/Util.h"
 #include <vector>
+#include <memory>
 
 struct ReflectFunction;
 struct ReflectMember;
@@ -405,6 +406,20 @@ namespace Reflect
 			return ReflectTypeInfo(ownerClass, std::make_unique<ReflectTypeCPP<T>>(), {});
 		}
 	};
+
+	template<class T>
+	struct movable_il {
+		mutable T t;
+		operator T() const&& { return std::move(t); }
+		movable_il(T&& in) : t(std::move(in)) {}
+	};
+
+	template<class T, class A = std::allocator<T>>
+	std::vector<T, A> vector_from_il(std::initializer_list< movable_il<T> > il) {
+		std::vector<T, A> r(std::make_move_iterator(il.begin()), std::make_move_iterator(il.end()));
+		return r;
+	}
+
 #else 
 	struct ReflectMemberProp
 	{

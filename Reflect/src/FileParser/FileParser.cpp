@@ -622,30 +622,25 @@ namespace Reflect::Parser
 						inheritanceItem.IsReflected = false;
 					}
 				}
-			}
-		}
 
-		for (auto& file : m_filesParsed)
-		{
-			for (auto& reflectedData : file.ReflectData)
-			{
 				for (auto& member : reflectedData.Members)
 				{
-					for (auto& typeInheritance : member.TypeInheritance)
+					// Clear the inheritance chain as we are redoing it.
+					member.TypeInheritance.clear();
+
+					Parser::ReflectContainerData* memberInheritanceContainerData = FindReflectContainerData(member.Type);
+					if (!memberInheritanceContainerData)
 					{
-						// This is not great. Currently the solution is to try and find a reflected container with the same name 
-						// regardless of the namespace. So if you have two classes named the same in different namespaces this won't work.
-						if (Parser::ReflectContainerData* inheritanceData = FindReflectContainerData(typeInheritance.Name);
-							inheritanceData != nullptr)
-						{
-							typeInheritance = *inheritanceData;
-						}
+						continue;
+					}
+
+					for (auto& typeInheritance : memberInheritanceContainerData->Inheritance)
+					{
+						member.TypeInheritance.push_back(typeInheritance);
 					}
 				}
 			}
 		}
-
-
 	}
 
 	char FileParser::FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars, bool reverse)

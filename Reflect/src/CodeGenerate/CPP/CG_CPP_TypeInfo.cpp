@@ -6,6 +6,9 @@
 
 #include "Instrumentor.h"
 
+#include <unordered_set>
+#include <functional>
+
 namespace Reflect::CodeGeneration
 {
 #ifdef REFLECT_TYPE_INFO_ENABLED
@@ -26,6 +29,9 @@ namespace Reflect::CodeGeneration
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeInfo>> inheritances = GenerateInheritance(ownerClass);" << NEW_LINE;
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> functions = GenerateFunctions(ownerClass);" << NEW_LINE;
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> members = GenerateMembers(ownerClass);" << NEW_LINE;
+		file << "\t\tstd::vector<std::unique_ptr<::Reflect::ReflectType>> " << data.Name << "_InheritanceTypes;" << NEW_LINE;
+		file << NEW_LINE << NEW_LINE;
+
 		file << "\t\tReflectTypeInfo reflect_type_info = ReflectTypeInfo(ownerClass," << NEW_LINE;
 		file << "\t\t\tstd::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(GetTypeName(data)) << ">";
 		file << CG_Utils::WriteReflectTypeCPPParentheses(data.ReflectType, data.ReflectValueType, data.TypeInheritance, data.Name) << ", " << NEW_LINE;
@@ -84,9 +90,25 @@ namespace Reflect::CodeGeneration
 		REFLECT_PROFILE_FUNCTION();
 		file << "\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> GenerateMembers(" + GetTypeName(data)  + "* ownerClass)\n\t{" << NEW_LINE;
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> members;\n" << NEW_LINE;
+		file << "\t\tstd::vector<std::unique_ptr<::Reflect::ReflectType>> inheritanceTypes;\n";
 		file << "\t\tstd::vector<std::string> flags;\n" << NEW_LINE;
+
 		for (const auto& member : data.Members)
 		{
+#if 0
+			file << "\t\tinheritanceTypes.clear();\n";
+			std::vector<std::string> orderdInheritance = OrderMemberInheritance(member);
+			//for (const Parser::ReflectInheritanceData& inheritanceData : member.TypeInheritance)
+			for (const std::string& inheritance : orderdInheritance)
+			{
+				file << "\t\tstd::unique_ptr<" << CG_Utils::WriteReflectTypeCPPDeclare(inheritance) << ">";
+				file << inheritance << "_Inheritance_" << member.Name << " = ";
+				file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(inheritance) << ">";
+			}
+
+			file << "\t\tstd::vector<std::unique_ptr<::Reflect::ReflectType>> " << member.Name << "_InheritanceTypes;\n";
+#endif
+
 			file << TAB << TAB << "flags.clear();" << NEW_LINE;
 			int flagIndex = 0;
 			for (const auto& flag : member.ContainerProps)
@@ -94,14 +116,15 @@ namespace Reflect::CodeGeneration
 				file << TAB << TAB << "flags.push_back(\"" + flag + "\");" << NEW_LINE;
 			}
 
-			file << "\t\tmembers.emplace_back(";
-			file << "std::make_unique<Reflect::ReflectTypeMember>(";
-			file << "ownerClass, ";
-			file << "\"" + member.Name + "\"" + ", ";
-			file << "(unsigned char*)ownerClass + offsetof(" + GetTypeName(data)  + ", " + member.Name + "), ";
+
+			file << "\t\tmembers.emplace_back(\n";
+			file << "std::make_unique<Reflect::ReflectTypeMember>(\n";
+			file << "ownerClass, \n";
+			file << "\"" + member.Name + "\"" + ", \n";
+			file << "(unsigned char*)ownerClass + offsetof(" + GetTypeName(data)  + ", " + member.Name + "), \n";
 			file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(member.RawType) << ">";
-			file << CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Member, member.ReflectValueType, member.TypeInheritance, member.Name) << ", ";
-			file << "flags";
+			file << CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Member, member.ReflectValueType, { }, member.Name) << ", \n";
+			file << "flags\n";
 			file << ")); " << NEW_LINE << NEW_LINE;
 		}
 		file << "\t\treturn members;" << NEW_LINE;
@@ -158,6 +181,32 @@ namespace Reflect::CodeGeneration
 		}
 		file << "\t\treturn funcs;" << NEW_LINE;
 		file << "\t}" << NEW_LINE;
+	}
+
+	std::vector<std::string> CG_CPP_TypeInfo::OrderMemberInheritance(const Parser::ReflectMemberData& member)
+	{
+		std::vector<std::string> typeNames;
+
+		using WalkTreeFunc = std::function<void(const Parser::ReflectInheritanceData&)>;
+		WalkTreeFunc walkTree = [&](const Parser::ReflectInheritanceData& data)
+			{
+				if (data.Inheritances.empty())
+				{
+					typeNames.push_back(data.NameWithNamespace);
+					return;
+				}
+				for (auto& data : member.TypeInheritance)
+				{
+					walkTree(data);
+				}
+			};
+
+		for (auto& data : member.TypeInheritance)
+		{
+			walkTree(data);
+		}
+
+		return typeNames;
 	}
 
 	std::string CG_CPP_TypeInfo::GetTypeName(const Parser::ReflectContainerData& data) const
