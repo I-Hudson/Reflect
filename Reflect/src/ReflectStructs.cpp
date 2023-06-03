@@ -82,7 +82,7 @@ namespace Reflect
 
 	Reflect::EReflectReturnCode ReflectTypeFunction::Invoke(FunctionPtrArgs functionArgs)
 	{
-		return CallInternal(nullptr, std::move(functionArgs), ReflectTypeCPP<void>(EReflectType::Unknown, EReflectValueType::Unknown));
+		return CallInternal(nullptr, std::move(functionArgs), ReflectTypeCPP<void>(EReflectType::Unknown, EReflectValueType::Unknown, { }));
 	}
 
 	bool ReflectTypeFunction::IsValid() const
