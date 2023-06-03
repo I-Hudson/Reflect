@@ -31,10 +31,10 @@ namespace Reflect::CodeGeneration
 		CodeGenerate::IncludeHeader("Core/Util.h", file);
 
 		file << "\n";
-		file << "#ifdef " + data.FileName + ReflectFileGeneratePrefix + "_h\n";
-		file << "#error \"" + data.FileName + ReflectFileGeneratePrefix + ".h" + " already included, missing 'pragma once' in " + data.FileName + ".h\"\n";
-		file << "#endif " + data.FileName + ReflectFileGeneratePrefix + "_h\n";
-		file << "#define " + data.FileName + ReflectFileGeneratePrefix + "_h\n\n";
+		file << "#ifdef " + data.FileName + Keys::ReflectFileGeneratePrefix + "_h\n";
+		file << "#error \"" + data.FileName + Keys::ReflectFileGeneratePrefix + ".h" + " already included, missing 'pragma once' in " + data.FileName + ".h\"\n";
+		file << "#endif " + data.FileName + Keys::ReflectFileGeneratePrefix + "_h\n";
+		file << "#define " + data.FileName + Keys::ReflectFileGeneratePrefix + "_h\n\n";
 
 		WriteMacros(data, file, additionalOptions);
 	}

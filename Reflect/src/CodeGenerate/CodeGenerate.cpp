@@ -71,8 +71,8 @@ namespace Reflect::CodeGeneration
 					}
 				}
 
-				const std::string hFile = data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".h";
-				const std::string cppFile = data.FilePath + "/Generated/" + data.FileName + ReflectFileGeneratePrefix + ".cpp";
+				const std::string hFile = data.FilePath + "/Generated/" + data.FileName + Keys::ReflectFileGeneratePrefix + ".h";
+				const std::string cppFile = data.FilePath + "/Generated/" + data.FileName + Keys::ReflectFileGeneratePrefix + ".cpp";
 
 				std::ofstream file = OpenFile(hFile);
 				header.GenerateHeader(data, file, additionalOptions);

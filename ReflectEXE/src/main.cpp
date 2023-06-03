@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 
 		if (directories.size() > 0)
 		{
-			std::ifstream iFile(Reflect::ReflectIgnoreStringsFileName);
+			std::ifstream iFile(Reflect::Keys::ReflectIgnoreStringsFileName);
 			if (iFile.is_open())
 			{
 				iFile.seekg(0, iFile.end);

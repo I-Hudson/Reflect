@@ -24,21 +24,25 @@ namespace Reflect
 	#define REFLECT_MINOR 3
 	#define REFLECT_PATCH 2
 
-	constexpr const char* RefectStructKey = "REFLECT_STRUCT";
-	constexpr const char* RefectClassKey = "REFLECT_CLASS";
-	constexpr const char* ReflectGeneratedBodykey = "REFLECT_GENERATED_BODY";
-	constexpr const char* ReflectPropertyKey = "REFLECT_PROPERTY";
-	constexpr const char* ReflectCPPIncludeKey = "REFLECT_CPP_INCLUDE";
-	constexpr const char* ReflectFileGeneratePrefix = "_reflect_generated";
-	constexpr const char* ReflectIgnoreStringsFileName = "reflect_ignore_strings.txt";
+	namespace Keys
+	{
+		constexpr const char* RefectStructKey = "REFLECT_STRUCT";
+		constexpr const char* RefectClassKey = "REFLECT_CLASS";
+		constexpr const char* ReflectGeneratedBodykey = "REFLECT_GENERATED_BODY";
+		constexpr const char* ReflectPropertyKey = "REFLECT_PROPERTY";
+		constexpr const char* ReflectCPPIncludeKey = "REFLECT_CPP_INCLUDE";
+		constexpr const char* ReflectFileGeneratePrefix = "_reflect_generated";
+		constexpr const char* ReflectIgnoreStringsFileName = "reflect_ignore_strings.txt";
 
-	constexpr const char* Reflect_CMD_Option_PCH_Include = "pchInclude";
-	constexpr const char* Reflect_CMD_Option_Reflect_Full_EXT = "reflect_full_ext";
-	//constexpr const char* Reflect_CMD_Option_Single_File_EXT = "reflect_single_file_ext";
+		constexpr const char* Reflect_CMD_Option_PCH_Include = "pchInclude";
+		constexpr const char* Reflect_CMD_Option_Reflect_Full_EXT = "reflect_full_ext";
+		//constexpr const char* Reflect_CMD_Option_Single_File_EXT = "reflect_single_file_ext";
+	}
+
 	constexpr const char* Reflect_CMD_Options[] =
 	{
-		Reflect_CMD_Option_PCH_Include
-		, Reflect_CMD_Option_Reflect_Full_EXT
+		Keys::Reflect_CMD_Option_PCH_Include
+		, Keys::Reflect_CMD_Option_Reflect_Full_EXT
 		//, Reflect_CMD_Option_Single_File_EXT
 	};
 
@@ -55,8 +59,8 @@ namespace Reflect
 
 		std::unordered_map<std::string, std::string> options =
 		{
-			{ Reflect::Reflect_CMD_Option_PCH_Include, "" },
-			{ Reflect::Reflect_CMD_Option_Reflect_Full_EXT, "false" },
+			{ Reflect::Keys::Reflect_CMD_Option_PCH_Include, "" },
+			{ Reflect::Keys::Reflect_CMD_Option_Reflect_Full_EXT, "false" },
 			//{ Reflect::Reflect_CMD_Option_Single_File_EXT, "false" }
 
 		};
