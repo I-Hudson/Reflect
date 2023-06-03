@@ -28,6 +28,7 @@ namespace Reflect
 		std::string GetValueTypeName() const { return m_valueTypeName; }
 		std::size_t GetValueTypeSize() const { return m_valueTypeSize; }
 
+		EReflectValueType GetValueType() const { return m_valueType; }
 
 		bool IsClass() const;
 		bool IsStruct() const;
@@ -51,6 +52,7 @@ namespace Reflect
 		EReflectValueModifier m_modifier = EReflectValueModifier::None;
 
 		EReflectType m_eReflectType;
+		EReflectValueType m_valueType = EReflectValueType::Unknown;
 	};
 
 	template<typename Type>
@@ -58,7 +60,7 @@ namespace Reflect
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<Type>>;
 
-		ReflectTypeCPP(EReflectType eType, std::string givenName = "")
+		ReflectTypeCPP(EReflectType eType, EReflectValueType valueType, std::string givenName = "")
 		{
 			m_typeName = Util::GetTypeName<Type>();
 			m_typeSize = Util::GetTypeSize<Type>();
@@ -67,6 +69,7 @@ namespace Reflect
 			m_valueTypeSize = Util::GetValueTypeSize<Type>();
 
 			m_eReflectType = eType;
+			m_valueType = valueType;
 		}
 
 		virtual void ClearValue(void* data) const override
@@ -128,7 +131,7 @@ namespace Reflect
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<void>>;
 
-		ReflectTypeCPP(EReflectType eType, std::string givenName = "")
+		ReflectTypeCPP(EReflectType eType, EReflectValueType valueType, std::string givenName = "")
 		{
 			m_typeName = "void";
 			m_typeSize = 0;
@@ -137,6 +140,7 @@ namespace Reflect
 			m_valueTypeSize = 0;
 
 			m_eReflectType = eType;
+			m_valueType = EReflectValueType::Unknown;
 		}
 
 		virtual void ClearValue(void* data) const override
@@ -266,7 +270,7 @@ namespace Reflect
 		template<typename T>
 		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
 		{
-			return CallInternal((void*)returnValue, std::move(functionArgs), ReflectTypeCPP<T>(EReflectType::Unknown));
+			return CallInternal((void*)returnValue, std::move(functionArgs), ReflectTypeCPP<T>(EReflectType::Unknown, EReflectValueType::Unknown));
 		}
 
 		bool IsValid() const;

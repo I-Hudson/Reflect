@@ -46,6 +46,7 @@ namespace A
 			int& GetFriends() { return Friends; }
 
 			int Friends = int(1);
+			REFLECT_PROPERTY()
 			int* TimeOnline = nullptr;
 			REFLECT_PROPERTY()
 				vec3 vec = vec3(1);

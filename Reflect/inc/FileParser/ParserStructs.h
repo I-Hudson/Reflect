@@ -12,8 +12,8 @@ namespace Reflect::Parser
 		std::string Type;
 		std::string RawType;
 		std::string Name;
-		EReflectValueType ReflectValueType;
-		EReflectValueModifier ReflectModifier;
+		EReflectValueType ReflectValueType = EReflectValueType::Unknown;
+		EReflectValueModifier ReflectModifier = EReflectValueModifier::None;
 		std::vector<std::string> ContainerProps;
 
 		int TypeSize;

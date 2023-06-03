@@ -26,7 +26,7 @@ namespace Reflect::CodeGeneration
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> functions = GenerateFunctions(ownerClass);" << NEW_LINE;
 		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> members = GenerateMembers(ownerClass);" << NEW_LINE;
 		file << "\t\tReflectTypeInfo reflect_type_info = ReflectTypeInfo(ownerClass," << NEW_LINE;
-		file << "\t\t\tstd::make_unique<ReflectTypeCPP<" + GetTypeName(data) + ">>(Reflect::EReflectType::Class)," << NEW_LINE;
+		file << "\t\t\tstd::make_unique<ReflectTypeCPP<" + GetTypeName(data) + ">>(Reflect::EReflectType::Class, Reflect::EReflectValueType::Value)," << NEW_LINE;
 		file << "\t\t\tstd::move(inheritances), " << NEW_LINE;
 		file << "\t\t\tstd::move(members), " << NEW_LINE;
 		file << "\t\t\tstd::move(functions));" << NEW_LINE;
@@ -97,7 +97,10 @@ namespace Reflect::CodeGeneration
 			file << "ownerClass, ";
 			file << "\"" + member.Name + "\"" + ", ";
 			file << "(unsigned char*)ownerClass + offsetof(" + GetTypeName(data)  + ", " + member.Name + "), ";
-			file << "std::make_unique<ReflectTypeCPP<" + member.RawType + ">>(Reflect::EReflectType::Member, \"" + member.Name + "\"), ";
+			file << "std::make_unique<ReflectTypeCPP<" + member.RawType + ">>";
+			file << "(Reflect::EReflectType::Member, ";
+			file << "static_cast<EReflectValueType>(" + std::to_string(static_cast<int>(member.ReflectValueType)) + "), ";
+			file << "\"" + member.Name + "\"), ";
 			file << "flags";
 			file << ")); " << NEW_LINE << NEW_LINE;
 		}
@@ -113,7 +116,9 @@ namespace Reflect::CodeGeneration
 			auto generateSingleArg = [&data](const Parser::ReflectTypeNameData& arg) -> std::string
 			{
 				std::string str;
-				str += "std::make_unique<ReflectTypeCPP<" + arg.RawType + ">>(Reflect::EReflectType::Parameter, \"" + arg.Name + "\")";
+				str += "std::make_unique<ReflectTypeCPP<" + arg.RawType + ">>(Reflect::EReflectType::Parameter, ";
+				str += "static_cast<EReflectValueType>(" + std::to_string(static_cast<int>(arg.ReflectValueType)) + "), ";
+				str += "\"" + arg.Name + "\")";
 				return str;
 			};
 
@@ -137,7 +142,9 @@ namespace Reflect::CodeGeneration
 			str += "((void*)ownerClass, ";
 			str += "\"" + func.Name + "\"" + ", ";
 			str += GetTypeName(data) + "::__REFLECT_FUNC__" + func.Name + ", ";
-			str += "std::make_unique<ReflectTypeCPP<" + func.Type + ">>(Reflect::EReflectType::Function, \"" + func.Name + "\"), ";
+			str += "std::make_unique<ReflectTypeCPP<" + func.Type + ">>(Reflect::EReflectType::Function, ";
+			str += "static_cast<EReflectValueType>(" + std::to_string(static_cast<int>(func.ReflectValueType)) + "), ";
+			str += "\"" + func.Name + "\"), ";
 			str += "std::move(" + func.Name + "_Args))";
 			return str;
 		};
