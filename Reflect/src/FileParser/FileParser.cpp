@@ -12,6 +12,7 @@
 #include <stack>
 #include <assert.h>
 #include <string.h>
+#include <functional>
 
 #define EXP_PARSER
 
@@ -402,12 +403,15 @@ namespace Reflect::Parser
 
 				if (fileData.Cursor == std::string::npos)
 				{
-					break;
+					fileData.Cursor = endOfContainerCursor;
+					continue;
 				}
-
+				else
+				{
 				fileData.Cursor += (int)strlen(Keys::ReflectPropertyKey);
 				reflectFlags = ReflectFlags(fileData);
 				FindNextChar(fileData, generalEndChars);
+				}
 
 
 				EReflectType refectType = CheckForReflectType(fileData);
@@ -592,6 +596,25 @@ namespace Reflect::Parser
 
 	void FileParser::LinkAllInheritances()
 	{
+		std::function<void(ReflectInheritanceData&)> linkInheritanceFunc = 
+			[&](ReflectInheritanceData& inheritanceData)
+			{
+				Parser::ReflectContainerData* inheritanceContainerData = FindReflectContainerData(inheritanceData.Name);
+				if (!inheritanceContainerData)
+				{
+					return;
+				}
+
+				for (auto& typeInheritance : inheritanceContainerData->Inheritance)
+				{
+					if (typeInheritance.Name != "REFLECT_BASE")
+					{
+						inheritanceData.Inheritances.push_back(typeInheritance);
+						linkInheritanceFunc(inheritanceData.Inheritances.back());
+					}
+				}
+			};
+
 		for (auto& file : m_filesParsed)
 		{
 			for (auto& reflectedData : file.ReflectData)
@@ -626,7 +649,11 @@ namespace Reflect::Parser
 
 					for (auto& typeInheritance : memberInheritanceContainerData->Inheritance)
 					{
-						member.TypeInheritance.push_back(typeInheritance);
+						if (typeInheritance.Name != "REFLECT_BASE")
+						{
+							member.TypeInheritance.push_back(typeInheritance);
+							linkInheritanceFunc(member.TypeInheritance.back());
+						}
 					}
 				}
 			}

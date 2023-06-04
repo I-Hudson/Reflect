@@ -6,6 +6,8 @@
 #include "Core/Core.h"
 #include "Instrumentor.h"
 
+#include <functional>
+
 namespace Reflect::CodeGeneration
 {
 	void CG_CPP_Legacy::Generate(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
@@ -46,11 +48,28 @@ namespace Reflect::CodeGeneration
 			{
 				file << "\tReflect::ReflectMemberProp(\"" + member.Name + "\", ";
 				file << "new " << CG_Utils::WriteReflectTypeCPPDeclare(member.RawType);
-				file << CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Member, member.ReflectValueType, member.TypeInheritance, member.Name) << ", ";
+				file << CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Member, member.ReflectValueType, {}, member.Name) << ", ";
 				file << "__REFLECT__" + member.Name + "(), ";
 				file << getMemberProps(member.ContainerProps) + ")," + NEW_LINE;
 			}
 			file << "};\n" << NEW_LINE;
+
+			file << "void " + data.NameWithNamespace + "::InitialiseMembers()" << NEW_LINE;
+			file << "{\n";
+			for (const auto& inheritanceData : data.Inheritance)
+			{
+				if (inheritanceData.Name != "REFLECT_BASE"
+					&& inheritanceData.Name != "REFLECT_BASE()")
+				{
+					TAB_N(1);
+					file << inheritanceData.NameWithNamespace << "::InitialiseMembers();\n";
+				}
+			}
+			for (const auto& member : data.Members)
+			{
+				WriteReflectCPPInheritanceChain(file, EReflectType::Member, member, 1);
+			}
+			file << "}\n";
 		}
 	}
 
@@ -130,6 +149,66 @@ namespace Reflect::CodeGeneration
 		}
 		file << "\treturn __super::GetFunction(functionName);" << NEW_LINE;
 		file << "}\n" << NEW_LINE;
+	}
+
+	void CG_CPP_Legacy::WriteReflectCPPInheritanceChain(std::ofstream& file, EReflectType reflectType, const Parser::ReflectTypeNameData& typeNameData, int indent)
+	{
+		std::function<void(const Parser::ReflectInheritanceData& data)> writeInheritance =
+			[&](const Parser::ReflectInheritanceData& data)
+			{
+				TAB_N(indent + 1);
+				file << "std::unique_ptr<" << CG_Utils::WriteReflectTypeCPPDeclare(data.NameWithNamespace) << "> ";
+				file << typeNameData.Name << "_" << data.Name << ";";
+				file << "\n";
+
+				if (!data.Inheritances.empty())
+				{
+					TAB_N(indent);
+					file << "{\n";
+				}
+				
+				for (const Parser::ReflectInheritanceData& d : data.Inheritances)
+				{
+					writeInheritance(d);
+				}
+
+				if (!data.Inheritances.empty())
+				{
+					TAB_N(indent + 1);
+					file << "std::vector<std::unique_ptr<::Reflect::ReflectType>> " << data.Name << "_InheritanceChain;\n";
+
+					for (const Parser::ReflectInheritanceData& d : data.Inheritances)
+					{
+						TAB_N(indent + 1);
+						file << data.Name << "_InheritanceChain.push_back(std::move(";
+						file << typeNameData.Name << "_" << d.Name << "));\n";
+					}
+				}
+
+				TAB_N(indent + 1);
+				file << typeNameData.Name << "_" << data.Name << " = ";
+				file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(data.NameWithNamespace) << ">";
+				file << CG_Utils::WriteReflectTypeCPPParentheses(reflectType, typeNameData.ReflectValueType, data.Inheritances, data.Name) << ";";
+				file << "\n";
+
+				if (!data.Inheritances.empty())
+				{
+					TAB_N(indent);
+					file << "}\n";
+				}
+			};
+
+		TAB_N(indent);
+		file << "std::vector<std::unique_ptr<::Reflect::ReflectType>> " << typeNameData.Name << "_InheritanceChain;\n";
+		for (const Parser::ReflectInheritanceData& data : typeNameData.TypeInheritance)
+		{
+			writeInheritance(data);
+			TAB_N(indent);
+			file << typeNameData.Name << "_InheritanceChain.push_back(std::move(";
+			file << typeNameData.Name << "_" << data.Name << "));\n";
+		}
+
+		file << "\n";
 	}
 
 	std::string CG_CPP_Legacy::MemberFormat()

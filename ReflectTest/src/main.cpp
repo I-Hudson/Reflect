@@ -1,5 +1,6 @@
 #include "Reflect.h"
 #include "TestStrcuts.h"
+#include "TestClass.h"
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.h>
@@ -112,6 +113,11 @@ TEST_CASE("Legacy get function pointer return")
 	stringRef = "ReferenceID";
 	CHECK(player.Id == stringRef);
 }
+
+TEST_CASE("Legacy property inheritance")
+{
+	ClassHolder classHolder;
+}
 #endif
 
 #ifdef REFLECT_TYPE_INFO_ENABLED
@@ -166,6 +172,10 @@ TEST_CASE("Type info get base class")
 {
 	Player player;
 	Reflect::ReflectTypeInfo typeinfo = player.GetTypeInfo();
+	ClassE classE;
+	Reflect::ReflectTypeInfo classETypeinfo = classE.GetTypeInfo();
+	ClassHolder classHolder;
+	Reflect::ReflectTypeInfo classHolderTypeinfo = classHolder.GetTypeInfo();
 	//typeinfo.GetInfo().in
 }
 

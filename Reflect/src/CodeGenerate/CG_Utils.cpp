@@ -10,7 +10,7 @@ namespace Reflect::CodeGeneration
         return str;
     }
 
-    std::string CG_Utils::WriteReflectTypeCPPParentheses(EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectInheritanceData>& inheritance, std::string_view name)
+    std::string CG_Utils::WriteReflectTypeCPPParentheses(EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectInheritanceData>& inheritance, std::string_view name, std::string_view instanceChaiPrefix)
     {
         std::string str;
         str += "(";
@@ -18,7 +18,12 @@ namespace Reflect::CodeGeneration
         str += "static_cast<::Reflect::EReflectValueType>(" + std::to_string(static_cast<int>(valueType)) + "), ";
         if (!inheritance.empty())
         {
-            str += "std::move(" + std::string(name) + "_InheritanceChain), ";
+            str += "std::move(";
+            if (!instanceChaiPrefix.empty())
+            {
+                str += std::string(instanceChaiPrefix) + "_";
+            } 
+            str += std::string(name) + "_InheritanceChain), ";
         }
         else
         {

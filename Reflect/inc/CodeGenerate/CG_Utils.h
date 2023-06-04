@@ -13,7 +13,7 @@ namespace Reflect::CodeGeneration
     {
     public:
         static std::string WriteReflectTypeCPPDeclare(std::string_view type);
-        static std::string WriteReflectTypeCPPParentheses(EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectInheritanceData>& inheritance, std::string_view name);
+        static std::string WriteReflectTypeCPPParentheses(EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectInheritanceData>& inheritance, std::string_view name, std::string_view instanceChaiPrefix = "");
 
         static std::string WriteReflectTypeCPPMember(Parser::ReflectMemberData memberData);
         static std::string WriteReflectTypeCPPFunction(Parser::ReflectFunctionData functionData);

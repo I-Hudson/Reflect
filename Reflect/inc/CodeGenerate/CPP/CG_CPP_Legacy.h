@@ -22,6 +22,8 @@ namespace Reflect::CodeGeneration
         void WriteMemberGet(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
         void WriteFunctionGet(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
 
+        void WriteReflectCPPInheritanceChain(std::ofstream& file, EReflectType reflectType, const Parser::ReflectTypeNameData& typeNameData, int indent);
+
         std::string MemberFormat();
     };
 }

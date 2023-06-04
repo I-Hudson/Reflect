@@ -576,10 +576,15 @@ namespace Reflect
 	struct REFLECT_API IReflect
 	{
 #ifndef REFLECT_TYPE_INFO_ENABLED
+		IReflect() { InitialiseMembers(); }
+
 		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr); };
 		virtual ReflectMember GetMember(const char* memberName) { (void)memberName; return ReflectMember("", nullptr, nullptr); };
 		virtual std::vector<ReflectMember> GetMembers(std::vector<std::string> const& flags) { (void)flags; return {}; };
 		virtual std::vector<ReflectMember> GetAllMembers() { return {}; };
+
+	protected:
+		virtual void InitialiseMembers() { }
 #endif
 	};
 }

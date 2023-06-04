@@ -215,22 +215,30 @@ namespace Reflect::CodeGeneration
 		std::function<void(const Parser::ReflectInheritanceData& data)> writeInheritance =
 			[&](const Parser::ReflectInheritanceData& data)
 			{
-				if (data.Inheritances.empty())
-				{
-					TAB_N(indent);
-					file << "std::unique_ptr<" << CG_Utils::WriteReflectTypeCPPDeclare(data.NameWithNamespace) << "> ";
-					file << typeNameData.Name << "_" << data.Name << " = ";
-					file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(data.NameWithNamespace) << ">";
-					file << CG_Utils::WriteReflectTypeCPPParentheses(reflectType, typeNameData.ReflectValueType, {}, data.Name) << ";";
-					file << "\n";
-					return;
-				}
-
 				for (const Parser::ReflectInheritanceData& d : data.Inheritances)
 				{
 					writeInheritance(d);
 				}
 
+				if (!data.Inheritances.empty())
+				{
+					TAB_N(indent);
+					file << "std::vector<std::unique_ptr<::Reflect::ReflectType>> " << typeNameData.Name << "_" << data.Name << "_InheritanceChain;\n";
+
+					for (const Parser::ReflectInheritanceData& d : data.Inheritances)
+					{
+						TAB_N(indent + 1);
+						file << typeNameData.Name << "_" << data.Name << "_InheritanceChain.push_back(std::move(";
+						file << typeNameData.Name << "_" << d.Name << "));\n";
+					}
+				}
+
+				TAB_N(indent);
+				file << "std::unique_ptr<" << CG_Utils::WriteReflectTypeCPPDeclare(data.NameWithNamespace) << "> ";
+				file << typeNameData.Name << "_" << data.Name << " = ";
+				file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(data.NameWithNamespace) << ">";
+				file << CG_Utils::WriteReflectTypeCPPParentheses(reflectType, typeNameData.ReflectValueType, data.Inheritances, data.Name, typeNameData.Name) << ";";
+				file << "\n";
 			};
 
 		TAB_N(indent);
