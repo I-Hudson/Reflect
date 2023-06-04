@@ -42,6 +42,23 @@ namespace Reflect
 		bool IsFunction() const;
 		bool IsParameter() const;
 
+		/// @brief Check if this type is a derivative of T.
+		/// @tparam T 
+		/// @return bool
+		template<typename T>
+		bool IsDerivedFrom() const
+		{
+			ReflectTypeCPP<T> base;
+			for (const std::unique_ptr<ReflectType>& type : m_inheritanceTypes)
+			{
+				if (*type.get() == base)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		virtual void ClearValue(void* data) const = 0;
 		virtual void Copy(void* src, void* dst) const = 0;
 		virtual void Copy_s(void* src, void* dst, size_t dst_size) const = 0;
@@ -69,6 +86,16 @@ namespace Reflect
 	struct ReflectTypeCPP : public ReflectType
 	{
 		using value_type = std::remove_pointer_t<std::remove_reference_t<Type>>;
+		ReflectTypeCPP()
+		{
+			m_typeSize = Util::GetTypeSize<Type>();
+			m_valueTypeSize = Util::GetValueTypeSize<Type>();
+
+			m_typeNameWithNamespace = Util::GetTypeName<Type>();
+			m_typeName = Util::RemoveNamespaces(m_typeNameWithNamespace);
+			m_valueTypeNameWithNamespace = Util::GetValueTypeName<Type>();
+			m_valueTypeName = Util::RemoveNamespaces(m_valueTypeNameWithNamespace);
+		}
 
 		ReflectTypeCPP(EReflectType eType, EReflectValueType valueType, std::vector<std::unique_ptr<ReflectType>> inheritance, std::string givenName = "")
 		{
