@@ -95,6 +95,13 @@ namespace Reflect::Parser
 		std::vector<Parser::ReflectFunctionData> Functions;
 	};
 
+	struct FileParserOptions
+	{
+		/// @brief Mark all files to not be reflected. To be used if you want to parser a directory to get 
+		/// relevant data for another directoy.
+		bool DoNotReflect = false;
+	};
+
 	struct FileParsedData
 	{
 		std::string Data;
@@ -106,5 +113,6 @@ namespace Reflect::Parser
 
 		std::vector<Parser::ReflectContainerData> ReflectData;
 		bool Parsed = false;
+		FileParserOptions parserOptions;
 	};
 }

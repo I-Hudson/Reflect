@@ -3,7 +3,7 @@ project "ReflectEXE"
     language "C++"
     cppdialect "C++17"
 	staticruntime "on"
-    debugargs "F:\\Users\\Documents\\SourceControl\\Github\\C++ Porjects\\Reflect\\ReflectTest\\src"
+    debugargs "..\\..\\..\\ReflectTest\\src"
     
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
     objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")

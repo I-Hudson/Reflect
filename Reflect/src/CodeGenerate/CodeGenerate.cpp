@@ -54,6 +54,11 @@ namespace Reflect::CodeGeneration
 				REFLECT_PROFILE_SCOPE("Remove all old gen files");
 				for (const auto& data : parser.GetAllFileParsedData())
 				{
+					if (data.parserOptions.DoNotReflect)
+					{
+						continue;
+					}
+
 					if (std::filesystem::exists(data.FilePath + "/Generated"))
 					{
 						std::filesystem::remove_all(data.FilePath + "/Generated");
@@ -63,6 +68,11 @@ namespace Reflect::CodeGeneration
 
 			for (const auto& data : parser.GetAllFileParsedData())
 			{
+				if (data.parserOptions.DoNotReflect)
+				{
+					continue;
+				}
+
 				{
 					REFLECT_PROFILE_SCOPE("Create gen folders");
 					if (!std::filesystem::exists(data.FilePath + "/Generated"))

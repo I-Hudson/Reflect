@@ -30,7 +30,7 @@ namespace Reflect::Parser
 	FileParser::~FileParser()
 	{ }
 
-	void FileParser::ParseDirectory(const std::string& directory, const ReflectAddtionalOptions* options)
+	void FileParser::ParseDirectory(const std::string& directory, const ReflectAddtionalOptions* options, FileParserOptions fileParserOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -45,6 +45,7 @@ namespace Reflect::Parser
 			return;
 		}
 
+		std::vector<FileParsedData> filesLoaded;
 		for (const auto& f : std::filesystem::recursive_directory_iterator(directory))
 		{
 			std::string filePath = f.path().u8string();
@@ -55,12 +56,13 @@ namespace Reflect::Parser
 			{
 				// TODO thread this. We could load files on more than one thread to speed
 				// this up.
-				std::cout << "Parsing: " << filePath << std::endl;
+				std::cout << "Loading: " << filePath << std::endl;
 				std::ifstream file = OpenFile(filePath);
 				FileParsedData data = LoadFile(file);
 				data.FileName = f.path().filename().u8string().substr(0, f.path().filename().u8string().find_last_of('.'));
 				data.FilePath = f.path().parent_path().u8string();
-				m_filesParsed.push_back(data);
+				data.parserOptions = fileParserOptions;
+				filesLoaded.push_back(data);
 				CloseFile(file);
 			}
 		}
@@ -69,24 +71,13 @@ namespace Reflect::Parser
 		// All files have been loaded.
 		// Now we need to parse them to find all the information we want from them.
 		// TODO: this could also be threaded.
-		for (auto& file : m_filesParsed)
+		for (auto& file : filesLoaded)
 		{
-			if (!ParseFile(file))
+			if (ParseFile(file))
 			{
-				m_filesToRemove.push_back(file.FileName);
+				m_filesParsed.push_back(file);
 			}
 		}
-
-		for (auto const& fileToRemove : m_filesToRemove)
-		{
-			auto itr = std::find_if(m_filesParsed.begin(), m_filesParsed.end(), [fileToRemove](FileParsedData const& data)
-			{
-				return fileToRemove == data.FileName;
-			});
-			assert(itr != m_filesParsed.end() && "[FileParser::ParseDirectory] Remove file to parse dose not exists.");
-			m_filesParsed.erase(itr);
-		}
-		m_filesToRemove.clear();
 
 		LinkAllInheritances();
 	}
@@ -94,7 +85,6 @@ namespace Reflect::Parser
 	void FileParser::Clear()
 	{
 		m_filesParsed.clear();
-		m_filesToRemove.clear();
 	}
 
 	void FileParser::SetIgnoreStrings(const std::vector<std::string>& ignoreStrings)

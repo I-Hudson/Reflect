@@ -24,7 +24,7 @@ namespace Reflect::Parser
 		REFLECT_API FileParser();
 		REFLECT_API ~FileParser();
 
-		REFLECT_API void ParseDirectory(const std::string& directory, const ReflectAddtionalOptions* additionalOptions);
+		REFLECT_API void ParseDirectory(const std::string& directory, const ReflectAddtionalOptions* additionalOptions, FileParserOptions fileParserOptions = { });
 		/// @brief Clear all parsed file data.
 		REFLECT_API void Clear();
 		REFLECT_API void SetIgnoreStrings(const std::vector<std::string>& ignoreStrings);
@@ -97,7 +97,6 @@ namespace Reflect::Parser
 
 	private:
 		std::vector<FileParsedData> m_filesParsed;
-		std::vector<std::string> m_filesToRemove;
 		std::vector<std::string> m_ignoreStrings;
 		std::vector<std::string> m_directoriesParsed;
 		const ReflectAddtionalOptions* m_options;

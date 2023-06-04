@@ -17,11 +17,20 @@ int main(int argc, char* argv[])
 		std::vector<std::string> directories;
 		for (size_t i = 0; i < argc; ++i)
 		{
-			if (std::filesystem::is_directory(argv[i]))
+			bool foundPath = false;
+			try
 			{
-				directories.push_back(argv[i]);
+				std::filesystem::path absPath = std::filesystem::absolute(argv[i]);
+				if (std::filesystem::is_directory(absPath))
+				{
+					directories.push_back(absPath.string());
+					foundPath = true;
+				}
 			}
-			else
+			catch (std::error_code)
+			{ }
+
+			if (!foundPath)
 			{
 				std::string arg = argv[i];
 				std::string argKey = arg.substr(0, arg.find('='));
