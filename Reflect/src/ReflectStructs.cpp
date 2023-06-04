@@ -2,6 +2,16 @@
 
 namespace Reflect
 {
+	std::vector<ReflectType*> ReflectType::GetInheritances() const
+	{
+		std::vector<ReflectType*> vec; vec.reserve(m_inheritanceTypes.size());
+		for (const auto& type : m_inheritanceTypes)
+		{
+			vec.push_back(type.get());
+		}
+		return vec;
+	}
+
 	bool Reflect::ReflectType::IsClass() const
 	{
 		return m_eReflectType == EReflectType::Class;

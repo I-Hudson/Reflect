@@ -95,7 +95,14 @@ namespace Reflect::CodeGeneration
 
 		for (const auto& member : data.Members)
 		{
-#if 0
+			int blockBracketIndent = 2;
+			TAB_N(blockBracketIndent);
+			file << "{\n";
+
+			int lineIndent = 3;
+#if 1
+			WriteReflectCPPInheritanceChain(file, EReflectType::Member, member, lineIndent);
+#else
 			file << "\t\tinheritanceTypes.clear();\n";
 			std::vector<std::string> orderdInheritance = OrderMemberInheritance(member);
 			//for (const Parser::ReflectInheritanceData& inheritanceData : member.TypeInheritance)
@@ -109,23 +116,43 @@ namespace Reflect::CodeGeneration
 			file << "\t\tstd::vector<std::unique_ptr<::Reflect::ReflectType>> " << member.Name << "_InheritanceTypes;\n";
 #endif
 
-			file << TAB << TAB << "flags.clear();" << NEW_LINE;
+			TAB_N(lineIndent);
+			file << "flags.clear();" << NEW_LINE;
+
 			int flagIndex = 0;
 			for (const auto& flag : member.ContainerProps)
 			{
-				file << TAB << TAB << "flags.push_back(\"" + flag + "\");" << NEW_LINE;
+				TAB_N(lineIndent);
+				file << "flags.push_back(\"" + flag + "\");" << NEW_LINE;
 			}
 
+			TAB_N(lineIndent);
+			file << "members.emplace_back(\n";
 
-			file << "\t\tmembers.emplace_back(\n";
+			TAB_N(lineIndent + 1);
 			file << "std::make_unique<Reflect::ReflectTypeMember>(\n";
+
+			TAB_N(lineIndent + 1);
 			file << "ownerClass, \n";
+
+			TAB_N(lineIndent + 1);
 			file << "\"" + member.Name + "\"" + ", \n";
+
+			TAB_N(lineIndent + 1);
 			file << "(unsigned char*)ownerClass + offsetof(" + GetTypeName(data)  + ", " + member.Name + "), \n";
+
+			TAB_N(lineIndent + 1);
 			file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(member.RawType) << ">";
-			file << CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Member, member.ReflectValueType, { }, member.Name) << ", \n";
+			file << CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Member, member.ReflectValueType, member.TypeInheritance, member.Name) << ", \n";
+			
+			TAB_N(lineIndent + 1);
 			file << "flags\n";
-			file << ")); " << NEW_LINE << NEW_LINE;
+			
+			TAB_N(lineIndent + 1);
+			file << "));" << NEW_LINE;
+
+			TAB_N(blockBracketIndent);
+			file << "}\n\n";
 		}
 		file << "\t\treturn members;" << NEW_LINE;
 		file << "\t}" << NEW_LINE;
@@ -183,30 +210,40 @@ namespace Reflect::CodeGeneration
 		file << "\t}" << NEW_LINE;
 	}
 
-	std::vector<std::string> CG_CPP_TypeInfo::OrderMemberInheritance(const Parser::ReflectMemberData& member)
+	void CG_CPP_TypeInfo::WriteReflectCPPInheritanceChain(std::ofstream& file, EReflectType reflectType, const Parser::ReflectTypeNameData& typeNameData, int indent)
 	{
-		std::vector<std::string> typeNames;
-
-		using WalkTreeFunc = std::function<void(const Parser::ReflectInheritanceData&)>;
-		WalkTreeFunc walkTree = [&](const Parser::ReflectInheritanceData& data)
+		std::function<void(const Parser::ReflectInheritanceData& data)> writeInheritance =
+			[&](const Parser::ReflectInheritanceData& data)
 			{
 				if (data.Inheritances.empty())
 				{
-					typeNames.push_back(data.NameWithNamespace);
+					TAB_N(indent);
+					file << "std::unique_ptr<" << CG_Utils::WriteReflectTypeCPPDeclare(data.NameWithNamespace) << "> ";
+					file << typeNameData.Name << "_" << data.Name << " = ";
+					file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(data.NameWithNamespace) << ">";
+					file << CG_Utils::WriteReflectTypeCPPParentheses(reflectType, typeNameData.ReflectValueType, {}, data.Name) << ";";
+					file << "\n";
 					return;
 				}
-				for (auto& data : member.TypeInheritance)
+
+				for (const Parser::ReflectInheritanceData& d : data.Inheritances)
 				{
-					walkTree(data);
+					writeInheritance(d);
 				}
+
 			};
 
-		for (auto& data : member.TypeInheritance)
+		TAB_N(indent);
+		file << "std::vector<std::unique_ptr<::Reflect::ReflectType>> " << typeNameData.Name << "_InheritanceChain;\n";
+		for (const Parser::ReflectInheritanceData& data : typeNameData.TypeInheritance)
 		{
-			walkTree(data);
+			writeInheritance(data);
+			TAB_N(indent);
+			file << typeNameData.Name << "_InheritanceChain.push_back(std::move(";
+			file << typeNameData.Name << "_" << data.Name << "));\n";
 		}
 
-		return typeNames;
+		file << "\n";		
 	}
 
 	std::string CG_CPP_TypeInfo::GetTypeName(const Parser::ReflectContainerData& data) const

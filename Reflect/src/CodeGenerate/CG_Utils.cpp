@@ -18,7 +18,7 @@ namespace Reflect::CodeGeneration
         str += "static_cast<::Reflect::EReflectValueType>(" + std::to_string(static_cast<int>(valueType)) + "), ";
         if (!inheritance.empty())
         {
-            str += "std::move(" + std::string(name) + "_InheritanceTypes), ";
+            str += "std::move(" + std::string(name) + "_InheritanceChain), ";
         }
         else
         {

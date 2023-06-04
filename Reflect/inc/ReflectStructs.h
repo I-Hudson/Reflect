@@ -31,6 +31,8 @@ namespace Reflect
 
 		EReflectValueType GetValueType() const { return m_valueType; }
 
+		std::vector<ReflectType*> GetInheritances() const;
+
 		bool IsClass() const;
 		bool IsStruct() const;
 		bool IsMember() const;
@@ -55,7 +57,7 @@ namespace Reflect
 		EReflectType m_eReflectType;
 		EReflectValueType m_valueType = EReflectValueType::Unknown;
 
-		std::vector<ReflectType*> m_inheritance;
+		std::vector<std::unique_ptr<ReflectType>> m_inheritanceTypes;
 	};
 
 	template<typename Type>
@@ -73,6 +75,8 @@ namespace Reflect
 
 			m_eReflectType = eType;
 			m_valueType = valueType;
+
+			m_inheritanceTypes = std::move(inheritance);
 		}
 
 		virtual void ClearValue(void* data) const override
@@ -144,6 +148,8 @@ namespace Reflect
 
 			m_eReflectType = eType;
 			m_valueType = EReflectValueType::Unknown;
+
+			m_inheritanceTypes = std::move(inheritance);
 		}
 
 		virtual void ClearValue(void* data) const override
@@ -273,7 +279,9 @@ namespace Reflect
 		template<typename T>
 		Reflect::EReflectReturnCode Invoke(T* returnValue, FunctionPtrArgs functionArgs = FunctionPtrArgs())
 		{
-			return CallInternal((void*)returnValue, std::move(functionArgs), ReflectTypeCPP<T>(EReflectType::Unknown, EReflectValueType::Unknown, std::vector<ReflectType*> { }));
+			return CallInternal((void*)returnValue
+				, std::move(functionArgs)
+				, ReflectTypeCPP<T>(EReflectType::Unknown, EReflectValueType::Unknown, std::vector<std::unique_ptr<ReflectType>>()));
 		}
 
 		bool IsValid() const;

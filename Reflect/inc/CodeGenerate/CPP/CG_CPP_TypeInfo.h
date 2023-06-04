@@ -22,7 +22,7 @@ namespace Reflect::CodeGeneration
         void WriteGenerateTypeMembers(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
         void WriteGenerateTypeFunctions(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions);
 
-        std::vector<std::string> OrderMemberInheritance(const Parser::ReflectMemberData& member);
+        void WriteReflectCPPInheritanceChain(std::ofstream& file, EReflectType refectType, const Parser::ReflectTypeNameData& typeNameData, int lineIndent);
 
         std::string GetTypeName(const Parser::ReflectContainerData& data) const;
     };
