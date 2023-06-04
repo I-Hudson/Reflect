@@ -23,11 +23,14 @@ namespace Reflect
 			return !(*this != other);
 		}
 
-		std::string GetTypeName() const { return m_typeName; }
 		std::size_t GetTypeSize() const { return m_typeSize; }
+		std::size_t GetValueTypeSize() const { return m_valueTypeSize; }
+
+		std::string GetTypeName() const { return m_typeName; }
+		std::string GetTypeNameWithNamespace() const { return m_typeNameWithNamespace; }
 
 		std::string GetValueTypeName() const { return m_valueTypeName; }
-		std::size_t GetValueTypeSize() const { return m_valueTypeSize; }
+		std::string GetValueTypeNameWithNamespace() const { return m_valueTypeNameWithNamespace; }
 
 		EReflectValueType GetValueType() const { return m_valueType; }
 
@@ -44,12 +47,14 @@ namespace Reflect
 		virtual void Copy_s(void* src, void* dst, size_t dst_size) const = 0;
 
 	protected:
-		std::string m_typeName;
 		std::size_t m_typeSize;
+		std::size_t m_valueTypeSize;
 
+		std::string m_typeName;
+		std::string m_typeNameWithNamespace;
 		// Store the value type (ex. int* would be int).
 		std::string m_valueTypeName;
-		std::size_t m_valueTypeSize;
+		std::string m_valueTypeNameWithNamespace;
 
 		EReflectValueType m_typeValue = EReflectValueType::Unknown;
 		EReflectValueModifier m_modifier = EReflectValueModifier::None;
@@ -67,11 +72,13 @@ namespace Reflect
 
 		ReflectTypeCPP(EReflectType eType, EReflectValueType valueType, std::vector<std::unique_ptr<ReflectType>> inheritance, std::string givenName = "")
 		{
-			m_typeName = Util::GetTypeName<Type>();
 			m_typeSize = Util::GetTypeSize<Type>();
-
-			m_valueTypeName = Util::GetValueTypeName<Type>();
 			m_valueTypeSize = Util::GetValueTypeSize<Type>();
+
+			m_typeNameWithNamespace = Util::GetTypeName<Type>();
+			m_typeName = Util::RemoveNamespaces(m_typeNameWithNamespace);
+			m_valueTypeNameWithNamespace = Util::GetValueTypeName<Type>();
+			m_valueTypeName = Util::RemoveNamespaces(m_valueTypeNameWithNamespace);
 
 			m_eReflectType = eType;
 			m_valueType = valueType;
@@ -387,7 +394,8 @@ namespace Reflect
 		/// @breif Pointer to an instance of which this TypeInfo is made from. This will be nullptr if no instance pointer is given.
 		void* m_owner_class = nullptr;
 
-		/// @brief Construct function.
+		/// @brief Construct a new object. This uses C++ 'new' so will have to be manually deleted. This is
+		/// not done for you.
 		ConstructFunc m_construct_func = nullptr;
 
 		/// @brief Base info of this class/struct type.

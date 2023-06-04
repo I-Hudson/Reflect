@@ -60,6 +60,17 @@ namespace Reflect
 			return sizeof(std::remove_reference_t<std::remove_pointer_t<T>>);
 		}
 
+		static std::string RemoveNamespaces(const std::string& string)
+		{
+			std::string str = string;
+			size_t namespaceChar = string.find_last_of("::");
+			if (namespaceChar != std::string::npos)
+			{
+				str = str.substr(namespaceChar + 1);
+			}
+			return str;
+		}
+
 		template<typename T>
 		std::string GetTypeName(const T& type)
 		{
