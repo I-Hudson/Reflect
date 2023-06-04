@@ -80,6 +80,7 @@ namespace Reflect::Parser
 			}
 		}
 
+		ResolveNamespaces();
 		LinkAllInheritances();
 	}
 
@@ -592,6 +593,25 @@ namespace Reflect::Parser
 		}
 
 		return flags;
+	}
+
+	void FileParser::ResolveNamespaces()
+	{
+		for (auto& file : m_filesParsed)
+		{
+			for (auto& reflectedData : file.ReflectData)
+			{
+				for (auto& member : reflectedData.Members)
+				{
+					Parser::ReflectContainerData* memberInheritanceContainerData = FindReflectContainerData(member.Type);
+					if (!memberInheritanceContainerData)
+					{
+						continue;
+					}
+					member.NameWithNamespace = memberInheritanceContainerData->NameWithNamespace;
+				}
+			}
+		}
 	}
 
 	void FileParser::LinkAllInheritances()

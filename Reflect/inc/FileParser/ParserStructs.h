@@ -11,7 +11,7 @@ namespace Reflect::Parser
 	{
 		std::string Name;
 		std::string NameWithNamespace;
-		bool IsReflected = true;
+		bool IsReflected = false;
 
 		std::vector<ReflectInheritanceData> Inheritances;
 	};
@@ -21,6 +21,7 @@ namespace Reflect::Parser
 		std::string Type;
 		std::string RawType;
 		std::string Name;
+		std::string NameWithNamespace;
 		EReflectValueType ReflectValueType = EReflectValueType::Unknown;
 		EReflectValueModifier ReflectModifier = EReflectValueModifier::None;
 		std::vector<std::string> ContainerProps;
@@ -87,7 +88,6 @@ namespace Reflect::Parser
 		std::string PrettyName;
 		std::vector<ReflectInheritanceData> Inheritance;
 		std::vector<std::string> Namespaces;
-		std::string NameWithNamespace;
 		EReflectType ReflectType;
 		int ReflectGenerateBodyLine;
 

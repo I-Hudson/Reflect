@@ -55,6 +55,7 @@ namespace Reflect::Parser
 		int FindEndOfConatiner(const FileParsedData& fileData);
 		std::vector<std::string> ReflectFlags(FileParsedData& fileData);
 
+		void ResolveNamespaces();
 		void LinkAllInheritances();
 
 		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars, bool reverse = false);

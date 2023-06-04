@@ -142,7 +142,7 @@ namespace Reflect::CodeGeneration
 			file << "(unsigned char*)ownerClass + offsetof(" + GetTypeName(data)  + ", " + member.Name + "), \n";
 
 			TAB_N(lineIndent + 1);
-			file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(member.RawType) << ">";
+			file << "std::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(member.NameWithNamespace.empty() == true ? member.Type : member.NameWithNamespace) << ">";
 			file << CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Member, member.ReflectValueType, member.TypeInheritance, member.Name) << ", \n";
 			
 			TAB_N(lineIndent + 1);
@@ -215,6 +215,11 @@ namespace Reflect::CodeGeneration
 		std::function<void(const Parser::ReflectInheritanceData& data)> writeInheritance =
 			[&](const Parser::ReflectInheritanceData& data)
 			{
+				if (!data.IsReflected)
+				{
+					return;
+				}
+
 				for (const Parser::ReflectInheritanceData& d : data.Inheritances)
 				{
 					writeInheritance(d);
@@ -227,6 +232,11 @@ namespace Reflect::CodeGeneration
 
 					for (const Parser::ReflectInheritanceData& d : data.Inheritances)
 					{
+						if (!d.IsReflected)
+						{
+							continue;
+						}
+
 						TAB_N(indent + 1);
 						file << typeNameData.Name << "_" << data.Name << "_InheritanceChain.push_back(std::move(";
 						file << typeNameData.Name << "_" << d.Name << "));\n";
