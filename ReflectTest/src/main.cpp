@@ -127,16 +127,12 @@ TEST_CASE("TypeInfo registy")
 	Reflect::ReflectTypeInfoRegisty& registy = Reflect::ReflectTypeInfoRegisty::Instance();
 	{
 		Player player;
-
 	}
 }
 
 TEST_CASE("Get type info no owner")
 {
 	Player player;
-	ClassHolder classHolder;
-	Player::GetStaticTypeInfo(&classHolder);
-
 	Reflect::ReflectTypeInfo typeinfo = Player::GetStaticTypeInfo();
 	CHECK(!typeinfo.GetInfo()->GetTypeName().empty());
 }
