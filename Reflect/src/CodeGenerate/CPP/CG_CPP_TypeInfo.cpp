@@ -22,6 +22,10 @@ namespace Reflect::CodeGeneration
 	void CG_CPP_TypeInfo::WriteGenerateTypeInfo(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
+		file << "Reflect::ReflectTypeInfoRegister " + GetTypeName(data) + "::s_ReflectTypeInfoRegister";
+		file << " = Reflect::ReflectTypeInfoRegister(\"" + data.NameWithNamespace + "\", " + data.NameWithNamespace + "::ReflectRegisterCallback); " << NEW_LINE;
+		file << NEW_LINE;
+
 		file << "template<>" << NEW_LINE;
 		file << "class Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">\n{" << NEW_LINE;
 		file << "public:" << NEW_LINE;
@@ -57,6 +61,10 @@ namespace Reflect::CodeGeneration
 		file << "}\n" << NEW_LINE;
 		file << "Reflect::ReflectTypeInfo " + GetTypeName(data)  + "::GetTypeInfo()\n{" << NEW_LINE;
 		file << "\treturn Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(this);" << NEW_LINE;
+		file << "}\n" << NEW_LINE;
+
+		file << "Reflect::ReflectTypeInfo " + GetTypeName(data) + "::ReflectRegisterCallback(void* objectInstance)\n{" << NEW_LINE;
+		file << "\treturn " + GetTypeName(data) + "::GetStaticTypeInfo(static_cast<" + GetTypeName(data) + "*>(objectInstance)); " << NEW_LINE;
 		file << "}\n" << NEW_LINE;
 	}
 

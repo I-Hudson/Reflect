@@ -191,7 +191,8 @@ namespace Reflect
 	//-------------------------------------
 	// ReflectTypeInfo
 	//-------------------------------------
-	ReflectTypeInfo::ReflectTypeInfo(void* owner_class, std::unique_ptr<ReflectType> info
+	ReflectTypeInfo::ReflectTypeInfo(void* owner_class
+		, std::unique_ptr<ReflectType> info
 		, std::vector<std::unique_ptr<ReflectTypeInfo>> inheritances
 		, std::vector<std::unique_ptr<ReflectTypeMember>> members
 		, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)
@@ -201,6 +202,11 @@ namespace Reflect
 		, m_members(std::move(members))
 		, m_functions(std::move(functions))
 	{ }
+
+	ReflectTypeId ReflectTypeInfo::GetTypeId() const
+	{
+		return m_typeId;
+	}
 
 	ReflectType* ReflectTypeInfo::GetInfo() const
 	{
@@ -323,6 +329,60 @@ namespace Reflect
 		}
 
 		return nullptr;
+	}
+
+
+	//-------------------------------------
+	// ReflectTypeInfoRegisty
+	//-------------------------------------
+	ReflectTypeInfoRegisty::ReflectTypeInfoRegisty()
+	{
+	}
+
+	ReflectTypeInfoRegisty::~ReflectTypeInfoRegisty()
+	{
+		std::lock_guard lock(Instance().m_registyLock);
+		Instance().m_registy.clear();
+	}
+
+	void ReflectTypeInfoRegisty::RegisterTypeInfo(ReflectTypeId typeId, CreateTypeInfoFunc createTypeInfoFunc)
+	{
+		//std::lock_guard lock(s_registyLock);
+
+		if (auto iter = Instance().m_registy.find(typeId);
+			iter != Instance().m_registy.end())
+		{
+			return;
+		}
+		Instance().m_registy[typeId] = createTypeInfoFunc;
+	}
+
+	void ReflectTypeInfoRegisty::UnregisterTypeInfo(ReflectTypeId typeId)
+	{
+		std::lock_guard lock(Instance().m_registyLock);
+
+		if (auto iter = Instance().m_registy.find(typeId);
+			iter != Instance().m_registy.end())
+		{
+			Instance().m_registy.erase(typeId);
+		}
+
+	}
+
+	ReflectTypeInfo ReflectTypeInfoRegisty::GetTypeInfo(const ReflectTypeId& typeId)
+	{
+		return GetTypeInfo(typeId, nullptr);
+	}
+
+	ReflectTypeInfo ReflectTypeInfoRegisty::GetTypeInfo(const ReflectTypeId& typeId, void* objectInstance)
+	{
+		std::lock_guard lock(Instance().m_registyLock);
+		if (auto iter = Instance().m_registy.find(typeId);
+			iter != Instance().m_registy.end())
+		{
+			return iter->second(objectInstance);
+		}
+		return ReflectTypeInfo(nullptr, {}, {}, {}, {});
 	}
 #endif
 }

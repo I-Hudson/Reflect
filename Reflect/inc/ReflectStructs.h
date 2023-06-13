@@ -3,8 +3,13 @@
 #include "Core/Defines.h"
 #include "Core/Enums.h"
 #include "Core/Util.h"
+
+#include "TypeId.h"
+
 #include <vector>
 #include <memory>
+#include <unordered_map>
+#include <mutex>
 
 struct ReflectFunction;
 struct ReflectMember;
@@ -353,7 +358,8 @@ namespace Reflect
 		using ConstructFunc = void* (*)();
 
 	public:
-		ReflectTypeInfo(void* owner_class, std::unique_ptr<ReflectType> info
+		ReflectTypeInfo(void* owner_class
+			, std::unique_ptr<ReflectType> info
 			, std::vector<std::unique_ptr<ReflectTypeInfo>> inheritances
 			, std::vector<std::unique_ptr<ReflectTypeMember>> members
 			, std::vector<std::unique_ptr<ReflectTypeFunction>> functions);
@@ -384,6 +390,7 @@ namespace Reflect
 			return *this;
 		}
 
+		ReflectTypeId GetTypeId() const;
 		/// @brief Return type info.
 		/// @return ReflectType*
 		ReflectType* GetInfo() const;
@@ -418,6 +425,8 @@ namespace Reflect
 		ReflectTypeFunction* GetFunction(const char* functionName, bool includeBaseClasses) const;
 
 	private:
+		ReflectTypeId m_typeId;
+
 		/// @breif Pointer to an instance of which this TypeInfo is made from. This will be nullptr if no instance pointer is given.
 		void* m_owner_class = nullptr;
 
@@ -437,6 +446,7 @@ namespace Reflect
 		template<typename>
 		friend class GenerateTypeInfoForType;
 	};
+	using TypeInfo = ReflectTypeInfo;
 
 	/// @brief Template for generating a type's info. Must have a specialisation for each type.
 	template<typename T>
@@ -450,18 +460,57 @@ namespace Reflect
 		}
 	};
 
-	template<class T>
-	struct movable_il {
-		mutable T t;
-		operator T() const&& { return std::move(t); }
-		movable_il(T&& in) : t(std::move(in)) {}
+	/// @brief Store all registered reflect type info structs.
+	class ReflectTypeInfoRegisty
+	{
+	public:
+		using CreateTypeInfoFunc = ReflectTypeInfo(*)(void* objectInstance);
+
+		ReflectTypeInfoRegisty();
+		~ReflectTypeInfoRegisty();
+
+		static void RegisterTypeInfo(ReflectTypeId typeId, CreateTypeInfoFunc createTypeInfoFunc);
+		static void UnregisterTypeInfo(ReflectTypeId typeId);
+
+		static ReflectTypeInfo GetTypeInfo(const ReflectTypeId& typeId);
+		static ReflectTypeInfo GetTypeInfo(const ReflectTypeId& typeId, void* objectInstance);
+		template<typename T>
+		static ReflectTypeInfo GetTypeInfo()
+		{
+			static_assert(std::is_base_of_v<IReflect, T>);
+			return GetTypeInfo(T::GetReflectTypeId());
+		}
+
+	//private:
+		static ReflectTypeInfoRegisty& Instance()
+		{
+			static ReflectTypeInfoRegisty instance;
+			return instance;
+		}
+
+	private:
+		std::mutex m_registyLock;
+		std::unordered_map<ReflectTypeId, CreateTypeInfoFunc> m_registy;
 	};
 
-	template<class T, class A = std::allocator<T>>
-	std::vector<T, A> vector_from_il(std::initializer_list< movable_il<T> > il) {
-		std::vector<T, A> r(std::make_move_iterator(il.begin()), std::make_move_iterator(il.end()));
-		return r;
-	}
+	/// @brief Allow for a type to be registered when the constructor is called,
+	/// and un registered when the destructor is called.
+	struct ReflectTypeInfoRegister
+	{
+		ReflectTypeId m_typeId;
+		ReflectTypeInfoRegister(){ }
+
+		ReflectTypeInfoRegister(const char* typeName, ReflectTypeInfoRegisty::CreateTypeInfoFunc createTypeInfoFunc)
+		{
+			m_typeId = ReflectTypeId(typeName);
+			ReflectTypeInfoRegisty::RegisterTypeInfo(m_typeId, createTypeInfoFunc);
+		}
+
+		~ReflectTypeInfoRegister()
+		{
+			ReflectTypeInfoRegisty::UnregisterTypeInfo(m_typeId);
+		}
+	};
 
 #else 
 	struct ReflectMemberProp
@@ -602,7 +651,8 @@ namespace Reflect
 
 	struct REFLECT_API IReflect
 	{
-#ifndef REFLECT_TYPE_INFO_ENABLED
+#ifdef REFLECT_TYPE_INFO_ENABLED
+#else
 		IReflect() { InitialiseMembers(); }
 
 		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr); };

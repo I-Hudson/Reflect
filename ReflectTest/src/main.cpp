@@ -121,9 +121,22 @@ TEST_CASE("Legacy property inheritance")
 #endif
 
 #ifdef REFLECT_TYPE_INFO_ENABLED
+TEST_CASE("TypeInfo registy")
+{
+	ClassHolder classHolder;
+	Reflect::ReflectTypeInfoRegisty& registy = Reflect::ReflectTypeInfoRegisty::Instance();
+	{
+		Player player;
+
+	}
+}
+
 TEST_CASE("Get type info no owner")
 {
 	Player player;
+	ClassHolder classHolder;
+	Player::GetStaticTypeInfo(&classHolder);
+
 	Reflect::ReflectTypeInfo typeinfo = Player::GetStaticTypeInfo();
 	CHECK(!typeinfo.GetInfo()->GetTypeName().empty());
 }
