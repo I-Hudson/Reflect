@@ -69,6 +69,8 @@ namespace Reflect
 		virtual void Copy_s(void* src, void* dst, size_t dst_size) const = 0;
 
 	protected:
+		ReflectTypeId m_typeId;
+
 		std::size_t m_typeSize;
 		std::size_t m_valueTypeSize;
 
@@ -169,7 +171,6 @@ namespace Reflect
 				Copy(src, dst);
 			}
 		}
-
 	};
 
 	template<>
@@ -358,7 +359,8 @@ namespace Reflect
 		using ConstructFunc = void* (*)();
 
 	public:
-		ReflectTypeInfo(void* owner_class
+		ReflectTypeInfo(ReflectTypeId typeId
+			, void* owner_class
 			, std::unique_ptr<ReflectType> info
 			, std::vector<std::unique_ptr<ReflectTypeInfo>> inheritances
 			, std::vector<std::unique_ptr<ReflectTypeMember>> members
@@ -461,7 +463,7 @@ namespace Reflect
 	};
 
 	/// @brief Store all registered reflect type info structs.
-	class ReflectTypeInfoRegisty
+	class REFLECT_API ReflectTypeInfoRegisty
 	{
 	public:
 		using CreateTypeInfoFunc = ReflectTypeInfo(*)(void* objectInstance);
@@ -495,7 +497,7 @@ namespace Reflect
 
 	/// @brief Allow for a type to be registered when the constructor is called,
 	/// and un registered when the destructor is called.
-	struct ReflectTypeInfoRegister
+	struct REFLECT_API ReflectTypeInfoRegister
 	{
 		ReflectTypeId m_typeId;
 		ReflectTypeInfoRegister(){ }

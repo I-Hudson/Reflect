@@ -36,7 +36,9 @@ namespace Reflect::CodeGeneration
 		file << "\t\tstd::vector<std::unique_ptr<::Reflect::ReflectType>> " << data.Name << "_InheritanceTypes;" << NEW_LINE;
 		file << NEW_LINE << NEW_LINE;
 
-		file << "\t\tReflectTypeInfo reflect_type_info = ReflectTypeInfo(ownerClass," << NEW_LINE;
+		file << "\t\tReflectTypeInfo reflect_type_info = ReflectTypeInfo(" << NEW_LINE;
+		file << "\t\t\tReflectTypeId(\"" << data.NameWithNamespace << "\"), " << NEW_LINE;
+		file << "\t\t\townerClass, " << NEW_LINE;
 		file << "\t\t\tstd::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(GetTypeName(data)) << ">";
 		file << CG_Utils::WriteReflectTypeCPPParentheses(data.ReflectType, data.ReflectValueType, data.TypeInheritance, data.Name) << ", " << NEW_LINE;
 		file << "\t\t\tstd::move(inheritances), " << NEW_LINE;

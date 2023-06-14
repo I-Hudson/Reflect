@@ -191,12 +191,14 @@ namespace Reflect
 	//-------------------------------------
 	// ReflectTypeInfo
 	//-------------------------------------
-	ReflectTypeInfo::ReflectTypeInfo(void* owner_class
+	ReflectTypeInfo::ReflectTypeInfo(ReflectTypeId typeId
+		, void* owner_class
 		, std::unique_ptr<ReflectType> info
 		, std::vector<std::unique_ptr<ReflectTypeInfo>> inheritances
 		, std::vector<std::unique_ptr<ReflectTypeMember>> members
 		, std::vector<std::unique_ptr<ReflectTypeFunction>> functions)
-		: m_owner_class(owner_class)
+		: m_typeId(std::move(typeId))
+		, m_owner_class(owner_class)
 		, m_info(std::move(info))
 		, m_inheritances(std::move(inheritances))
 		, m_members(std::move(members))
@@ -382,7 +384,7 @@ namespace Reflect
 		{
 			return iter->second(objectInstance);
 		}
-		return ReflectTypeInfo(nullptr, {}, {}, {}, {});
+		return ReflectTypeInfo(ReflectTypeId(""), nullptr, {}, {}, {}, {});
 	}
 #endif
 }
