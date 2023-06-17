@@ -1,4 +1,4 @@
-#include "TypeId.h"
+#include "Structs/TypeId.h"
 
 #ifdef REFLECT_TYPE_INFO_ENABLED
 namespace Reflect
@@ -43,6 +43,43 @@ namespace Reflect
 	}
 
 	uint64_t ReflectTypeId::GetTypeHash() const
+	{
+		return m_hash;
+	}
+
+	//-------------------------
+	// TypeId
+	//-------------------------
+	TypeId::TypeId()
+	{
+	}
+
+	TypeId::TypeId(std::string_view typeName)
+		: m_typeName(typeName)
+		, m_hash(std::hash<std::string>()(m_typeName))
+	{
+	}
+
+	TypeId::~TypeId()
+	{
+	}
+
+	TypeId::operator bool() const
+	{
+		return IsValid();
+	}
+
+	bool TypeId::IsValid() const
+	{
+		return !m_typeName.empty() && m_hash != 0;
+	}
+
+	std::string_view TypeId::GetTypeName() const
+	{
+		return m_typeName;
+	}
+
+	uint64_t TypeId::GetHash() const
 	{
 		return m_hash;
 	}

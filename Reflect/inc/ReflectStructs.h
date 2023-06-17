@@ -4,7 +4,7 @@
 #include "Core/Enums.h"
 #include "Core/Util.h"
 
-#include "TypeId.h"
+#include "Structs/TypeId.h"
 
 #include <vector>
 #include <memory>
@@ -16,6 +16,22 @@ struct ReflectMember;
 
 namespace Reflect
 {
+#pragma region NEW_STRUCTS
+
+	struct MemberInfo
+	{
+	};
+
+	struct FunctionInfo
+	{
+	};
+
+	struct TypeInfo
+	{
+
+	};
+#pragma endregion
+
 	struct ReflectType
 	{
 		bool operator!=(const ReflectType& other)
@@ -448,7 +464,6 @@ namespace Reflect
 		template<typename>
 		friend class GenerateTypeInfoForType;
 	};
-	using TypeInfo = ReflectTypeInfo;
 
 	/// @brief Template for generating a type's info. Must have a specialisation for each type.
 	template<typename T>

@@ -28,17 +28,44 @@ namespace Reflect
 		std::string m_typeName;
 		uint64_t m_hash = 0;
 	};
-	using TypeId = ReflectTypeId;
+
+	/// @brief A TypeId is a struct used as a unique identifier of a type.
+	struct TypeId
+	{
+	public:
+		TypeId();
+		TypeId(std::string_view typeName);
+		~TypeId();
+
+		operator bool() const;
+
+		bool IsValid() const;
+		std::string_view GetTypeName() const;
+		uint64_t GetHash() const;
+
+	private:
+		std::string m_typeName;
+		uint64_t m_hash = 0;
+	};
 }
 
 namespace std
 {
 	template<>
-	struct hash<Reflect::TypeId>
+	struct hash<Reflect::ReflectTypeId>
 	{
 		std::size_t operator()(const Reflect::ReflectTypeId& typeId) const noexcept
 		{
 			return typeId.GetTypeHash();
+		}
+	};
+
+	template<>
+	struct hash<Reflect::TypeId>
+	{
+		std::size_t operator()(const Reflect::TypeId& typeId) const noexcept
+		{
+			return typeId.GetHash();
 		}
 	};
 }
