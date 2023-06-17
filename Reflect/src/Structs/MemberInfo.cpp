@@ -2,16 +2,7 @@
 
 namespace Reflect
 {
-
     MemberInfo::MemberInfo()
-    { }
-
-    MemberInfo::MemberInfo(Type type, EReflectValueType valueType, EReflectValueModifier modiferType, uint64_t offset)
-        : MemberInfo(std::move(type)
-        , valueType
-        , modiferType
-        ,  offset
-        , nullptr)
     { }
 
     MemberInfo::MemberInfo(Type type, EReflectValueType valueType, EReflectValueModifier modiferType, uint64_t offset, void* objectInstance)
@@ -48,18 +39,13 @@ namespace Reflect
 
     void* MemberInfo::GetMemberPointer() const
     {
-        return GetMemberPointer(m_objectInstance);
-    }
-
-    void* MemberInfo::GetMemberPointer(void* objectInstance) const
-    {
-        if (!objectInstance)
+        if (!m_objectInstance)
         {
             return nullptr;
         }
 
-        void* memberPtr = (unsigned char*)objectInstance + m_memberOffset;
+        unsigned char* objectInstance = (unsigned char*)m_objectInstance;
+        void* memberPtr = objectInstance + m_memberOffset;
         return memberPtr;
     }
-
 }

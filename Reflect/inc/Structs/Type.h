@@ -22,8 +22,16 @@ namespace Reflect
         template<typename T>
         static Type MakeType()
         {
-            Type type(Util::GetTypeName<T>(), sizeof(T));
-            return type;
+            if constexpr (std::is_void_v<T>)
+            {
+                Type type("void", 0);
+                return type;
+            }
+            else
+            {
+                Type type(Util::GetTypeName<T>(), sizeof(T));
+                return type;
+            }
         }
 
         operator bool() const;

@@ -6,11 +6,10 @@ namespace Reflect
 {
     /// @brief A MemberInfo is a representation of a member variable which has been reflected 
     /// on a class/struct.
-    class MemberInfo
+    class REFLECT_API MemberInfo
     {
     public:
         MemberInfo();
-        MemberInfo(Type type, EReflectValueType valueType, EReflectValueModifier modiferType, uint64_t offset);
         MemberInfo(Type type, EReflectValueType valueType, EReflectValueModifier modiferType, uint64_t offset, void* objectInstance);
         ~MemberInfo();
 
@@ -21,7 +20,16 @@ namespace Reflect
         EReflectValueModifier GetModifierType() const;
 
         void* GetMemberPointer() const;
-        void* GetMemberPointer(void* objectInstance) const;
+        template<typename T>
+        T* GetMemberPointer() const
+        {
+            void* memberPtr = GetMemberPointer();
+            if (!memberPtr)
+            {
+                return nullptr;
+            }
+            return static_cast<T*>(memberPtr);
+        }
 
     private:
         /// @brief The type of the member.
