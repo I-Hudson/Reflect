@@ -37,9 +37,16 @@ namespace Reflect
 		TypeId(std::string_view typeName);
 		~TypeId();
 
-		operator bool() const;
+		template<typename T>
+		static TypeId MakeTypeId()
+		{
+			TypeId typeId(Util::GetValueTypeName<T>());
+			return typeId;
+		}
 
+		operator bool() const;
 		bool IsValid() const;
+
 		std::string_view GetTypeName() const;
 		uint64_t GetHash() const;
 

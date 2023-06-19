@@ -29,7 +29,7 @@ namespace Reflect
             }
             else
             {
-                Type type(Util::GetTypeName<T>(), sizeof(T));
+                Type type(Util::GetValueTypeName<T>(), sizeof(T));
                 return type;
             }
         }
@@ -37,7 +37,7 @@ namespace Reflect
         operator bool() const;
         bool IsValid() const;
 
-        const TypeId& GetTypeId() const;
+        TypeId GetTypeId() const;
 
         /// @brief Return TypeName with namespaces.
         /// @return std::string_view

@@ -27,7 +27,7 @@ namespace Reflect
         return m_typeId.IsValid();
     }
 
-    const TypeId& Type::GetTypeId() const
+    TypeId Type::GetTypeId() const
     {
         return m_typeId;
     }
