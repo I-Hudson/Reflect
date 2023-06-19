@@ -10,3 +10,10 @@
 
 #include "Instrumentor.h"
 #include "ReflectStructs.h"
+
+#include "Structs/TypeId.h"
+#include "Structs/Type.h"
+#include "Structs/MemberInfo.h"
+#include "Structs/FunctionInfo.h"
+#include "Structs/TypeInfo.h"
+#include "Structs/TypeInfoRegistry.h"

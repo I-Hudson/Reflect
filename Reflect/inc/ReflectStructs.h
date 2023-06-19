@@ -17,22 +17,6 @@ struct ReflectMember;
 
 namespace Reflect
 {
-#pragma region NEW_STRUCTS
-
-	struct MemberInfo
-	{
-	};
-
-	struct FunctionInfo
-	{
-	};
-
-	struct TypeInfo
-	{
-
-	};
-#pragma endregion
-
 	struct ReflectType
 	{
 		bool operator!=(const ReflectType& other)

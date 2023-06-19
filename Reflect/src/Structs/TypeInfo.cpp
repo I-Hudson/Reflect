@@ -21,6 +21,17 @@ namespace Reflect
     {
     }
 
+    TypeInfo::operator bool() const
+    {
+        return IsValid();
+    }
+
+    bool TypeInfo::IsValid() const
+    {
+        return m_type.IsValid()
+            && m_objectInstance != nullptr;
+    }
+
     TypeId TypeInfo::GetTypeId() const
     {
         return m_type.GetTypeId();

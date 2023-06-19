@@ -22,31 +22,34 @@ namespace Reflect::CodeGeneration
 	void CG_CPP_TypeInfo::WriteGenerateTypeInfo(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
-		file << "Reflect::ReflectTypeInfoRegister " + GetTypeName(data) + "::s_ReflectTypeInfoRegister";
-		file << " = Reflect::ReflectTypeInfoRegister(\"" + data.NameWithNamespace + "\", " + data.NameWithNamespace + "::ReflectRegisterCallback); " << NEW_LINE;
+
+		file << "namespace Reflect" << NEW_LINE;
+		file << "{" << NEW_LINE;
+
+
+		file << "TypeInfoRegister " + GetTypeName(data) + "::s_TypeInfoRegister";
+		file << " = TypeInfoRegister(\"" + data.NameWithNamespace + "\", " + data.NameWithNamespace + "::ReflectRegisterCallback); " << NEW_LINE;
 		file << NEW_LINE;
 
 		file << "template<>" << NEW_LINE;
-		file << "class Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">\n{" << NEW_LINE;
+		file << "class GenerateTypeInfoForType<" + GetTypeName(data) + ">\n{" << NEW_LINE;
 		file << "public:" << NEW_LINE;
-		file << "\tReflect::ReflectTypeInfo GetTypeInfo(" + GetTypeName(data) + "* ownerClass)\n\t{" << NEW_LINE;
-		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeInfo>> inheritances = GenerateInheritance(ownerClass);" << NEW_LINE;
-		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> functions = GenerateFunctions(ownerClass);" << NEW_LINE;
-		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> members = GenerateMembers(ownerClass);" << NEW_LINE;
-		file << "\t\tstd::vector<std::unique_ptr<::Reflect::ReflectType>> " << data.Name << "_InheritanceTypes;" << NEW_LINE;
+		file << "\tTypeInfo GetTypeInfo(" + GetTypeName(data) + "* ownerClass)\n\t{" << NEW_LINE;
+		file << "\t\tstd::vector<TypeInfo> parentTypeInfos = GenerateParentTypeInfos(ownerClass);" << NEW_LINE;
+		file << "\t\tstd::vector<FunctionInfo> functionInfos = GenerateFunctionInfos(ownerClass);" << NEW_LINE;
+		file << "\t\tstd::vector<MemberInfo> memberInfos = GenerateMemberInfos(ownerClass);" << NEW_LINE;
+		file << "\t\tstd::vector<Type> " << data.Name << "_InheritanceTypes;" << NEW_LINE;
 		file << NEW_LINE << NEW_LINE;
 
-		file << "\t\tReflectTypeInfo reflect_type_info = ReflectTypeInfo(" << NEW_LINE;
-		file << "\t\t\tReflectTypeId(\"" << data.NameWithNamespace << "\"), " << NEW_LINE;
+		file << "\t\tTypeInfo typeInfo = TypeInfo(" << NEW_LINE;
+		file << "\t\t\tType::MakeType<" << data.NameWithNamespace << ">(), " << NEW_LINE;
 		file << "\t\t\townerClass, " << NEW_LINE;
-		file << "\t\t\tstd::make_unique<" << CG_Utils::WriteReflectTypeCPPDeclare(GetTypeName(data)) << ">";
-		file << CG_Utils::WriteReflectTypeCPPParentheses(data.ReflectType, data.ReflectValueType, data.TypeInheritance, data.Name) << ", " << NEW_LINE;
-		file << "\t\t\tstd::move(inheritances), " << NEW_LINE;
-		file << "\t\t\tstd::move(members), " << NEW_LINE;
-		file << "\t\t\tstd::move(functions));" << NEW_LINE;
-		file << "\t\treflect_type_info.m_construct_func = [](){ return static_cast<void*>(new " + GetTypeName(data) + "); }; " << NEW_LINE;
-		file << "\t\treturn reflect_type_info; " << NEW_LINE;
+		file << "\t\t\tstd::move(parentTypeInfos), " << NEW_LINE;
+		file << "\t\t\tstd::move(functionInfos), " << NEW_LINE;
+		file << "\t\t\tstd::move(memberInfos), " << NEW_LINE;
+		file << "\t\treturn typeInfo; " << NEW_LINE;
 		file << "\t}" << NEW_LINE;
+
 		file << "private:\n";
 
 		WriteGenerateTypeInheritance(data, file, additionalOptions);
@@ -55,26 +58,28 @@ namespace Reflect::CodeGeneration
 
 		file << "};\n" << NEW_LINE;
 
-		file << "Reflect::ReflectTypeInfo " + GetTypeName(data)  + "::GetStaticTypeInfo()\n{" << NEW_LINE;
-		file << "\treturn Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(nullptr);" << NEW_LINE;
+		file << "ReflectTypeInfo " + GetTypeName(data)  + "::GetStaticTypeInfo()\n{" << NEW_LINE;
+		file << "\treturn GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(nullptr);" << NEW_LINE;
 		file << "}\n" << NEW_LINE;
-		file << "Reflect::ReflectTypeInfo " + GetTypeName(data) + "::GetStaticTypeInfo(" + GetTypeName(data) + "* ownerPointer)\n{" << NEW_LINE;
-		file << "\treturn Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(ownerPointer);" << NEW_LINE;
+		file << "ReflectTypeInfo " + GetTypeName(data) + "::GetStaticTypeInfo(" + GetTypeName(data) + "* ownerPointer)\n{" << NEW_LINE;
+		file << "\treturn GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(ownerPointer);" << NEW_LINE;
 		file << "}\n" << NEW_LINE;
-		file << "Reflect::ReflectTypeInfo " + GetTypeName(data)  + "::GetTypeInfo()\n{" << NEW_LINE;
-		file << "\treturn Reflect::GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(this);" << NEW_LINE;
+		file << "ReflectTypeInfo " + GetTypeName(data)  + "::GetTypeInfo()\n{" << NEW_LINE;
+		file << "\treturn GenerateTypeInfoForType<" + GetTypeName(data) + ">().GetTypeInfo(this);" << NEW_LINE;
 		file << "}\n" << NEW_LINE;
 
-		file << "Reflect::ReflectTypeInfo " + GetTypeName(data) + "::ReflectRegisterCallback(void* objectInstance)\n{" << NEW_LINE;
+		file << "ReflectTypeInfo " + GetTypeName(data) + "::ReflectRegisterCallback(void* objectInstance)\n{" << NEW_LINE;
 		file << "\treturn " + GetTypeName(data) + "::GetStaticTypeInfo(static_cast<" + GetTypeName(data) + "*>(objectInstance)); " << NEW_LINE;
 		file << "}\n" << NEW_LINE;
+
+		file << "}" << NEW_LINE;
 	}
 
 	void CG_CPP_TypeInfo::WriteGenerateTypeInheritance(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
-		file << "\tstd::vector<std::unique_ptr<Reflect::ReflectTypeInfo>> GenerateInheritance(" + GetTypeName(data) + "* ownerClass)\n\t{" << NEW_LINE;
-		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeInfo>> inheritances;\n" << NEW_LINE;
+		file << "\tstd::vector<TypeInfo> GenerateParentTypeInfos(" + GetTypeName(data) + "* ownerClass)\n\t{" << NEW_LINE;
+		file << "\t\tstd::vector<TypeInfo> parentTypeInfos;\n" << NEW_LINE;
 
 		for (const auto& item : data.Inheritance)
 		{
@@ -86,20 +91,72 @@ namespace Reflect::CodeGeneration
 			//file << TAB << TAB << "assert(" + item.Name + "_pointer);" << NEW_LINE;
 			file << TAB << TAB << "if(" + item.Name + "_pointer != nullptr)" << NEW_LINE;
 			file << TAB << TAB << "{" << NEW_LINE;
-			file << TAB << TAB << TAB << "inheritances.push_back(std::make_unique<Reflect::ReflectTypeInfo>(" + item.NameWithNamespace + "::GetStaticTypeInfo(" + item.Name + "_pointer)));" << NEW_LINE;
+			file << TAB << TAB << TAB << "parentTypeInfos.push_back(" + item.NameWithNamespace + "::GetStaticTypeInfo(" + item.Name + "_pointer)));" << NEW_LINE;
 			file << TAB << TAB << "}" << NEW_LINE;
 		}
 
 		file << NEW_LINE;
-		file << "\t\treturn inheritances;" << NEW_LINE;
+		file << "\t\treturn parentTypeInfos;" << NEW_LINE;
+		file << "\t}" << NEW_LINE;
+	}
+
+	void CG_CPP_TypeInfo::WriteGenerateTypeFunctions(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
+	{
+		REFLECT_PROFILE_FUNCTION();
+		auto generateFunctionArgs = [&data]()->std::string
+		{
+			auto generateSingleArg = [&data](const Parser::ReflectTypeNameData& arg) -> std::string
+			{
+				
+				std::string str;
+				str += "Type::MakeType<" + arg.RawType + ">()";
+				return str;
+			};
+
+			std::string str;
+
+			for (const auto& func : data.Functions)
+			{
+				str += "\t\tstd::vector<Type> " + func.Name + "_Args;" + NEW_LINE;
+				for (const auto& arg : func.Parameters)
+				{
+					str += "\t\t" + func.Name + "_Args.emplace_back(" + generateSingleArg(arg) + ");" + NEW_LINE;
+				}
+			}
+			return str;
+		};
+
+		auto generateSingleFunction = [&data, this](const Parser::ReflectFunctionData& func) -> std::string
+		{
+			std::string str;
+			str += "FunctionInfo";
+			str += "(Type::MakeType<" + func.Type + ">(), ";
+			str += "\"" + func.Name + "\"" + ", ";
+			str += "std::move(" + func.Name + "_Args))";
+			str += "std::move(" + func.Name + "_Flags))";
+			str += GetTypeName(data) + "::__REFLECT_FUNC__" + func.Name + ", ";
+			str += "ownerClass, ";
+			return str;
+		};
+
+		file << "\tstd::vector<FunctionInfo> GenerateFunctionInfos(" + GetTypeName(data)  + "* ownerClass)\n\t{" << NEW_LINE;
+
+		file << generateFunctionArgs() + NEW_LINE;
+
+		file << "\t\tstd::vector<FunctionInfo> functionInfos;" << NEW_LINE;
+		for (const auto& f : data.Functions)
+		{
+			file << "\t\functionInfos.push_back(" + generateSingleFunction(f) + ");" << NEW_LINE;
+		}
+		file << "\t\treturn functionInfos;" << NEW_LINE;
 		file << "\t}" << NEW_LINE;
 	}
 
 	void CG_CPP_TypeInfo::WriteGenerateTypeMembers(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
 	{
 		REFLECT_PROFILE_FUNCTION();
-		file << "\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> GenerateMembers(" + GetTypeName(data)  + "* ownerClass)\n\t{" << NEW_LINE;
-		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeMember>> members;\n" << NEW_LINE;
+		file << "\tstd::vector<MemberInfo> GenerateMemberInfos(" + GetTypeName(data)  + "* ownerClass)\n\t{" << NEW_LINE;
+		file << "\t\tstd::vector<MemberInfo> memberInfos;\n" << NEW_LINE;
 		file << "\t\tstd::vector<std::unique_ptr<::Reflect::ReflectType>> inheritanceTypes;\n";
 		file << "\t\tstd::vector<std::string> flags;\n" << NEW_LINE;
 
@@ -164,59 +221,7 @@ namespace Reflect::CodeGeneration
 			TAB_N(blockBracketIndent);
 			file << "}\n\n";
 		}
-		file << "\t\treturn members;" << NEW_LINE;
-		file << "\t}" << NEW_LINE;
-	}
-
-	void CG_CPP_TypeInfo::WriteGenerateTypeFunctions(const Parser::ReflectContainerData& data, std::ofstream& file, const ReflectAddtionalOptions* additionalOptions)
-	{
-		REFLECT_PROFILE_FUNCTION();
-		auto generateFunctionArgs = [&data]()->std::string
-		{
-			auto generateSingleArg = [&data](const Parser::ReflectTypeNameData& arg) -> std::string
-			{
-				std::string str;
-				str += std::string("std::make_unique<") += CG_Utils::WriteReflectTypeCPPDeclare(arg.RawType) += ">";
-				str += CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Parameter, arg.ReflectValueType, arg.TypeInheritance, arg.Name);
-				return str;
-			};
-
-			std::string str;
-
-			for (const auto& func : data.Functions)
-			{
-				str += "\t\tstd::vector<std::unique_ptr<ReflectType>> " + func.Name + "_Args;" + NEW_LINE;
-				for (const auto& arg : func.Parameters)
-				{
-					str += "\t\t" + func.Name + "_Args.emplace_back(" + generateSingleArg(arg) + ");" + NEW_LINE;
-				}
-			}
-			return str;
-		};
-
-		auto generateSingleFunction = [&data, this](const Parser::ReflectFunctionData& func) -> std::string
-		{
-			std::string str;
-			str += "std::make_unique<Reflect::ReflectTypeFunction>";
-			str += "((void*)ownerClass, ";
-			str += "\"" + func.Name + "\"" + ", ";
-			str += GetTypeName(data) + "::__REFLECT_FUNC__" + func.Name + ", ";
-			str += std::string("std::make_unique<") += CG_Utils::WriteReflectTypeCPPDeclare(func.Type) += ">";
-			str += CG_Utils::WriteReflectTypeCPPParentheses(EReflectType::Function, func.ReflectValueType, func.TypeInheritance, func.Name) += ", ";
-			str += "std::move(" + func.Name + "_Args))";
-			return str;
-		};
-
-		file << "\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> GenerateFunctions(" + GetTypeName(data)  + "* ownerClass)\n\t{" << NEW_LINE;
-
-		file << generateFunctionArgs() + NEW_LINE;
-
-		file << "\t\tstd::vector<std::unique_ptr<Reflect::ReflectTypeFunction>> funcs;" << NEW_LINE;
-		for (const auto& f : data.Functions)
-		{
-			file << "\t\tfuncs.push_back(" + generateSingleFunction(f) + ");" << NEW_LINE;
-		}
-		file << "\t\treturn funcs;" << NEW_LINE;
+		file << "\t\treturn memberInfos;" << NEW_LINE;
 		file << "\t}" << NEW_LINE;
 	}
 

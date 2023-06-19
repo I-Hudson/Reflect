@@ -13,6 +13,9 @@ namespace Reflect
         TypeInfo(Type type, void* objectInstance, std::vector<TypeInfo> parentInfos, std::vector<MemberInfo> memberInfos, std::vector<FunctionInfo> functionInfos);
         ~TypeInfo();
 
+        operator bool() const;
+        bool IsValid() const;
+
         TypeId GetTypeId() const;
         Type GetType() const;
 
