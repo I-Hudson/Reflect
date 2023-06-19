@@ -137,7 +137,7 @@ namespace Reflect::CodeGeneration
 		WRITE_PRIVATE;
 		for (const auto& func : data.Functions)
 		{
-			file << "\tstatic Reflect::EReflectReturnCode __REFLECT_FUNC__" + func.Name + "(void* objectPtr, void* returnValuePtr, Reflect::FunctionPtrArgs& functionArgs)" + NEW_LINE_SLASH;
+			file << "\tstatic Reflect::EReflectReturnCode __REFLECT_FUNC__" + func.Name + "(void* objectPtr, void* returnValuePtr, Reflect::FunctionInfoArgs& functionArgs)" + NEW_LINE_SLASH;
 			file << "\t{" << NEW_LINE_SLASH;;
 			int functionArgIndex = 0;
 			for (const auto& arg : func.Parameters)
