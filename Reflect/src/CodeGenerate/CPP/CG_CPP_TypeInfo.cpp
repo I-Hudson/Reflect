@@ -89,14 +89,10 @@ namespace Reflect::CodeGeneration
 				continue;
 			}
 			file << TAB << TAB << item.NameWithNamespace + "* " + item.Name + "_pointer = dynamic_cast<" + item.NameWithNamespace + "*>(objectInstance);" << NEW_LINE;
-			//file << TAB << TAB << "assert(" + item.Name + "_pointer);" << NEW_LINE;
-			file << TAB << TAB << "if(" + item.Name + "_pointer != nullptr)" << NEW_LINE;
-			file << TAB << TAB << "{" << NEW_LINE;
 			file << TAB << TAB << TAB << "parentTypeInfos.push_back(" + item.NameWithNamespace + "::GetStaticTypeInfo(" + item.Name + "_pointer));" << NEW_LINE;
-			file << TAB << TAB << "}" << NEW_LINE;
+			file << NEW_LINE;
 		}
 
-		file << NEW_LINE;
 		file << "\t\treturn parentTypeInfos;" << NEW_LINE;
 		file << "\t}" << NEW_LINE;
 	}
@@ -158,8 +154,8 @@ namespace Reflect::CodeGeneration
 
 		file << "\tstd::vector<FunctionInfo> GenerateFunctionInfos(" + GetTypeName(data)  + "* objectInstance)\n\t{" << NEW_LINE;
 
-		file << generateFunctionArgs() << NEW_LINE;
-		file << generateFunctionFlags() << NEW_LINE;
+		file << generateFunctionArgs();
+		file << generateFunctionFlags();
 
 		file << "\t\tstd::vector<FunctionInfo> functionInfos;" << NEW_LINE;
 		for (const auto& f : data.Functions)

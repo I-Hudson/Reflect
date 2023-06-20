@@ -46,12 +46,12 @@ namespace Reflect
         return false;
     }
 
-    TypeInfo TypeInfoRegistry::GetTypeInfo(const TypeId& typeId) const
+    TypeInfo TypeInfoRegistry::GetTypeInfo(const TypeId& typeId)
     {
         return GetTypeInfo(typeId, nullptr);
     }
 
-    TypeInfo TypeInfoRegistry::GetTypeInfo(const TypeId& typeId, void* objectInstance) const
+    TypeInfo TypeInfoRegistry::GetTypeInfo(const TypeId& typeId, void* objectInstance)
     {
         std::lock_guard typeInfosLock(Instance().m_registryLock);
         for (const auto& [typeTypeId, createFunc] : Instance().m_registry)

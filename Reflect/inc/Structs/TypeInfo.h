@@ -6,7 +6,7 @@
 namespace Reflect
 {
     /// @brief 
-    class TypeInfo
+    class REFLECT_API TypeInfo
     {
     public:
         TypeInfo();

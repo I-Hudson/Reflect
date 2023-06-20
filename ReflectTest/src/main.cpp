@@ -185,6 +185,12 @@ TEST_CASE("Type info get base class")
 	Reflect::TypeInfo classETypeinfo = classE.GetTypeInfo();
 	ClassHolder classHolder;
 	Reflect::TypeInfo classHolderTypeinfo = classHolder.GetTypeInfo();
+
+	Reflect::MemberInfo classEMemberInfo = classHolderTypeinfo.GetMemberInfo("ClassEObject");
+	Reflect::TypeInfo classETypeInfo = Reflect::TypeInfoRegistry::GetTypeInfo(classEMemberInfo.GetTypeId(), &classHolder);
+	CHECK(classETypeInfo);
+	CHECK(classETypeInfo.IsValid());
+	CHECK(classETypeInfo.IsDerivedFrom<ClassToRefectA>());
 	//typeinfo.GetInfo().in
 }
 

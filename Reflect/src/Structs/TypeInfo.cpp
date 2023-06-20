@@ -44,9 +44,20 @@ namespace Reflect
 
     bool TypeInfo::IsDerivedFrom(const TypeId& typeId) const
     {
+        // First check if any direct parent is of typeId. THis is in the hope that
+        // we don't need to go through all out parent checking.
         for (const TypeInfo& info : m_parentTypeInfos)
         {
             if (info.GetTypeId() == typeId) 
+            {
+                return true;
+            }
+        }
+
+        // Check if our parent is derived from typeId.
+        for (const TypeInfo& info : m_parentTypeInfos)
+        {
+            if (info.IsDerivedFrom(typeId))
             {
                 return true;
             }

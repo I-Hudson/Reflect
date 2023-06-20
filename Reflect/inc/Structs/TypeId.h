@@ -46,6 +46,9 @@ namespace Reflect
 
 		operator bool() const;
 		bool IsValid() const;
+		
+		bool operator==(const TypeId& other) const;
+		bool operator!=(const TypeId& other) const;
 
 		std::string_view GetTypeName() const;
 		uint64_t GetHash() const;

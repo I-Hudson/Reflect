@@ -7,7 +7,7 @@
 
 namespace Reflect
 {
-    class TypeInfoRegistry
+    class REFLECT_API TypeInfoRegistry
     {
     public:
         using CreateTypeInfoFunc = TypeInfo(*)(void* objectInstance);
@@ -26,8 +26,8 @@ namespace Reflect
 
         bool HasTypeInfo(const TypeId& typeId) const;
 
-        TypeInfo GetTypeInfo(const TypeId& typeId) const;
-        TypeInfo GetTypeInfo(const TypeId& typeId, void* objectInstance) const;
+        static TypeInfo GetTypeInfo(const TypeId& typeId);
+        static TypeInfo GetTypeInfo(const TypeId& typeId, void* objectInstance);
         template<typename T>
         static TypeInfo GetTypeInfo()
         {

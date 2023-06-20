@@ -74,6 +74,16 @@ namespace Reflect
 		return !m_typeName.empty() && m_hash != 0;
 	}
 
+	bool TypeId::operator==(const TypeId& other) const
+	{
+		return m_hash == other.m_hash;
+	}
+
+	bool TypeId::operator!=(const TypeId& other) const
+	{
+		return !(*this == other);
+	}
+
 	std::string_view TypeId::GetTypeName() const
 	{
 		return m_typeName;
