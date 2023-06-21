@@ -17,6 +17,16 @@ namespace Reflect
     {
     }
 
+    bool Type::operator==(const Type& other) const
+    {
+        return m_typeId == other.m_typeId;
+    }
+
+    bool Type::operator!=(const Type& other) const
+    {
+        return !(*this == other);
+    }
+
     Type::operator bool() const
     {
         return IsValid();

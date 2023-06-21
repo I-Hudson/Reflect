@@ -34,6 +34,9 @@ namespace Reflect
             }
         }
 
+        bool operator==(const Type& other) const;
+        bool operator!=(const Type& other) const;
+
         operator bool() const;
         bool IsValid() const;
 
