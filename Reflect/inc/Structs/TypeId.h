@@ -30,7 +30,7 @@ namespace Reflect
 	};
 
 	/// @brief A TypeId is a struct used as a unique identifier of a type.
-	struct TypeId
+	struct REFLECT_API TypeId
 	{
 	public:
 		TypeId();
