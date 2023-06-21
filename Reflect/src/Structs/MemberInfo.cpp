@@ -30,7 +30,6 @@ namespace Reflect
     {
         return m_type.IsValid()
             && !m_memberName.empty()
-            && m_memberOffset != 0ull
             && m_objectInstance != nullptr;
     }
 

@@ -41,7 +41,7 @@ namespace Reflect::CodeGeneration
 		file << NEW_LINE << NEW_LINE;
 
 		file << "\t\tTypeInfo typeInfo = TypeInfo(" << NEW_LINE;
-		file << "\t\t\tType::MakeType<" << data.NameWithNamespace << ">(), " << NEW_LINE;
+		file << "\t\t\tType::MakeType<::" << data.NameWithNamespace << ">(), " << NEW_LINE;
 		file << "\t\t\tobjectInstance, " << NEW_LINE;
 		file << "\t\t\tstd::move(parentTypeInfos), " << NEW_LINE;
 		file << "\t\t\tstd::move(memberInfos), " << NEW_LINE;
@@ -106,7 +106,14 @@ namespace Reflect::CodeGeneration
 			{
 				
 				std::string str;
-				str += "Type::MakeType<" + arg.RawType + ">()";
+				if (arg.NameWithNamespace.empty())
+				{
+					str += "Type::MakeType<" + arg.RawType + ">()";
+				}
+				else
+				{
+					str += "Type::MakeType<::" + arg.NameWithNamespace + ">()";
+				}
 				return str;
 			};
 
@@ -143,7 +150,14 @@ namespace Reflect::CodeGeneration
 		{
 			std::string str;
 			str += "FunctionInfo";
-			str += "(Type::MakeType<" + func.Type + ">(), ";
+			if (func.NameWithNamespace.empty())
+			{
+				str += "(Type::MakeType<" + func.Type + ">(), ";
+			}
+			else
+			{
+				str += "(Type::MakeType<::" + func.NameWithNamespace + ">(), ";
+			}
 			str += "\"" + func.Name + "\"" + ", ";
 			str += "std::move(" + func.Name + "_Args), ";
 			str += "std::move(" + func.Name + "_Flags), ";
@@ -213,7 +227,14 @@ namespace Reflect::CodeGeneration
 			file << "MemberInfo(" << NEW_LINE;
 
 			TAB_N(lineIndent + 1);
-			file << "Type::MakeType<" + member.Type + ">(), " << NEW_LINE;
+			if (member.NameWithNamespace.empty())
+			{
+				file << "Type::MakeType<" + member.Type + ">(), " << NEW_LINE;
+			}
+			else
+			{
+				file << "Type::MakeType<::" + member.NameWithNamespace + ">(), " << NEW_LINE;
+			}
 
 			TAB_N(lineIndent + 1);
 			file << "\"" + member.Name + "\"" + ", " << NEW_LINE;
