@@ -249,7 +249,7 @@ namespace Reflect::CodeGeneration
 			file << "flags, " << NEW_LINE;
 
 			TAB_N(lineIndent + 1);
-			file << std::to_string(member.Offset) +", " << NEW_LINE;
+			file << "offsetof(::" + data.NameWithNamespace + ", " + member.Name + "), " << NEW_LINE;
 
 			TAB_N(lineIndent + 1);
 			file << "objectInstance" << NEW_LINE;
