@@ -589,6 +589,7 @@ namespace Reflect::Parser
 		++fileData.Cursor;
 		if (!flag.empty())
 		{
+			Util::RemoveCharAll(flag, '"');
 			flags.push_back(flag);
 		}
 
