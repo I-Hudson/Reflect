@@ -1,6 +1,8 @@
 
 # Reflect
 
+TODO: update examples to match API changes.
+
 This goal of this project was to create something similar to Unreal Engine's header tool and to see how auto generated code could be done.
 
 ## Compilers 
