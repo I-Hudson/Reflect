@@ -14,6 +14,48 @@ namespace Reflect::Parser
 		bool IsReflected = false;
 
 		std::vector<ReflectInheritanceData> Inheritances;
+
+		bool InheritsFromType(std::string_view type) const
+		{
+			for (const ReflectInheritanceData& data : Inheritances)
+			{
+				if (data.Name == type)
+				{
+					return true;
+				}
+			}
+
+			for (const ReflectInheritanceData& data : Inheritances)
+			{
+				if (data.InheritsFromType(type))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		bool InheritsFromTypeWithNamespaces(std::string_view typeWithNamespaces) const
+		{
+			for (const ReflectInheritanceData& data : Inheritances)
+			{
+				if (data.NameWithNamespace == typeWithNamespaces)
+				{
+					return true;
+				}
+			}
+
+			for (const ReflectInheritanceData& data : Inheritances)
+			{
+				if (data.InheritsFromType(typeWithNamespaces))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
 	};
 
 	struct ReflectTypeNameData

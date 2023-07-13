@@ -655,6 +655,8 @@ namespace Reflect::Parser
 					{
 						inheritanceItem.IsReflected = false;
 					}
+
+					linkInheritanceFunc(inheritanceItem);
 				}
 
 				for (auto& member : reflectedData.Members)
