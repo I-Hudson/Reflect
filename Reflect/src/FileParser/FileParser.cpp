@@ -507,13 +507,20 @@ namespace Reflect::Parser
 		while (fileData.Cursor < reflectStart)
 		{
 			const uint64_t endIfIndex = fileData.Data.find("#endif", fileData.Cursor);
+			const uint64_t elseIfIndex = fileData.Data.find("#elif", fileData.Cursor);
+			const uint64_t elseIndex = fileData.Data.find("#else", fileData.Cursor);
+
 			const uint64_t ifDefIndex = fileData.Data.find("#ifdef", fileData.Cursor);
 			const uint64_t definedIndex = fileData.Data.find("defined(", fileData.Cursor);
 			const uint64_t firstIndex = std::min(ifDefIndex, definedIndex);
 			bool isIfDef = ifDefIndex < definedIndex;
 
-			if (endIfIndex < reflectStart
+			if ((endIfIndex < reflectStart
 				&& endIfIndex < firstIndex)
+				|| (elseIfIndex < reflectStart
+					&& elseIfIndex < firstIndex)
+				|| (elseIndex < reflectStart
+					&& elseIndex < firstIndex))
 			{
 				ifDefines.pop();
 			}

@@ -71,7 +71,7 @@ namespace Reflect::CodeGeneration
     {
         for (const std::string& define : data.IfDefines)
         {
-            file << "#endif\n";
+            file << "#endif" << '\n';
         }
     }
 

@@ -63,6 +63,7 @@ namespace Reflect::CodeGeneration
 			m_CGHeaderLegacy.WriteClosingMacro(file, CurrentFileId);
 #endif
 			file << CurrentFileId + "_FUNCTION_DECLARE" + NEW_LINE_SLASH;
+			file << NEW_LINE <<  NEW_LINE;
 			CG_Utils::WriteEndIfDefines(reflectData, file);
 			WRITE_CLOSE;
 		}
