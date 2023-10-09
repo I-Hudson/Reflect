@@ -1,5 +1,6 @@
 #include "CodeGenerate/CodeGenerateHeader.h"
 #include "CodeGenerate/CodeGenerate.h"
+#include "CodeGenerate/CG_Utils.h"
 
 #include "Core/Core.h"
 
@@ -44,6 +45,8 @@ namespace Reflect::CodeGeneration
 		REFLECT_PROFILE_FUNCTION();
 		for (const auto& reflectData : data.ReflectData)
 		{
+			CG_Utils::WriteIfDefines(reflectData, file);
+
 			const std::string CurrentFileId = GetCurrentFileID(reflectData.Name, data.FileName) + "_" + std::to_string(reflectData.ReflectGenerateBodyLine);
 
 #ifdef REFLECT_TYPE_INFO_ENABLED
@@ -60,6 +63,7 @@ namespace Reflect::CodeGeneration
 			m_CGHeaderLegacy.WriteClosingMacro(file, CurrentFileId);
 #endif
 			file << CurrentFileId + "_FUNCTION_DECLARE" + NEW_LINE_SLASH;
+			CG_Utils::WriteEndIfDefines(reflectData, file);
 			WRITE_CLOSE;
 		}
 

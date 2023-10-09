@@ -130,6 +130,7 @@ namespace Reflect::Parser
 		std::string PrettyName;
 		std::vector<ReflectInheritanceData> Inheritance;
 		std::vector<std::string> Namespaces;
+		std::vector<std::string> IfDefines;
 		EReflectType ReflectType;
 		int ReflectGenerateBodyLine;
 

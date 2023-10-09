@@ -1,5 +1,6 @@
 #include "CodeGenerate/CodeGenerateSource.h"
 #include "CodeGenerate/CodeGenerateHeader.h"
+#include "CodeGenerate/CG_Utils.h"
 
 #include "Core/Core.h"
 #include "Instrumentor.h"
@@ -28,11 +29,14 @@ namespace Reflect::CodeGeneration
 
 		for (auto& reflectData : data.ReflectData)
 		{
+			CG_Utils::WriteIfDefines(reflectData, file);
+
 #ifdef REFLECT_TYPE_INFO_ENABLED
 			m_CG_CPP_TypeInfo.Generate(reflectData, file, additionalOptions);
 #else
 			m_CG_CPP_Legacy.Generate(reflectData, file, additionalOptions);
 #endif
+			CG_Utils::WriteEndIfDefines(reflectData, file);
 		}
 	}
 

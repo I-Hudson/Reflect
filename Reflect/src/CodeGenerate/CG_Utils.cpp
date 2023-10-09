@@ -59,6 +59,22 @@ namespace Reflect::CodeGeneration
         return WriteReflectTypeCPP(parameterData.Type, EReflectType::Parameter, parameterData.ReflectValueType, parameterData.TypeInheritance, parameterData.Name);
     }
 
+    void CG_Utils::WriteIfDefines(const Parser::ReflectContainerData& data, std::ofstream& file)
+    {
+        for (std::string define : data.IfDefines)
+        {
+            file << define << '\n';
+        }
+    }
+
+    void CG_Utils::WriteEndIfDefines(const Parser::ReflectContainerData& data, std::ofstream& file)
+    {
+        for (const std::string& define : data.IfDefines)
+        {
+            file << "#endif\n";
+        }
+    }
+
     std::string CG_Utils::WriteReflectTypeCPP(std::string_view type, EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectInheritanceData>& inheritance, std::string_view name)
     {
         std::string str;

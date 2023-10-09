@@ -19,6 +19,9 @@ namespace Reflect::CodeGeneration
         static std::string WriteReflectTypeCPPFunction(Parser::ReflectFunctionData functionData);
         static std::string WriteReflectTypeCPPParameter(Parser::ReflectTypeNameData parameterData);
 
+        static void WriteIfDefines(const Parser::ReflectContainerData& data, std::ofstream& file);
+        static void WriteEndIfDefines(const Parser::ReflectContainerData& data, std::ofstream& file);
+
     private:
         static std::string WriteReflectTypeCPP(std::string_view type, EReflectType reflectType, EReflectValueType valueType, const std::vector<Parser::ReflectInheritanceData>& inheritance, std::string_view name);
     };

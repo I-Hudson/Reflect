@@ -52,6 +52,8 @@ namespace Reflect::Parser
 		std::vector<std::string> FindAllNamespaces(FileParsedData fileData, int reflectStart);
 		std::string FindPreviousNamespace(FileParsedData& fileData);
 
+		std::vector<std::string> FindAllIfDefines(FileParsedData fileData, int reflectStart);
+
 		int FindEndOfConatiner(const FileParsedData& fileData);
 		std::vector<std::string> ReflectFlags(FileParsedData& fileData);
 

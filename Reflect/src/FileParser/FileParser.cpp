@@ -180,6 +180,7 @@ namespace Reflect::Parser
 		Parser::ReflectContainerData containerData = {};
 
 		containerData.Namespaces = FindAllNamespaces(fileData, reflectStart);
+		containerData.IfDefines = FindAllIfDefines(fileData, reflectStart);
 
 		containerData.ReflectType = type;
 		fileData.Cursor = reflectStart + static_cast<int>(keyword.length()) + 1;
@@ -496,6 +497,58 @@ namespace Reflect::Parser
 			return namespaceName;
 		}
 		return "";
+	}
+
+	std::vector<std::string> FileParser::FindAllIfDefines(FileParsedData fileData, int reflectStart)
+	{
+		fileData.Cursor = 0;
+		std::stack<std::string> ifDefines;
+
+		while (fileData.Cursor < reflectStart)
+		{
+			const uint64_t endIfIndex = fileData.Data.find("#endif", fileData.Cursor);
+			const uint64_t ifDefIndex = fileData.Data.find("#ifdef", fileData.Cursor);
+			const uint64_t definedIndex = fileData.Data.find("defined(", fileData.Cursor);
+			const uint64_t firstIndex = std::min(ifDefIndex, definedIndex);
+			bool isIfDef = ifDefIndex < definedIndex;
+
+			if (endIfIndex < reflectStart
+				&& endIfIndex < firstIndex)
+			{
+				ifDefines.pop();
+			}
+
+			if (firstIndex > reflectStart)
+			{
+				// The #ifdef/#if defined is beyond our container.
+				break;
+			}
+
+			if (firstIndex == std::string::npos)
+			{
+				// There is no define here. Just exit.
+				break;
+			}
+
+			fileData.Cursor = firstIndex;
+
+			FindNextChar(fileData, '\n');
+			std::string define = fileData.Data.substr(firstIndex, fileData.Cursor - firstIndex);
+			if (definedIndex < ifDefIndex)
+			{
+				define = "#if " + define;
+			}
+			ifDefines.push(define);
+		}
+
+		std::vector<std::string> result;
+		while (!ifDefines.empty())
+		{
+			result.push_back(ifDefines.top());
+			ifDefines.pop();
+		}
+
+		return result;
 	}
 
 	int FileParser::FindEndOfConatiner(const FileParsedData& fileData)
