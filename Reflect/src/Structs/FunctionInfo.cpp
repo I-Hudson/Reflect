@@ -154,4 +154,9 @@ namespace Reflect
     {
         return m_returnType == returnType;
     }
+
+    void FunctionInfo::SetObjectInstance(void* objectInstance)
+    {
+        m_objectInstance = objectInstance;
+    }
 }

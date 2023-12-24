@@ -155,4 +155,22 @@ namespace Reflect
     {
         return m_functionInfos;
     }
+
+    void TypeInfo::SetObjectInstance(void* objectInstance)
+    {
+        m_objectInstance = objectInstance;
+        for (TypeInfo& info : m_parentTypeInfos)
+        {
+            info.SetObjectInstance(objectInstance);
+        }
+
+        for (MemberInfo& info : m_memberInfos)
+        {
+            info.SetObjectInstance(objectInstance);
+        }
+        for (FunctionInfo& info : m_functionInfos)
+        {
+            info.SetObjectInstance(objectInstance);
+        }
+    }
 }

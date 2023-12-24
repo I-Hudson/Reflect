@@ -4,6 +4,8 @@
 
 namespace Reflect
 {
+    class TypeInfo;
+
     /// @brief A MemberInfo is a representation of a member variable which has been reflected 
     /// on a class/struct.
     class REFLECT_API MemberInfo
@@ -41,6 +43,9 @@ namespace Reflect
         }
 
     private:
+        void SetObjectInstance(void* objectInstance);
+
+    private:
         /// @brief The type of the member.
         Type m_type;
         std::string m_memberName;
@@ -56,5 +61,7 @@ namespace Reflect
         uint64_t m_memberOffset = 0;
         /// @brief The object instance, can be null and given later.
         void* m_objectInstance = nullptr;
+
+        friend TypeInfo;
     };
 }

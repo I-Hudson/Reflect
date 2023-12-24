@@ -5,9 +5,11 @@
 
 namespace Reflect
 {
+    class TypeInfo;
+
     /// <summary>
-/// Store arguments for a function ptr
-/// </summary>
+    /// Store arguments for a function ptr
+    /// </summary>
     struct REFLECT_API FunctionInfoArgs
     {
     public:
@@ -89,6 +91,8 @@ namespace Reflect
         bool VerifyArgs(const FunctionInfoArgs& functionArgs) const;
         bool CheckReturnType(const Type& returnType) const;
 
+        void SetObjectInstance(void* objectInstance);
+
     private:
         Type m_returnType;
         std::string m_functionName;
@@ -99,5 +103,7 @@ namespace Reflect
 
         void* m_objectInstance = nullptr;
         FunctionInfoPtr m_functionPtr = nullptr;
+
+        friend TypeInfo;
     };
 }

@@ -29,10 +29,12 @@ namespace Reflect::CodeGeneration
 
 		file << "namespace Reflect" << NEW_LINE;
 		file << "{" << NEW_LINE;
-
-		file << "static TypeInfo s_" << data.NameWithNamespace << ";";
 		file << NEW_LINE;
-		file << "static bool s_" << data.NameWithNamespace << "Initialised = false;";
+
+		file << "static TypeInfo s_" << data.Name << "TypeInfo;";
+		file << NEW_LINE;
+		file << "static bool s_" << data.Name << "Initialised = false;";
+		file << NEW_LINE;
 		file << NEW_LINE;
 
 		file << "template<>" << NEW_LINE;
@@ -40,27 +42,29 @@ namespace Reflect::CodeGeneration
 		file << "public:" << NEW_LINE;
 		file << "\tTypeInfo GetTypeInfo(" << GetTypeName(data) << "* objectInstance)\n\t{" << NEW_LINE;
 
-		TAB_N(2); file << "if (!s_" << data.NameWithNamespace << "Initialised)" << NEW_LINE;
+		TAB_N(2); file << "if (!s_" << data.Name << "Initialised)" << NEW_LINE;
 		TAB_N(2); file << "{" << NEW_LINE;
 
 		TAB_N(3); file << "std::vector<TypeInfo> parentTypeInfos = GenerateParentTypeInfos(objectInstance);" << NEW_LINE;
 		TAB_N(3); file << "std::vector<FunctionInfo> functionInfos = GenerateFunctionInfos(objectInstance);" << NEW_LINE;
 		TAB_N(3); file << "std::vector<MemberInfo> memberInfos = GenerateMemberInfos(objectInstance);" << NEW_LINE;
 		TAB_N(3); file << "std::vector<Type> " << data.Name << "_InheritanceTypes;" << NEW_LINE;
-		TAB_N(3); file << NEW_LINE << NEW_LINE;
+		TAB_N(3); file << NEW_LINE;
 				  
-		TAB_N(3); file << "TypeInfo typeInfo = TypeInfo(" << NEW_LINE;
+		TAB_N(3); file << "s_" << data.Name << "TypeInfo = TypeInfo(" << NEW_LINE;
 		TAB_N(4); file << "Type::MakeType<::" << data.NameWithNamespace << ">(), " << NEW_LINE;
 		TAB_N(4); file << "objectInstance, " << NEW_LINE;
 		TAB_N(4); file << "std::move(parentTypeInfos), " << NEW_LINE;
 		TAB_N(4); file << "std::move(memberInfos), " << NEW_LINE;
 		TAB_N(4); file << "std::move(functionInfos));" << NEW_LINE;
 
-		TAB_N(3); file << "s_" << data.NameWithNamespace << " = typeInfo;" << NEW_LINE;
+		TAB_N(3); file << "s_" << data.Name << "Initialised = true;" << NEW_LINE;
 		TAB_N(2); file << "}" << NEW_LINE;
+		file << NEW_LINE;
 
-
-		file << "\t\treturn s_ " << data.NameWithNamespace << ";" << NEW_LINE;
+		TAB_N(2);  file << "TypeInfo typeInfo = s_" << data.Name << "TypeInfo;" << NEW_LINE;
+		TAB_N(2);  file << "typeInfo.SetObjectInstance(objectInstance ? objectInstance : nullptr);" << NEW_LINE;
+		file << "\t\treturn typeInfo;" << NEW_LINE;
 		file << "\t};" << NEW_LINE;
 
 		file << "private:\n";

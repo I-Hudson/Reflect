@@ -93,6 +93,11 @@ namespace Reflect
         return m_flags;
     }
 
+    void MemberInfo::SetObjectInstance(void* objectInstance)
+    {
+        m_objectInstance = objectInstance;
+    }
+
     void* MemberInfo::GetMemberPointer() const
     {
         if (!m_objectInstance)

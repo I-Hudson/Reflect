@@ -40,6 +40,9 @@ namespace Reflect
         std::vector<FunctionInfo> GetFunctionInfos() const;
 
     private:
+        void SetObjectInstance(void* objectInstance);
+
+    private:
         Type m_type;
         void* m_objectInstance = nullptr;
 
