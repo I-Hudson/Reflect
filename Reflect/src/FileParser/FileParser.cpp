@@ -295,8 +295,11 @@ namespace Reflect::Parser
 		std::stack<char> bracketStack;
 		Parser::ReflectContainerData& conatinerData = fileData.ReflectData.back();
 
-		int generatedBodyLine = static_cast<int>(fileData.Data.find(Keys::ReflectGeneratedBodykey, fileData.GeneratedBodyLineOffset));
-		std::cout << "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a container.";
+		size_t generatedBodyLine = fileData.Data.find(Keys::ReflectGeneratedBodykey, fileData.GeneratedBodyLineOffset);
+		if (generatedBodyLine == std::string::npos)
+		{
+			std::cout << "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a'" << fileData.FileName << "'.\n";
+		}
 		//assert(generatedBodyLine != -1 && );
 		fileData.GeneratedBodyLineOffset = generatedBodyLine + static_cast<int>(strlen(Keys::ReflectGeneratedBodykey));
 		conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1;
