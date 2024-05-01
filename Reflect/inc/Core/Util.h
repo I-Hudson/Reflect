@@ -143,7 +143,10 @@ namespace Reflect
 			{
 				std::string subStr;
 				std::getline(ss, subStr, splitChar);
-				strings.push_back(subStr);
+				if (!subStr.empty())
+				{
+					strings.push_back(subStr);
+				}
 			}
 			return strings;
 		}

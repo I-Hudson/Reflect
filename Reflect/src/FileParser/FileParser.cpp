@@ -1337,6 +1337,29 @@ namespace Reflect::Parser
 				{
 					return &reflectedData;
 				}
+
+				std::vector<std::string> reflectDataSplit = Util::SplitString(reflectedData.NameWithNamespace, '::');
+				std::vector<std::string> containerNameSplit = Util::SplitString(std::string(containerName), '::');
+
+				std::reverse(reflectDataSplit.begin(), reflectDataSplit.end());
+				std::reverse(containerNameSplit.begin(), containerNameSplit.end());
+
+				const uint32_t endNamespaceIdx = std::min(containerNameSplit.size(), reflectDataSplit.size());
+				
+				bool foundReflectData = true;
+				for (uint32_t i = 0; i < endNamespaceIdx; ++i)
+				{
+					if (containerNameSplit[i] != reflectDataSplit[i])
+					{
+						foundReflectData = false;
+						break;
+					}
+				}
+
+				if (foundReflectData)
+				{
+					return &reflectedData;
+				}
 			}
 		}
 		return nullptr;
