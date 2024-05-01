@@ -84,6 +84,17 @@ namespace Reflect
                 return info;
             }
         }
+
+        for (size_t i = 0; i < m_parentTypeInfos.size(); ++i)
+        {
+            const TypeInfo& parentTypeInfo = m_parentTypeInfos[i];
+            if (MemberInfo parentMemberInfo = parentTypeInfo.GetMemberInfo(memberName);
+                parentMemberInfo.IsValid())
+            {
+                return parentMemberInfo;
+            }
+        }
+
         return MemberInfo();
     }
 
@@ -110,6 +121,14 @@ namespace Reflect
             }
             ++index;
         }
+
+        for (size_t i = 0; i < m_parentTypeInfos.size(); ++i)
+        {
+            const TypeInfo& parentTypeInfo = m_parentTypeInfos[i];
+            const std::vector<MemberInfo> parentMemberInfos = parentTypeInfo.GetMemberInfosWithFlags(flags);
+            std::move(parentMemberInfos.begin(), parentMemberInfos.end(), std::back_inserter(members));
+        }
+
         return members;
     }
 
@@ -122,6 +141,17 @@ namespace Reflect
                 return info;
             }
         }
+
+        for (size_t i = 0; i < m_parentTypeInfos.size(); ++i)
+        {
+            const TypeInfo& parentTypeInfo = m_parentTypeInfos[i];
+            if (FunctionInfo parentFunctionInfo = parentTypeInfo.GetFunctionInfo(functionName);
+                parentFunctionInfo.IsValid())
+            {
+                return parentFunctionInfo;
+            }
+        }
+
         return FunctionInfo();
     }
 
@@ -148,6 +178,14 @@ namespace Reflect
             }
             ++index;
         }
+
+        for (size_t i = 0; i < m_parentTypeInfos.size(); ++i)
+        {
+            const TypeInfo& parentTypeInfo = m_parentTypeInfos[i];
+            const std::vector<FunctionInfo> parentFunctionInfos = parentTypeInfo.GetFunctionInfosWithFlags(flags);
+            std::move(parentFunctionInfos.begin(), parentFunctionInfos.end(), std::back_inserter(functions));
+        }
+
         return functions;
     }
 
