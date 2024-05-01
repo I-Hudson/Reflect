@@ -72,7 +72,17 @@ namespace Reflect
 
     std::vector<MemberInfo> TypeInfo::GetMemberInfos() const
     {
-        return m_memberInfos;
+        std::vector<MemberInfo> members;
+        std::copy(m_memberInfos.begin(), m_memberInfos.end(), std::back_inserter(members));
+
+        for (size_t i = 0; i < m_parentTypeInfos.size(); ++i)
+        {
+            const TypeInfo& parentTypeInfo = m_parentTypeInfos[i];
+            const std::vector<MemberInfo> parentMemberInfos = parentTypeInfo.GetMemberInfos();
+            std::move(parentMemberInfos.begin(), parentMemberInfos.end(), std::back_inserter(members));
+        }
+
+        return members;
     }
 
     MemberInfo TypeInfo::GetMemberInfo(std::string_view memberName) const
@@ -191,7 +201,17 @@ namespace Reflect
 
     std::vector<FunctionInfo> TypeInfo::GetFunctionInfos() const
     {
-        return m_functionInfos;
+        std::vector<FunctionInfo> functions;
+        std::copy(m_functionInfos.begin(), m_functionInfos.end(), std::back_inserter(functions));
+
+        for (size_t i = 0; i < m_parentTypeInfos.size(); ++i)
+        {
+            const TypeInfo& parentTypeInfo = m_parentTypeInfos[i];
+            const std::vector<FunctionInfo> parentFunctionInfos = parentTypeInfo.GetFunctionInfos();
+            std::move(parentFunctionInfos.begin(), parentFunctionInfos.end(), std::back_inserter(functions));
+        }
+
+        return functions;
     }
 
     void TypeInfo::SetObjectInstance(void* objectInstance)
