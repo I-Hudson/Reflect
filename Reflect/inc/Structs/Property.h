@@ -31,6 +31,8 @@ namespace Reflect
         const std::vector<std::string>& GetFlags() const;
 
         PropertyType GetPropertyType() const;
+        PropertyMeta GetMeta(std::string_view propertyName) const;
+        const std::vector<PropertyMeta>& GetAllMetas() const;
 
     protected:
         /// @brief Define the member type or the function return type.

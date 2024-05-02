@@ -82,4 +82,22 @@ namespace Reflect
     {
         return m_propertyType;
     }
+
+    PropertyMeta Property::GetMeta(std::string_view propertyName) const
+    {
+        for (size_t i = 0; i < m_propertyMetas.size(); ++i)
+        {
+            const PropertyMeta& meta = m_propertyMetas[i];
+            if (meta.GetKey() == propertyName)
+            {
+                return meta;
+            }
+        }
+        return PropertyMeta("", "");
+    }
+
+    const std::vector<PropertyMeta>& Property::GetAllMetas() const
+    {
+        return m_propertyMetas;
+    }
 }

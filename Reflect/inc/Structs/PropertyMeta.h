@@ -14,6 +14,9 @@ namespace Reflect
     public:
         PropertyMeta(const char* key, const char* value);
 
+        operator bool() const;
+        bool IsValid() const;
+
         const char* GetKey() const
         {
             return m_key.c_str();
@@ -25,9 +28,8 @@ namespace Reflect
         }
 
         template<typename T
-        , std::enable_if_t<
+        , typename = std::enable_if_t<
             std::is_same_v<int, T> 
-            || std::is_same_v<int, T>
             || std::is_same_v<float, T>
             || std::is_same_v<std::string, T>>>
         T GetValue() const
