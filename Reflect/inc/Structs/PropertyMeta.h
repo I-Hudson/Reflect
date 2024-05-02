@@ -47,6 +47,7 @@ namespace Reflect
                 return m_value;
             }
             assert(false && "[PropertyMeta::GetValue<T>] Template T must be of a valid type.");
+            return "";
         }
 
     private:
