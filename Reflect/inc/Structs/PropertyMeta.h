@@ -38,16 +38,16 @@ namespace Reflect
             {
                 return std::stoi(m_value);
             }
-            else if constexpr (std::is_same_v<int, T>)
+            else if constexpr (std::is_same_v<float, T>)
             {
                 return std::stof(m_value);
             }
             else if constexpr (std::is_same_v<std::string, T>)
             {
-                return m_value;
+                return std::string(m_value);
             }
             assert(false && "[PropertyMeta::GetValue<T>] Template T must be of a valid type.");
-            return "";
+            return T();
         }
 
     private:
