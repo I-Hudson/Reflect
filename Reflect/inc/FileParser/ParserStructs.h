@@ -2,6 +2,8 @@
 
 #include "Core/Enums.h"
 
+#include "Structs/PropertyMeta.h"
+
 #include <string>
 #include <vector>
 
@@ -67,6 +69,7 @@ namespace Reflect::Parser
 		EReflectValueType ReflectValueType = EReflectValueType::Unknown;
 		EReflectValueModifier ReflectModifier = EReflectValueModifier::None;
 		std::vector<std::string> ContainerProps;
+		std::vector<PropertyMeta> PropertyMetas;
 
 		std::vector<ReflectInheritanceData> TypeInheritance;
 

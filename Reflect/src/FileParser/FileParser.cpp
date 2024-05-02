@@ -309,6 +309,8 @@ namespace Reflect::Parser
 		std::vector<std::string> reflectFlags;
 		while (true)
 		{
+			std::vector<PropertyMeta> reflectPropertyMetas;
+
 			if (CheckForEndOfFile(fileData, endOfContainerCursor))
 				break;
 
@@ -358,6 +360,7 @@ namespace Reflect::Parser
 					else if (word == Keys::ReflectPropertyKey)
 					{
 						// Get the flags for the property
+						reflectPropertyMetas = ReflectPropertyMetas(fileData);
 						reflectFlags = ReflectFlags(fileData);
 						continue;
 					}
@@ -375,6 +378,7 @@ namespace Reflect::Parser
 				if (refectType == EReflectType::Member)
 				{
 					conatinerData.Members.push_back(GetMember(fileData, reflectFlags));
+					conatinerData.Members.back().PropertyMetas = reflectPropertyMetas;
 				}
 				else if (refectType == EReflectType::Function)
 				{
@@ -384,6 +388,7 @@ namespace Reflect::Parser
 						if (!funcData.Name.empty())
 						{
 							conatinerData.Functions.push_back(funcData);
+							conatinerData.Functions.back().PropertyMetas = reflectPropertyMetas;
 						}
 					}
 				}
@@ -413,9 +418,11 @@ namespace Reflect::Parser
 				}
 				else
 				{
-				fileData.Cursor += (int)strlen(Keys::ReflectPropertyKey);
-				reflectFlags = ReflectFlags(fileData);
-				FindNextChar(fileData, generalEndChars);
+					fileData.Cursor += (int)strlen(Keys::ReflectPropertyKey);
+					reflectPropertyMetas = ReflectPropertyMetas(fileData);
+					reflectFlags = ReflectFlags(fileData);
+					//FindNextChar(fileData, generalEndChars);
+					MoveToEndOfScope(fileData, '(', ')');
 				}
 
 
@@ -616,7 +623,7 @@ namespace Reflect::Parser
 		return cursor;
 	}
 
-	std::vector<std::string> FileParser::ReflectFlags(FileParsedData& fileData)
+	std::vector<std::string> FileParser::ReflectFlags(FileParsedData fileData)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -657,6 +664,108 @@ namespace Reflect::Parser
 		}
 
 		return flags;
+	}
+
+	std::vector<PropertyMeta> FileParser::ReflectPropertyMetas(FileParsedData fileData)
+	{
+
+		REFLECT_PROFILE_FUNCTION();
+
+		std::string key;
+		std::string value;
+		std::vector<PropertyMeta> propertyMetas;
+
+		std::string scopeString;
+		{
+			int scope = 1;
+			assert(fileData.Data[fileData.Cursor] == '(');
+			++fileData.Cursor;
+
+			while (scope > 0)
+			{
+				char c = fileData.Data[fileData.Cursor];
+				if (c == '(')
+				{
+					++scope;
+					if (scope > 1)
+					{
+						scopeString += c;
+					}
+				}
+				else if (c == ')')
+				{
+					if (scope > 1)
+					{
+						scopeString += c;
+					}
+					--scope;
+				}
+				else
+				{
+					scopeString += c;
+				}
+				++fileData.Cursor;
+			}
+		}
+
+		Util::RemoveCharAll(scopeString, ' ');
+
+		if (const size_t metaIdx = scopeString.find(Keys::MetaPropertyKey); 
+			metaIdx != std::string::npos)
+		{
+			size_t idx = metaIdx;
+			idx += strlen(Keys::MetaPropertyKey);
+
+			assert(scopeString[idx] == '(');
+			++idx;
+			int metaScope = 1;
+			std::string metaScopeString;
+
+			while (metaScope > 0)
+			{
+				char c = scopeString[idx];
+				if (c == '(')
+				{
+					++metaScope;
+					if (metaScope > 1)
+					{
+						metaScopeString += c;
+					}
+				}
+				else if (c == ')')
+				{
+					if (metaScope > 1)
+					{
+						metaScopeString += c;
+					}
+					--metaScope;
+				}
+				else
+				{
+					metaScopeString += c;
+				}
+				++idx;
+			}
+
+			Util::RemoveCharAll(metaScopeString, ' ');
+
+			std::vector<std::string> metas = Util::SplitString(metaScopeString, ',');
+
+			for (size_t metaIdx = 0; metaIdx < metas.size(); ++metaIdx)
+			{
+				const std::string& meta = metas[metaIdx];
+				const size_t openBracket = meta.find('(');
+				const size_t closeBracket = meta.find(')');
+				assert(openBracket != std::string::npos && closeBracket != std::string::npos);
+
+				std::string key = meta.substr(0, openBracket);
+				std::string value = meta.substr(openBracket + 1, (closeBracket - openBracket) - 1);
+				PropertyMeta newPropertyMeta(key.c_str(), value.c_str());
+				propertyMetas.push_back(std::move(newPropertyMeta));
+			}
+		}
+
+		return propertyMetas;
 	}
 
 	void FileParser::ResolveNamespaces()
@@ -817,6 +926,26 @@ namespace Reflect::Parser
 		REFLECT_PROFILE_FUNCTION();
 		return view == Keys::ReflectGeneratedBodykey 
 			|| view == Keys::ReflectPropertyKey;
+	}
+
+	void FileParser::MoveToEndOfScope(FileParsedData& fileData, const char startScopeChar, const char endScopeChar) const
+	{
+		int scope = 1;
+		const size_t scopeStartIdx = fileData.Data.find(startScopeChar, fileData.Cursor) + 1;
+		fileData.Cursor = scopeStartIdx;
+		while (scope > 0)
+		{
+			const char c = fileData.Data[fileData.Cursor];
+			if (c == startScopeChar)
+			{
+				++scope;
+			}
+			else if (c == endScopeChar)
+			{
+				--scope;
+			}
+			++fileData.Cursor;
+		}
 	}
 
 	bool FileParser::CheckForTypeAlias(std::string_view view)
@@ -1088,6 +1217,13 @@ namespace Reflect::Parser
 			}
 			return cursor;
 		};
+
+		FileParsedData copy = data;
+		int scope = 0;
+		while (scope > 0)
+		{
+
+		}
 
 		int member_cursor = find_closest_char(memberStartChars);
 		int function_cursor = find_closest_char(functionStartChars);

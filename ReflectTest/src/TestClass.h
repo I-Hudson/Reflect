@@ -89,7 +89,7 @@ class ClassHolder : REFLECT_BASE
 {
 	REFLECT_GENERATED_BODY();
 
-	REFLECT_PROPERTY()
+	REFLECT_PROPERTY(Meta(ClampMin(0.0), ClampMax(1.0)))
 	ClassE ClassEObject;
 	REFLECT_PROPERTY()
 	ClassB ClassBObject;

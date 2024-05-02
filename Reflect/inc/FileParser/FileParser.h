@@ -3,6 +3,8 @@
 #include "Core/Defines.h"
 #include "ParserStructs.h"
 
+#include "Structs/PropertyMeta.h"
+
 #include <string>
 #include <fstream>
 #include <unordered_map>
@@ -55,7 +57,8 @@ namespace Reflect::Parser
 		std::vector<std::string> FindAllIfDefines(FileParsedData fileData, int reflectStart);
 
 		int FindEndOfConatiner(const FileParsedData& fileData);
-		std::vector<std::string> ReflectFlags(FileParsedData& fileData);
+		std::vector<std::string> ReflectFlags(FileParsedData fileData);
+		std::vector<PropertyMeta> ReflectPropertyMetas(FileParsedData fileData);
 
 		void ResolveNamespaces();
 		void LinkAllInheritances();
@@ -67,6 +70,8 @@ namespace Reflect::Parser
 		std::string FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars, bool reverse = false);
 		std::string FindNextWord(const FileParsedData& fileData, int& cursor, const std::vector<char>& endChars, bool reverse = false);
 		bool IsWordReflectKey(std::string_view view);
+
+		void MoveToEndOfScope(FileParsedData& fileData, const char startScopeChar, const char endScopeChar) const;
 
 		bool CheckForTypeAlias(std::string_view view);
 		bool CheckForVisibility(std::string_view view);

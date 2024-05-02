@@ -43,4 +43,6 @@ namespace Reflect::Keys
 	constexpr const char* FriendKey = "friend";
 
 	constexpr const char* Namespace = "namespace";
+
+	constexpr const char* MetaPropertyKey = "Meta";
 }
