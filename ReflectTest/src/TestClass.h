@@ -1,9 +1,10 @@
 #pragma once
 
+#define ENABLED
+
 #include "Reflect.h"
 #include "Generated/TestClass_reflect_generated.h"
 
-#define ENABLED
 #ifdef ENABLED
 
 REFLECT_CLASS()

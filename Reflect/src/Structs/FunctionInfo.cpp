@@ -9,85 +9,32 @@ namespace Reflect
     }
 
     FunctionInfo::FunctionInfo(Type returnType, std::string_view functionName, std::vector<Type> argumentTypes, std::vector<std::string> flags, FunctionInfoPtr functionPtr, void* objectInstance)
-        : m_returnType(std::move(returnType))
-        , m_functionName(functionName)
+        : Property(std::move(returnType), std::string(functionName), PropertyType::Function, std::move(flags), {}, objectInstance)
         , m_argumentTypes(std::move(argumentTypes))
-        , m_flags(std::move(flags))
         , m_functionPtr(functionPtr)
-        , m_objectInstance(objectInstance)
     {
     }
+
+    FunctionInfo::FunctionInfo(Type returnType, std::string_view functionName, std::vector<Type> argumentTypes, std::vector<std::string> flags, std::vector<PropertyMeta> propertyMetas, FunctionInfoPtr functionPtr, void* objectInstance)
+        : Property(std::move(returnType), std::string(functionName), PropertyType::Function, std::move(flags), {}, objectInstance)
+        , m_argumentTypes(std::move(argumentTypes))
+        , m_functionPtr(functionPtr)
+    { }
 
     FunctionInfo::~FunctionInfo()
     {
     }
 
-    FunctionInfo::operator bool() const
-    {
-        return IsValid();
-    }
 
     bool FunctionInfo::IsValid() const
     {
-        return m_returnType.IsValid()
-            && !m_functionName.empty()
-            && m_functionPtr != nullptr
-            && m_objectInstance != nullptr;
-    }
-
-    TypeId FunctionInfo::GetRetrunTypeId() const
-    {
-        return m_returnType.GetTypeId();
-    }
-
-    Type FunctionInfo::GetReturnType() const
-    {
-        return m_returnType;
-    }
-
-    std::string_view FunctionInfo::GetFunctionName() const
-    {
-        return m_functionName;
+        return Property::IsValid()
+            && m_functionPtr != nullptr;
     }
 
     const std::vector<Type>& FunctionInfo::GetArguementTypes() const
     {
         return m_argumentTypes;
-    }
-
-    bool FunctionInfo::HasFlag(std::string_view flag) const
-    {
-        for (const std::string& str : m_flags)
-        {
-            if (str == flag)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool FunctionInfo::HasAnyFlags(const std::vector<std::string>& flags) const
-    {
-        std::unordered_set<std::string_view> flagsSet;
-        for (const std::string& functionFlag : m_flags)
-        {
-            flagsSet.insert(functionFlag);
-        }
-
-        for (const std::string& flag : flags)
-        {
-            if (flagsSet.find(flag) != flagsSet.end())
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    const std::vector<std::string>& FunctionInfo::GetFlags() const
-    {
-        return m_flags;
     }
 
     EReflectReturnCode FunctionInfo::Invoke() const
@@ -152,7 +99,7 @@ namespace Reflect
 
     bool FunctionInfo::CheckReturnType(const Type& returnType) const
     {
-        return m_returnType == returnType;
+        return m_objectType == returnType;
     }
 
     void FunctionInfo::SetObjectInstance(void* objectInstance)

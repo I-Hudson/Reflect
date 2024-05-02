@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Structs/Type.h"
+#include "Structs/Property.h"
 #include "Structs/FunctionPtrArgs.h"
 
 namespace Reflect
@@ -55,25 +56,17 @@ namespace Reflect
     using FunctionInfoPtr = Reflect::EReflectReturnCode(*)(void* objectPtr, void* returnValue, FunctionInfoArgs& args);
 
     /// @brief A FunctionInfo is a representation of a function on a TypeInfo.
-    class REFLECT_API FunctionInfo
+    class REFLECT_API FunctionInfo : public Property
     {
     public:
         FunctionInfo();
         FunctionInfo(Type returnType, std::string_view functionName, std::vector<Type> argumentTypes, std::vector<std::string> flags, FunctionInfoPtr functionPtr, void* objectInstance);
+        FunctionInfo(Type returnType, std::string_view functionName, std::vector<Type> argumentTypes, std::vector<std::string> flags, std::vector<PropertyMeta> propertyMetas, FunctionInfoPtr functionPtr, void* objectInstance);
         ~FunctionInfo();
 
-        operator bool() const;
-        bool IsValid() const;
+        virtual bool IsValid() const override;
 
-        TypeId GetRetrunTypeId() const;
-        Type GetReturnType() const;
-
-        std::string_view GetFunctionName() const;
         const std::vector<Type>& GetArguementTypes() const;
-
-        bool HasFlag(std::string_view flag) const;
-        bool HasAnyFlags(const std::vector<std::string>& flags) const;
-        const std::vector<std::string>& GetFlags() const;
 
         EReflectReturnCode Invoke() const;
         EReflectReturnCode Invoke(const FunctionInfoArgs& args) const;
@@ -94,14 +87,8 @@ namespace Reflect
         void SetObjectInstance(void* objectInstance);
 
     private:
-        Type m_returnType;
-        std::string m_functionName;
-        std::vector<std::string> m_flags;
-
         /// @brief Function arguments in order.
         std::vector<Type> m_argumentTypes;
-
-        void* m_objectInstance = nullptr;
         FunctionInfoPtr m_functionPtr = nullptr;
 
         friend TypeInfo;

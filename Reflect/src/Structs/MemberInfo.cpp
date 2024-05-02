@@ -7,45 +7,27 @@ namespace Reflect
     MemberInfo::MemberInfo()
     { }
 
-    MemberInfo::MemberInfo(Type type, std::string memberName, EReflectValueType valueType, EReflectValueModifier modiferType, std::vector<std::string> flags, uint64_t offset, void* objectInstance)
-        : m_type(std::move(type))
-        , m_memberName(std::move(memberName))
+    MemberInfo::MemberInfo(Type type, std::string memberName, EReflectValueType valueType, 
+        EReflectValueModifier modiferType, std::vector<std::string> flags, uint64_t offset, 
+        void* objectInstance)
+        : Property(std::move(type), std::move(memberName), PropertyType::Member, std::move(flags), {}, objectInstance)
         , m_valueType(valueType)
         , m_modifierType(modiferType)
-        , m_flags(std::move(flags))
         , m_memberOffset(offset)
-        , m_objectInstance(objectInstance)
     { }
+
+    MemberInfo::MemberInfo(Type type, std::string memberName, EReflectValueType valueType, 
+        EReflectValueModifier modiferType, std::vector<std::string> flags, std::vector<PropertyMeta> propertyMetas, 
+        uint64_t offset, void* objectInstance)
+        : Property(std::move(type), std::move(memberName), PropertyType::Member, std::move(flags), std::move(propertyMetas), objectInstance)
+        , m_valueType(valueType)
+        , m_modifierType(modiferType)
+        , m_memberOffset(offset)
+    {
+    }
 
     MemberInfo::~MemberInfo()
     {
-    }
-
-    MemberInfo::operator bool() const
-    {
-        return IsValid();
-    }
-
-    bool MemberInfo::IsValid() const
-    {
-        return m_type.IsValid()
-            && !m_memberName.empty()
-            && m_objectInstance != nullptr;
-    }
-
-    TypeId MemberInfo::GetTypeId() const
-    {
-        return m_type.GetTypeId();
-    }
-
-    Type MemberInfo::GetType() const
-    {
-        return m_type;
-    }
-
-    std::string_view MemberInfo::GetMemberName() const
-    {
-        return m_memberName;
     }
 
     EReflectValueType MemberInfo::GetValueType() const
@@ -56,41 +38,6 @@ namespace Reflect
     EReflectValueModifier MemberInfo::GetModifierType() const
     {
         return m_modifierType;
-    }
-
-    bool MemberInfo::HasFlag(std::string_view flag) const
-    {
-        for (const std::string& str : m_flags)
-        {
-            if (str == flag)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool MemberInfo::HasAnyFlags(const std::vector<std::string>& flags) const
-    {
-        std::unordered_set<std::string_view> flagsSet;
-        for (const std::string& memberFlag : m_flags)
-        {
-            flagsSet.insert(memberFlag);
-        }
-
-        for (const std::string& flag : flags)
-        {
-            if (flagsSet.find(flag) != flagsSet.end())
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    const std::vector<std::string>& MemberInfo::GetFlags() const
-    {
-        return m_flags;
     }
 
     void MemberInfo::SetObjectInstance(void* objectInstance)

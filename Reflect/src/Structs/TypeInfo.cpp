@@ -89,7 +89,7 @@ namespace Reflect
     {
         for (const MemberInfo& info : m_memberInfos)
         {
-            if (info.GetMemberName() == memberName)
+            if (info.GetName() == memberName)
             {
                 return info;
             }
@@ -146,7 +146,7 @@ namespace Reflect
     {
         for (const FunctionInfo& info : m_functionInfos)
         {
-            if (info.GetFunctionName() == functionName)
+            if (info.GetName() == functionName)
             {
                 return info;
             }
