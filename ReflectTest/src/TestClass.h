@@ -12,7 +12,11 @@ class BaseClass : REFLECT_BASE
 {
 	REFLECT_GENERATED_BODY();
 
+	REFLECT_PROPERTY(Meta(DebugName(BaseClassGetName), ClampMax(1.0)))
 	std::string GetName() const { return "BaseClass"; }
+
+	REFLECT_PROPERTY(Meta(ClampMin(0.0), ClampMax(1.0)))
+	int TestInt;
 };
 
 REFLECT_CLASS()

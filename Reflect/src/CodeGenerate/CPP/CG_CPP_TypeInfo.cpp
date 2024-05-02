@@ -164,6 +164,21 @@ namespace Reflect::CodeGeneration
 				return str;
 			};
 
+		auto generateFunctionPropertyMetas = [&data]()->std::string
+			{
+				std::string str;
+				for (const auto& func : data.Functions)
+				{
+					str += "\t\tstd::vector<PropertyMeta> " + func.Name + "_PropertyMetas;" + NEW_LINE;
+					for (const auto& propertyMeta : func.PropertyMetas)
+					{
+						str += "\t\t" + func.Name + "_PropertyMetas.emplace_back(PropertyMeta(\"" + propertyMeta.GetKey() + "\", \"" + propertyMeta.GetValue() + "\"));" + NEW_LINE;
+					}
+					str += NEW_LINE;
+				}
+				return str;
+			};
+
 		auto generateSingleFunction = [&data, this](const Parser::ReflectFunctionData& func) -> std::string
 		{
 			std::string str;
@@ -179,6 +194,7 @@ namespace Reflect::CodeGeneration
 			str += "\"" + func.Name + "\"" + ", ";
 			str += "std::move(" + func.Name + "_Args), ";
 			str += "std::move(" + func.Name + "_Flags), ";
+			str += "std::move(" + func.Name + "_PropertyMetas), ";
 			str += GetTypeName(data) + "::__REFLECT_FUNC__" + func.Name + ", ";
 			str += "objectInstance";
 			return str;
@@ -188,6 +204,7 @@ namespace Reflect::CodeGeneration
 
 		file << generateFunctionArgs();
 		file << generateFunctionFlags();
+		file << generateFunctionPropertyMetas();
 
 		file << "\t\tstd::vector<FunctionInfo> functionInfos;" << NEW_LINE;
 		for (const auto& f : data.Functions)
@@ -204,6 +221,7 @@ namespace Reflect::CodeGeneration
 		file << "\tstd::vector<MemberInfo> GenerateMemberInfos(" + GetTypeName(data)  + "* objectInstance)\n\t{" << NEW_LINE;
 		file << "\t\tstd::vector<MemberInfo> memberInfos;\n" << NEW_LINE;
 		file << "\t\tstd::vector<std::string> flags;\n" << NEW_LINE;
+		file << "\t\tstd::vector<PropertyMeta> propertyMeta;\n" << NEW_LINE;
 
 		for (const auto& member : data.Members)
 		{
@@ -230,13 +248,22 @@ namespace Reflect::CodeGeneration
 
 			TAB_N(lineIndent);
 			file << "flags.clear();" << NEW_LINE;
+			TAB_N(lineIndent);
+			file << "propertyMeta.clear();" << NEW_LINE;
+			file << NEW_LINE;
 
-			int flagIndex = 0;
 			for (const auto& flag : member.ContainerProps)
 			{
 				TAB_N(lineIndent);
 				file << "flags.push_back(\"" + flag + "\");" << NEW_LINE;
 			}
+
+			for (const auto& propertyMeta : member.PropertyMetas)
+			{
+				TAB_N(lineIndent);
+				file << "propertyMeta.push_back(PropertyMeta(\"" << propertyMeta.GetKey() << "\", \"" << propertyMeta.GetValue() << "\"));" << NEW_LINE;
+			}
+			file << NEW_LINE;
 
 			TAB_N(lineIndent);
 			file << "memberInfos.emplace_back(\n";
@@ -265,6 +292,9 @@ namespace Reflect::CodeGeneration
 
 			TAB_N(lineIndent + 1);
 			file << "flags, " << NEW_LINE;
+
+			TAB_N(lineIndent + 1);
+			file << "propertyMeta, " << NEW_LINE;
 
 			TAB_N(lineIndent + 1);
 			file << "offsetof(::" + data.NameWithNamespace + ", " + member.Name + "), " << NEW_LINE;

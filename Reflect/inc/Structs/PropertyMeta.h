@@ -16,7 +16,7 @@ namespace Reflect
 
         const char* GetKey() const
         {
-            return m_value.c_str();
+            return m_key.c_str();
         }
 
         const char* GetValue() const

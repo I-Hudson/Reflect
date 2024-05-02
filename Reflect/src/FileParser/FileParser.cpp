@@ -183,7 +183,7 @@ namespace Reflect::Parser
 		containerData.IfDefines = FindAllIfDefines(fileData, reflectStart);
 
 		containerData.ReflectType = type;
-		fileData.Cursor = reflectStart + static_cast<int>(keyword.length()) + 1;
+		fileData.Cursor = reflectStart + static_cast<int>(keyword.length());
 		containerData.ContainerProps = ReflectFlags(fileData);
 
 		if (containerData.ReflectType == EReflectType::Class)
@@ -430,10 +430,12 @@ namespace Reflect::Parser
 				if (refectType == EReflectType::Member)
 				{
 					conatinerData.Members.push_back(GetMember(fileData, reflectFlags));
+					conatinerData.Members.back().PropertyMetas = reflectPropertyMetas;
 				}
 				else if (refectType == EReflectType::Function)
 				{
 					conatinerData.Functions.push_back(GetFunction(fileData, reflectFlags));
+					conatinerData.Functions.back().PropertyMetas = reflectPropertyMetas;
 				}
 			}
 
@@ -631,23 +633,38 @@ namespace Reflect::Parser
 		std::string flag;
 		std::vector<std::string> flags;
 
-		if (fileData.Data[fileData.Cursor] == '(')
-		{
-			++fileData.Cursor;
-		}
+		assert(fileData.Data[fileData.Cursor] == '(');
+		++fileData.Cursor;
 
-		while (fileData.Data[fileData.Cursor] != ')')
+		int scope = 1;
+		bool discardFlag = false;
+
+		while (scope > 0)
 		{
 			char c = fileData.Data[fileData.Cursor];
-			if (c == ',')
+			if (c == '(')
 			{
-				if (!flag.empty())
+				++scope;
+				discardFlag = true;
+			}
+			else if (c == ')')
+			{
+				--scope;
+				if (scope == 1)
+				{
+					discardFlag = false;
+					flag = "";
+				}
+			}
+			else if (c == ',')
+			{
+				if (!discardFlag && !flag.empty())
 				{
 					flags.push_back(flag);
 				}
 				flag = "";
 			}
-			else
+			else if (!discardFlag)
 			{
 				if (c != ' ' && c != '\t')
 				{
