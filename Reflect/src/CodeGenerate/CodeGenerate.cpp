@@ -41,6 +41,11 @@ namespace Reflect::CodeGeneration
 
 			for (const auto& data : parser.GetAllFileParsedData())
 			{
+				if (data.parserOptions.DoNotReflect
+				|| data.ReflectData.empty())
+				{
+					continue;
+				}
 				header.GenerateHeader(data, fileHeader, additionalOptions);
 				source.GenerateSource(data, fileCPP, additionalOptions);
 			}
@@ -68,7 +73,8 @@ namespace Reflect::CodeGeneration
 
 			for (const auto& data : parser.GetAllFileParsedData())
 			{
-				if (data.parserOptions.DoNotReflect)
+				if (data.parserOptions.DoNotReflect
+					|| data.ReflectData.empty())
 				{
 					continue;
 				}
