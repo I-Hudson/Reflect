@@ -62,6 +62,7 @@ namespace Reflect::Parser
 
 		void ResolveNamespaces();
 		void LinkAllInheritances();
+		void RemoveLookupOnlyContainers();
 
 		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars, bool reverse = false);
 		char FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars, bool reverse = false);

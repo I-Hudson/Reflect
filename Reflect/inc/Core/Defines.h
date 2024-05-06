@@ -17,3 +17,8 @@
 #else 
 #define REFLECT_API
 #endif
+
+// Only use a REFLECT_CLASS/REFLECT_STRUCT for the parser and do not generate
+// any additional reflected files for this object. Using this can improved the overall
+// reflected code.
+#define REFLECT_LOOKUP_ONLY "REFLECT_LOOKUP_ONLY"

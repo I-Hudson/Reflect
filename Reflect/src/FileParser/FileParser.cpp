@@ -1,6 +1,7 @@
 #include "FileParser/FileParser.h"
 #include "FileParser/FileParserKeyWords.h"
 
+#include "Core/Defines.h"
 #include "Core/Core.h"
 #include "Core/Util.h"
 #include "Instrumentor.h"
@@ -82,6 +83,7 @@ namespace Reflect::Parser
 
 		ResolveNamespaces();
 		LinkAllInheritances();
+		RemoveLookupOnlyContainers();
 	}
 
 	void FileParser::Clear()
@@ -867,6 +869,40 @@ namespace Reflect::Parser
 							linkInheritanceFunc(member.TypeInheritance.back());
 						}
 					}
+				}
+			}
+		}
+	}
+
+	void FileParser::RemoveLookupOnlyContainers()
+	{
+		for (size_t parsedDataIdx = 0; parsedDataIdx < m_filesParsed.size(); ++parsedDataIdx)
+		{
+			FileParsedData& parsedData = m_filesParsed[parsedDataIdx];
+			std::vector<const ReflectContainerData*> reflectDataToBeRemoved;
+			
+			for (size_t refecltDataIdx = 0; refecltDataIdx < parsedData.ReflectData.size(); ++refecltDataIdx)
+			{
+				const ReflectContainerData& reflectData = parsedData.ReflectData[refecltDataIdx];
+				if (auto iter = std::find(reflectData.ContainerProps.begin()
+					, reflectData.ContainerProps.end()
+					, REFLECT_LOOKUP_ONLY);
+					iter != reflectData.ContainerProps.end())
+				{
+					reflectDataToBeRemoved.push_back(&reflectData);
+				}
+			}
+
+			for (size_t refecltDataToRemoveIdx = 0; refecltDataToRemoveIdx < reflectDataToBeRemoved.size(); ++refecltDataToRemoveIdx)
+			{
+				const ReflectContainerData* removeData = reflectDataToBeRemoved[refecltDataToRemoveIdx];
+				auto removeIter = std::remove_if(parsedData.ReflectData.begin(), parsedData.ReflectData.end(), [&removeData](const ReflectContainerData& reflectData)
+					{
+						return removeData == &reflectData;
+					});
+				if (removeIter != parsedData.ReflectData.end())
+				{
+					parsedData.ReflectData.erase(removeIter);
 				}
 			}
 		}
