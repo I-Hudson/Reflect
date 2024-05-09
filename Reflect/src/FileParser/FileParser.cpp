@@ -425,6 +425,31 @@ namespace Reflect::Parser
 					reflectFlags = ReflectFlags(fileData);
 					//FindNextChar(fileData, generalEndChars);
 					MoveToEndOfScope(fileData, '(', ')');
+
+					// Check if 'REFLECT_PROPERTY' macro ends with a semi-colon.
+					while (fileData.Cursor < fileData.Data.size())
+					{
+						const char c = fileData.Data[fileData.Cursor];
+						if (c == ';')
+						{
+							++fileData.Cursor;
+							break;
+						}
+						else if (std::find(emptyChars.begin(), emptyChars.end(), c) == emptyChars.end())
+						{
+							break;
+						}
+
+						if (CheckForEndOfFile(fileData, endOfContainerCursor))
+						{
+							assert(false);
+							break;
+						}
+						else
+						{
+							++fileData.Cursor;
+						}
+					}
 				}
 
 
