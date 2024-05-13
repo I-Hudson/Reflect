@@ -1,17 +1,11 @@
 #pragma once
 
-#include "Reflect/Core/Defines.h"
 #include "Reflect/FileParser/FileParserKeyWords.h"
 #include "Reflect/Core/Enums.h"
-#include <string>
-#include <sstream>
-#include <algorithm>
-#include <typeinfo>
-#include <vector>
 
-#include <array>
-#include <cstddef>
-#include <cassert>
+#include <string>
+#include <algorithm>
+#include <vector>
 
 namespace Reflect
 {
@@ -137,17 +131,26 @@ namespace Reflect
 		static std::vector<std::string> SplitString(std::string str, char splitChar)
 		{
 			std::vector<std::string> strings;
-			std::stringstream ss(str);
-			str += '\n';
-			while (ss.good())
+			std::string temp;
+			temp.reserve(str.size());
+
+			for (size_t i = 0; i < str.size(); ++i)
 			{
-				std::string subStr;
-				std::getline(ss, subStr, splitChar);
-				if (!subStr.empty())
+				if (str[i] == splitChar)
 				{
-					strings.push_back(subStr);
+					strings.push_back(temp);
+					temp = "";
+				}
+				else
+				{
+					temp += str[i];
 				}
 			}
+			if (!temp.empty())
+			{
+				strings.push_back(temp);
+			}
+
 			return strings;
 		}
 

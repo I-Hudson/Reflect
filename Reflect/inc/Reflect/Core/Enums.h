@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Reflect/Core/Compiler.h"
 #include "Reflect/Core/Defines.h"
-#include <string>
 
 namespace Reflect 
 {
@@ -14,7 +12,7 @@ namespace Reflect
 		Public = 1 << 2,
 		Friend = 1 << 3,
 	};
-	REFLECT_API EReflectFlags StringToReflectFlags(const std::string& str);
+	REFLECT_API EReflectFlags StringToReflectFlags(const char* str);
 
 	enum class EReflectType
 	{
@@ -59,19 +57,5 @@ namespace Reflect
 		FUNCTION_INVALID_ARGS,
 		FUNCTION_INVALID_RETURN_TYPE,
 	};
-	REFLECT_API std::string ReflectReturnCodeToString(const EReflectReturnCode& code);
-}
-
-/// <summary>
-/// Dirty way of getting the enum string value.
-/// </summary>
-/// <typeparam name="E"></typeparam>
-/// <returns></returns>
-template <typename E, E> std::string EnumToString()
-{
-	std::string value = FUNC_SIG;
-	int startIndex = static_cast<int>(value.find_last_of(',')) + 1;
-	int endIndex = static_cast<int>(value.find_last_of('>'));
-	value = value.substr(startIndex, endIndex - startIndex);
-	return value;
+	REFLECT_API const char* ReflectReturnCodeToString(const EReflectReturnCode& code);
 }

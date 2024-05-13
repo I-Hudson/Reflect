@@ -4,15 +4,15 @@
 
 namespace Reflect
 {
-	EReflectFlags StringToReflectFlags(const std::string& str)
+	EReflectFlags StringToReflectFlags(const char* str)
 	{
-		if (Util::ToLower(str) == "private" || EnumToString<EReflectFlags, Private>() == str) return EReflectFlags::Private;
-		else if (Util::ToLower(str) == "public" || EnumToString<EReflectFlags, Public>() == str) return EReflectFlags::Public;
-		else if (Util::ToLower(str) == "friend" || EnumToString<EReflectFlags, Friend>() == str) return EReflectFlags::Friend;
+		if (Util::ToLower(str) == "private") return EReflectFlags::Private;
+		else if (Util::ToLower(str) == "public") return EReflectFlags::Public;
+		else if (Util::ToLower(str) == "friend") return EReflectFlags::Friend;
 		return EReflectFlags::Invalid;
 	}
 
-	std::string ReflectReturnCodeToString(const EReflectReturnCode& code)
+	const char* ReflectReturnCodeToString(const EReflectReturnCode& code)
 	{
 		switch (code)
 		{

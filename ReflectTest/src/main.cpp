@@ -124,7 +124,7 @@ TEST_CASE("Legacy property inheritance")
 TEST_CASE("TypeInfo registy")
 {
 	ClassHolder classHolder;
-	Reflect::ReflectTypeInfoRegisty& registy = Reflect::ReflectTypeInfoRegisty::Instance();
+	Reflect::TypeInfoRegistry& registy = Reflect::TypeInfoRegistry::Instance();
 	{
 		Player player;
 	}

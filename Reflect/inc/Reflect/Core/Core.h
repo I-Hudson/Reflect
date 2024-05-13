@@ -1,22 +1,10 @@
 #pragma once
 
 #include "Log.h"
+#include "Reflect/Core/Defines.h"
 #include <unordered_map>
 #include <string_view>
 
-
-#define REFLECT_PROPERTY(...)
-#define NO_REFLECT(x) x
-
-#define BODY_MACRO_COMBINE_INNER(A, B, C, D) A##B##C##D
-#define BODY_MACRO_COMBINE(A, B, C, D) BODY_MACRO_COMBINE_INNER(A, B, C, D)
-
-#ifdef REFLECT_SINGLE_FILE
-#define REFLECT_GENERATED_BODY(...) BODY_MACRO_COMBINE(__VA_ARGS__, _Source_h_, __LINE__, _GENERATED_BODY);
-#else
-#define REFLECT_GENERATED_BODY() BODY_MACRO_COMBINE(CURRENT_FILE_ID, _, __LINE__, _GENERATED_BODY);
-#endif
-#define REFLECT_CPP_INCLUDE(...)
 
 namespace Reflect
 {

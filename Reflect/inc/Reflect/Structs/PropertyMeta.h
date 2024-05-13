@@ -3,7 +3,6 @@
 #include "Reflect/Core/Defines.h"
 
 #include <string>
-#include <typeinfo>
 
 namespace Reflect
 {

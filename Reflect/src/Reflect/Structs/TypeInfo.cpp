@@ -1,6 +1,7 @@
 #include "Reflect/Structs/TypeInfo.h"
 
 #include <unordered_set>
+#include <iterator>
 
 namespace Reflect
 {

@@ -1,22 +1,27 @@
 #pragma once
 
+#if REFLECT_TYPE_INFO_ENABLED
 #include "Reflect/Core/Defines.h"
+#include "Reflect/Structs/TypeInfo.h"
+#else
 #include "Reflect/Core/Enums.h"
 #include "Reflect/Core/Util.h"
 
-#include "Reflect/Structs/TypeId.h"
-#include "Reflect/Structs/FunctionPtrArgs.h"
-
 #include <vector>
 #include <memory>
-#include <unordered_map>
-#include <mutex>
-
 struct ReflectFunction;
 struct ReflectMember;
+#endif
 
 namespace Reflect
 {
+#if REFLECT_TYPE_INFO_ENABLED
+	template<typename T>
+	class GenerateTypeInfoForType;
+
+	struct REFLECT_API IReflect
+	{ };
+#else
 	struct ReflectType
 	{
 		bool operator!=(const ReflectType& other)
@@ -209,14 +214,7 @@ namespace Reflect
 		{ }
 	};
 
-	
-
 	using FunctionPtr = Reflect::EReflectReturnCode(*)(void* objectPtr, void* returnValue, FunctionPtrArgs& args);
-
-
-#ifdef REFLECT_TYPE_INFO_ENABLED
-	template<typename T>
-	class GenerateTypeInfoForType;
 
 	class REFLECT_API ReflectTypeInfo;
 
@@ -471,7 +469,6 @@ namespace Reflect
 		}
 	};
 
-#else 
 	struct ReflectMemberProp
 	{
 		ReflectMemberProp(const char* name, ReflectType* typeCPP, size_t offset, std::vector<std::string> const& strProperties)
@@ -606,12 +603,8 @@ namespace Reflect
 		void* m_ptr;
 		int m_offset;
 	};
-#endif
-
 	struct REFLECT_API IReflect
 	{
-#ifdef REFLECT_TYPE_INFO_ENABLED
-#else
 		IReflect() { InitialiseMembers(); }
 
 		virtual ReflectFunction GetFunction(const char* functionName) { (void)functionName; return ReflectFunction(nullptr, nullptr); };
@@ -621,8 +614,8 @@ namespace Reflect
 
 	protected:
 		virtual void InitialiseMembers() { }
-#endif
 	};
+#endif
 }
 
 #define REFLECT_BASE public Reflect::IReflect

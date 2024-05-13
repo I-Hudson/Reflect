@@ -2,6 +2,8 @@
 
 namespace Reflect
 {
+#ifdef REFLECT_TYPE_INFO_ENABLED
+#else
 	std::vector<ReflectType*> ReflectType::GetInheritances() const
 	{
 		std::vector<ReflectType*> vec; vec.reserve(m_inheritanceTypes.size());
@@ -37,8 +39,6 @@ namespace Reflect
 		return m_eReflectType == EReflectType::Parameter;
 	}
 
-
-#ifdef REFLECT_TYPE_INFO_ENABLED
 	//-------------------------------------
 	// ReflectTypeMember
 	//-------------------------------------
