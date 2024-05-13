@@ -3,6 +3,7 @@
 #if REFLECT_TYPE_INFO_ENABLED
 #include "Reflect/Core/Defines.h"
 #include "Reflect/Structs/TypeInfo.h"
+#include "Reflect/Structs/TypeInfoRegistry.h"
 #else
 #include "Reflect/Core/Enums.h"
 #include "Reflect/Core/Util.h"
