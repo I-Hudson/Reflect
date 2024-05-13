@@ -2,7 +2,7 @@
 
 #define ENABLED
 
-#include "Reflect.h"
+#include "Reflect/Reflect.h"
 #include "Generated/TestClass_reflect_generated.h"
 
 #ifdef ENABLED

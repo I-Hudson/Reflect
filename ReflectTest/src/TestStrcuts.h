@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Reflect.h"
+#include "Reflect/Reflect.h"
 #include "Generated/TestStrcuts_reflect_generated.h"
 
 struct vec3
