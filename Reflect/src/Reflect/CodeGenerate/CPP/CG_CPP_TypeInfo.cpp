@@ -23,6 +23,8 @@ namespace Reflect::CodeGeneration
 	{
 		REFLECT_PROFILE_FUNCTION();
 
+		CodeGenerate::IncludeHeader("Reflect/Structs/TypeInfoRegistry.h", file);
+
 		file << "Reflect::TypeInfoRegister " << GetTypeName(data) << "::s_TypeInfoRegister";
 		file << " = Reflect::TypeInfoRegister(\"" << data.NameWithNamespace << "\", " << data.NameWithNamespace << "::ReflectRegisterCallback); " << NEW_LINE;
 		file << NEW_LINE;

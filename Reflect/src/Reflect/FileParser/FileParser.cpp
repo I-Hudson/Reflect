@@ -301,10 +301,14 @@ namespace Reflect::Parser
 		if (generatedBodyLine == std::string::npos)
 		{
 			std::cout << "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a'" << fileData.FileName << "'.\n";
+			generatedBodyLine = 0;
 		}
-		//assert(generatedBodyLine != -1 && );
-		fileData.GeneratedBodyLineOffset = generatedBodyLine + strlen(Keys::ReflectGeneratedBodykey);
-		conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1ull;
+		else
+		{
+			//assert(generatedBodyLine != -1 && );
+			fileData.GeneratedBodyLineOffset = generatedBodyLine + strlen(Keys::ReflectGeneratedBodykey);
+			conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1ull;
+		}
 
 		// Set us to the start of the class/struct. We should continue until we find something.
 		char c = FindNextChar(fileData, '{');
