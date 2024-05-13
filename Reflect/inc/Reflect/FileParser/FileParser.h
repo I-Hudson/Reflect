@@ -31,10 +31,10 @@ namespace Reflect::Parser
 		REFLECT_API void Clear();
 		REFLECT_API void SetIgnoreStrings(const std::vector<std::string>& ignoreStrings);
 
-		REFLECT_API const FileParsedData& GetFileParsedData(int index) const { return m_filesParsed.at(index); }
+		REFLECT_API const FileParsedData& GetFileParsedData(size_t index) const { return m_filesParsed.at(index); }
 		REFLECT_API const std::vector<FileParsedData>& GetAllFileParsedData() const { return m_filesParsed; }
 
-		REFLECT_API const std::string& GetDirectoryParsed(int index) const { return m_directoriesParsed.at(index); }
+		REFLECT_API const std::string& GetDirectoryParsed(size_t index) const { return m_directoriesParsed.at(index); }
 		REFLECT_API const std::vector<std::string>& GetAllDirectoriesParsed() const { return  m_directoriesParsed; }
 
 	private:
@@ -51,12 +51,12 @@ namespace Reflect::Parser
 		void ReflectContainer(FileParsedData& fileData);
 		void GetAllCPPIncludes(FileParsedData& fileData);
 
-		std::vector<std::string> FindAllNamespaces(FileParsedData fileData, int reflectStart);
+		std::vector<std::string> FindAllNamespaces(FileParsedData fileData, size_t reflectStart);
 		std::string FindPreviousNamespace(FileParsedData& fileData);
 
-		std::vector<std::string> FindAllIfDefines(FileParsedData fileData, int reflectStart);
+		std::vector<std::string> FindAllIfDefines(FileParsedData fileData, size_t reflectStart);
 
-		int FindEndOfConatiner(const FileParsedData& fileData);
+		size_t FindEndOfConatiner(const FileParsedData& fileData);
 		std::vector<std::string> ReflectFlags(FileParsedData fileData);
 		std::vector<PropertyMeta> ReflectPropertyMetas(FileParsedData fileData);
 
@@ -65,11 +65,11 @@ namespace Reflect::Parser
 		void RemoveLookupOnlyContainers();
 
 		char FindNextChar(FileParsedData& fileData, const std::vector<char>& ignoreChars, bool reverse = false);
-		char FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars, bool reverse = false);
+		char FindNextChar(FileParsedData const& fileData, size_t& cursor, const std::vector<char>& ignoreChars, bool reverse = false);
 		char FindNextChar(FileParsedData& fileData, char charToFind, bool reverse = false);
 
 		std::string FindNextWord(FileParsedData& fileData, const std::vector<char>& endChars, bool reverse = false);
-		std::string FindNextWord(const FileParsedData& fileData, int& cursor, const std::vector<char>& endChars, bool reverse = false);
+		std::string FindNextWord(const FileParsedData& fileData, size_t& cursor, const std::vector<char>& endChars, bool reverse = false);
 		bool IsWordReflectKey(std::string_view view);
 
 		void MoveToEndOfScope(FileParsedData& fileData, const char startScopeChar, const char endScopeChar) const;
@@ -91,15 +91,15 @@ namespace Reflect::Parser
 
 		EReflectType CheckForReflectType(FileParsedData& data);
 
-		bool CheckForEndOfFile(FileParsedData& fileData, int cursor);
+		bool CheckForEndOfFile(FileParsedData& fileData, size_t cursor);
 		EReflectValueType CheckForRefOrPtr(std::string_view view);
 		EReflectValueModifier CheckForMemberModifers(std::string_view view);
 
-		std::string GetFunctionLine(const FileParsedData& fileData, int& endCursor);
+		std::string GetFunctionLine(const FileParsedData& fileData, size_t& endCursor);
 		std::vector<Parser::ReflectTypeNameData> ReflectGetFunctionParameters(const FileParsedData& fileData, std::string_view view);
 
-		void CheckStringViewBounds(const FileParsedData& fileData, int cursor, std::string_view view);
-		int CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character);
+		void CheckStringViewBounds(const FileParsedData& fileData, size_t cursor, std::string_view view);
+		size_t CountNumberOfSinceTop(const FileParsedData& fileData, size_t cursorStart, const char& character);
 
 		std::string PrettyString(std::string str);
 		ReflectContainerData* FindReflectContainerData(std::string_view containerName);

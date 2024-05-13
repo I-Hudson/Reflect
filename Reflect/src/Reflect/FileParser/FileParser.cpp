@@ -19,7 +19,7 @@
 
 namespace Reflect::Parser
 {
-	constexpr int DEFAULT_TYPE_SIZE = 0;
+	constexpr size_t DEFAULT_TYPE_SIZE = 0;
 
 	const std::vector<char> emptyChars = { '\n', '\t', '\r', ' ' };
 	const std::vector<char> generalEndChars = { ' ', '(', '=', ';', ':'};
@@ -139,7 +139,7 @@ namespace Reflect::Parser
 		FileParsedData data = {};
 
 		file.seekg(0, std::ios::end);
-		int fileSize = static_cast<int>(file.tellg());
+		size_t fileSize = static_cast<size_t>(file.tellg());
 		file.seekg(0, std::ios::beg);
 		data.Data = std::string(fileSize, '\0');
 		data.Cursor = 0;
@@ -173,7 +173,7 @@ namespace Reflect::Parser
 		REFLECT_PROFILE_FUNCTION();
 
 		// Check if we can reflect this class/struct. 
-		int reflectStart = static_cast<int>(fileData.Data.find(keyword, fileData.Cursor));
+		size_t reflectStart = static_cast<size_t>(fileData.Data.find(keyword, fileData.Cursor));
 		if (reflectStart == std::string::npos)
 		{
 			// Can't reflect this class/struct. Return.
@@ -185,12 +185,12 @@ namespace Reflect::Parser
 		containerData.IfDefines = FindAllIfDefines(fileData, reflectStart);
 
 		containerData.ReflectType = type;
-		fileData.Cursor = reflectStart + static_cast<int>(keyword.length());
+		fileData.Cursor = reflectStart + static_cast<size_t>(keyword.length());
 		containerData.ContainerProps = ReflectFlags(fileData);
 
 		if (containerData.ReflectType == EReflectType::Class)
 		{
-			int newPos = (int)fileData.Data.find("class", fileData.Cursor);
+			size_t newPos = (size_t)fileData.Data.find("class", fileData.Cursor);
 			if (newPos != std::string::npos)
 			{
 				fileData.Cursor = newPos;
@@ -203,7 +203,7 @@ namespace Reflect::Parser
 		}
 		else if (containerData.ReflectType == EReflectType::Struct)
 		{
-			int newPos = (int)fileData.Data.find("struct", fileData.Cursor);
+			size_t newPos = (size_t)fileData.Data.find("struct", fileData.Cursor);
 			if (newPos != std::string::npos)
 			{
 				fileData.Cursor = newPos;
@@ -290,7 +290,7 @@ namespace Reflect::Parser
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		int endOfContainerCursor = FindEndOfConatiner(fileData);
+		size_t endOfContainerCursor = FindEndOfConatiner(fileData);
 
 		// Good, we have a reflected container class/struct.
 		// First find out which it is and verify that we are inheriting from "ReflectObject".
@@ -303,8 +303,8 @@ namespace Reflect::Parser
 			std::cout << "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a'" << fileData.FileName << "'.\n";
 		}
 		//assert(generatedBodyLine != -1 && );
-		fileData.GeneratedBodyLineOffset = generatedBodyLine + static_cast<int>(strlen(Keys::ReflectGeneratedBodykey));
-		conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1;
+		fileData.GeneratedBodyLineOffset = generatedBodyLine + strlen(Keys::ReflectGeneratedBodykey);
+		conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1ull;
 
 		// Set us to the start of the class/struct. We should continue until we find something.
 		char c = FindNextChar(fileData, '{');
@@ -370,7 +370,7 @@ namespace Reflect::Parser
 				else
 				{
 					// We think we have function or memeber.
-					fileData.Cursor -= (int)word.size();
+					fileData.Cursor -= (size_t)word.size();
 				}
 
 				if (CheckForEndOfFile(fileData, endOfContainerCursor))
@@ -405,7 +405,7 @@ namespace Reflect::Parser
 				if (CheckForEndOfFile(fileData, endOfContainerCursor))
 					break;
 
-				int newCursor = (int)fileData.Data.find(Keys::ReflectPropertyKey, fileData.Cursor);
+				size_t newCursor = (size_t)fileData.Data.find(Keys::ReflectPropertyKey, fileData.Cursor);
 				if (newCursor > endOfContainerCursor)
 				{
 					fileData.Cursor = endOfContainerCursor;
@@ -420,7 +420,7 @@ namespace Reflect::Parser
 				}
 				else
 				{
-					fileData.Cursor += (int)strlen(Keys::ReflectPropertyKey);
+					fileData.Cursor += (size_t)strlen(Keys::ReflectPropertyKey);
 					reflectPropertyMetas = ReflectPropertyMetas(fileData);
 					reflectFlags = ReflectFlags(fileData);
 					//FindNextChar(fileData, generalEndChars);
@@ -484,11 +484,11 @@ namespace Reflect::Parser
 		}
 	}
 
-	std::vector<std::string> FileParser::FindAllNamespaces(FileParsedData fileData, int reflectStart)
+	std::vector<std::string> FileParser::FindAllNamespaces(FileParsedData fileData, size_t reflectStart)
 	{
 		fileData.Cursor = reflectStart;
 		std::vector<std::string> namespaces;
-		int closeBracketCount = 0;
+		size_t closeBracketCount = 0;
 
 		while (fileData.Cursor != 0)
 		{
@@ -538,7 +538,7 @@ namespace Reflect::Parser
 		return "";
 	}
 
-	std::vector<std::string> FileParser::FindAllIfDefines(FileParsedData fileData, int reflectStart)
+	std::vector<std::string> FileParser::FindAllIfDefines(FileParsedData fileData, size_t reflectStart)
 	{
 		fileData.Cursor = 0;
 		std::stack<std::string> ifDefines;
@@ -597,11 +597,11 @@ namespace Reflect::Parser
 		return result;
 	}
 
-	int FileParser::FindEndOfConatiner(const FileParsedData& fileData)
+	size_t FileParser::FindEndOfConatiner(const FileParsedData& fileData)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		int cursor = fileData.Cursor;
+		size_t cursor = fileData.Cursor;
 		char lastCharacter = '\0';
 		char c = fileData.Data[cursor];
 		bool foundStartOfContainer = false;
@@ -663,7 +663,7 @@ namespace Reflect::Parser
 		assert(fileData.Data[fileData.Cursor] == '(');
 		++fileData.Cursor;
 
-		int scope = 1;
+		size_t scope = 1;
 		bool discardFlag = false;
 
 		while (scope > 0)
@@ -721,7 +721,7 @@ namespace Reflect::Parser
 
 		std::string scopeString;
 		{
-			int scope = 1;
+			size_t scope = 1;
 			assert(fileData.Data[fileData.Cursor] == '(');
 			++fileData.Cursor;
 
@@ -762,7 +762,7 @@ namespace Reflect::Parser
 
 			assert(scopeString[idx] == '(');
 			++idx;
-			int metaScope = 1;
+			size_t metaScope = 1;
 			std::string metaScopeString;
 
 			while (metaScope > 0)
@@ -933,7 +933,7 @@ namespace Reflect::Parser
 		}
 	}
 
-	char FileParser::FindNextChar(FileParsedData const& fileData, int& cursor, const std::vector<char>& ignoreChars, bool reverse)
+	char FileParser::FindNextChar(FileParsedData const& fileData, size_t& cursor, const std::vector<char>& ignoreChars, bool reverse)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -992,7 +992,7 @@ namespace Reflect::Parser
 		return s;
 	}
 
-	std::string FileParser::FindNextWord(const FileParsedData& fileData, int& cursor, const std::vector<char>& endChars, bool reverse)
+	std::string FileParser::FindNextWord(const FileParsedData& fileData, size_t& cursor, const std::vector<char>& endChars, bool reverse)
 	{
 		FileParsedData copyFileData = fileData;
 		copyFileData.Cursor = cursor;
@@ -1008,7 +1008,7 @@ namespace Reflect::Parser
 
 	void FileParser::MoveToEndOfScope(FileParsedData& fileData, const char startScopeChar, const char endScopeChar) const
 	{
-		int scope = 1;
+		size_t scope = 1;
 		const size_t scopeStartIdx = fileData.Data.find(startScopeChar, fileData.Cursor) + 1;
 		fileData.Cursor = scopeStartIdx;
 		while (scope > 0)
@@ -1045,7 +1045,7 @@ namespace Reflect::Parser
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		int i;
+		size_t i;
 		FileParsedData copy = fileData;
 		std::string line = GetFunctionLine(copy, i);
 		if (line.find('~') != std::string::npos)
@@ -1081,7 +1081,7 @@ namespace Reflect::Parser
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		int i;
+		size_t i;
 		std::string line = GetFunctionLine(fileData, i);
 		size_t index = line.find(Keys::OperatorKey);
 		if (index != std::string::npos)
@@ -1153,7 +1153,7 @@ namespace Reflect::Parser
 
 		Parser::ReflectFunctionData functionData;
 
-		int endOfLineCursor;
+		size_t endOfLineCursor;
 		std::string line = GetFunctionLine(fileData, endOfLineCursor);
 
 		uint32_t cBracket = (uint32_t)line.find_last_of(')');
@@ -1204,7 +1204,7 @@ namespace Reflect::Parser
 		FileParsedData copy = fileData;
 		FindNextChar(copy, ';');
 		std::string line = fileData.Data.substr(fileData.Cursor, copy.Cursor - fileData.Cursor);
-		int endOfLineCursor = fileData.Cursor + (int)line.size();
+		size_t endOfLineCursor = fileData.Cursor + (size_t)line.size();
 		line += ';';
 
 		// Check for if there is a deault value being set.
@@ -1285,7 +1285,7 @@ namespace Reflect::Parser
 
 		auto find_closest_char = [data, this](std::vector<char> const& chars_to_find)
 		{
-			int cursor = INT_MAX;
+			size_t cursor = INT_MAX;
 			for (size_t i = 0; i < chars_to_find.size(); ++i)
 			{
 				char charToFind = chars_to_find.at(i);
@@ -1297,14 +1297,14 @@ namespace Reflect::Parser
 		};
 
 		FileParsedData copy = data;
-		int scope = 0;
+		size_t scope = 0;
 		while (scope > 0)
 		{
 
 		}
 
-		int member_cursor = find_closest_char(memberStartChars);
-		int function_cursor = find_closest_char(functionStartChars);
+		size_t member_cursor = find_closest_char(memberStartChars);
+		size_t function_cursor = find_closest_char(functionStartChars);
 
 		bool isTemplate = data.Data.find(Keys::TemplateKey, data.Cursor) < member_cursor;
 
@@ -1324,7 +1324,7 @@ namespace Reflect::Parser
 		return EReflectType::Unknown;
 	}
 
-	bool FileParser::CheckForEndOfFile(FileParsedData& fileData, int cursor)
+	bool FileParser::CheckForEndOfFile(FileParsedData& fileData, size_t cursor)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -1399,7 +1399,7 @@ namespace Reflect::Parser
 		return EReflectValueModifier::None;
 	}
 
-	std::string FileParser::GetFunctionLine(const FileParsedData& fileData, int& endCursor)
+	std::string FileParser::GetFunctionLine(const FileParsedData& fileData, size_t& endCursor)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -1424,7 +1424,7 @@ namespace Reflect::Parser
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		int cursor = 0;
+		size_t cursor = 0;
 		if (view.at(0) == '(')
 			++cursor;
 
@@ -1444,11 +1444,11 @@ namespace Reflect::Parser
 					std::size_t defaultValueIndex = str.find('=');
 					if (defaultValueIndex != std::string::npos)
 					{
-						cursor = (int)(((int)view.size() - 1) - (int)str.size()) + (int)defaultValueIndex;
+						cursor = (size_t)(((size_t)view.size() - 1) - (size_t)str.size()) + (size_t)defaultValueIndex;
 					}
 
 					// Extract the name, type for the parameter.
-					int copyCursor = cursor - 1;
+					size_t copyCursor = cursor - 1;
 					while (std::find(emptyChars.begin(), emptyChars.end(), view.at(copyCursor)) != emptyChars.end())
 						--copyCursor;
 
@@ -1497,7 +1497,7 @@ namespace Reflect::Parser
 		return parameters;
 	}
 
-	void FileParser::CheckStringViewBounds(const FileParsedData& fileData, int cursor, std::string_view view)
+	void FileParser::CheckStringViewBounds(const FileParsedData& fileData, size_t cursor, std::string_view view)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
@@ -1508,11 +1508,11 @@ namespace Reflect::Parser
 		}
 	}
 
-	int FileParser::CountNumberOfSinceTop(const FileParsedData& fileData, int cursorStart, const char& character)
+	size_t FileParser::CountNumberOfSinceTop(const FileParsedData& fileData, size_t cursorStart, const char& character)
 	{
 		REFLECT_PROFILE_FUNCTION();
 
-		int count = 0;
+		size_t count = 0;
 		while (cursorStart > 0)
 		{
 			//TODO Out of bounds checks.
@@ -1552,16 +1552,16 @@ namespace Reflect::Parser
 					return &reflectedData;
 				}
 
-				std::vector<std::string> reflectDataSplit = Util::SplitString(reflectedData.NameWithNamespace, '::');
-				std::vector<std::string> containerNameSplit = Util::SplitString(std::string(containerName), '::');
+				std::vector<std::string> reflectDataSplit = Util::SplitString(reflectedData.NameWithNamespace, (char)'::');
+				std::vector<std::string> containerNameSplit = Util::SplitString(std::string(containerName), (char)'::');
 
 				std::reverse(reflectDataSplit.begin(), reflectDataSplit.end());
 				std::reverse(containerNameSplit.begin(), containerNameSplit.end());
 
-				const uint32_t endNamespaceIdx = std::min(containerNameSplit.size(), reflectDataSplit.size());
+				const size_t endNamespaceIdx = std::min(containerNameSplit.size(), reflectDataSplit.size());
 				
 				bool foundReflectData = true;
-				for (uint32_t i = 0; i < endNamespaceIdx; ++i)
+				for (size_t i = 0; i < endNamespaceIdx; ++i)
 				{
 					if (containerNameSplit[i] != reflectDataSplit[i])
 					{

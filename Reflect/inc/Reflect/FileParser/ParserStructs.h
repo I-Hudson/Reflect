@@ -118,7 +118,7 @@ namespace Reflect::Parser
 	struct ReflectMemberData : public Parser::ReflectTypeNameData
 	{
 		EReflectType ReflectType = EReflectType::Member;
-		int Offset = 0;
+		size_t Offset = 0;
 	};
 
 	struct ReflectFunctionData : public Parser::ReflectTypeNameData
@@ -135,7 +135,7 @@ namespace Reflect::Parser
 		std::vector<std::string> Namespaces;
 		std::vector<std::string> IfDefines;
 		EReflectType ReflectType;
-		int ReflectGenerateBodyLine;
+		size_t ReflectGenerateBodyLine;
 
 		std::vector<ReflectMemberData> Members;
 		std::vector<Parser::ReflectFunctionData> Functions;
@@ -151,10 +151,10 @@ namespace Reflect::Parser
 	struct FileParsedData
 	{
 		std::string Data;
-		int Cursor;
+		size_t Cursor;
 		std::string FilePath;
 		std::string FileName;
-		int GeneratedBodyLineOffset;
+		size_t GeneratedBodyLineOffset;
 		std::vector<std::string> CPPIncludes;
 
 		std::vector<Parser::ReflectContainerData> ReflectData;
