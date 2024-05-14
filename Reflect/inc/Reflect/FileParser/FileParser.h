@@ -109,5 +109,7 @@ namespace Reflect::Parser
 		std::vector<std::string> m_ignoreStrings;
 		std::vector<std::string> m_directoriesParsed;
 		const ReflectAddtionalOptions* m_options;
+
+		std::unordered_map<std::string, std::vector<std::string>> TypeAliasMap;
 	};
 }

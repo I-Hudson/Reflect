@@ -164,6 +164,48 @@ namespace Reflect::Parser
 			GetAllCPPIncludes(fileData);
 			reflectItem = true;
 		}
+
+		fileData.Cursor = 0;
+		while (fileData.Cursor < fileData.Data.size())
+		{
+			fileData.Cursor = fileData.Data.find(Keys::UsingKey, fileData.Cursor);
+			if (fileData.Cursor != std::string::npos)
+			{
+				const uint64_t strStart = fileData.Cursor;
+				FindNextChar(fileData, ';');
+
+				const uint64_t strCount = fileData.Cursor - strStart - strlen(Keys::UsingKey);
+				std::string str = fileData.Data.substr(strStart + strlen(Keys::UsingKey), strCount);
+				if (!str.empty() && str.back() == ';')
+				{
+					str.pop_back();
+				}
+
+				std::string alias = str.substr(0, str.find('='));
+				std::string type = str.substr(str.find('=') + 1);
+
+				Util::RemoveCharAll(alias, ' ');
+				Util::RemoveCharAll(type, ' ');
+
+				const uint64_t typeTemplateStart = type.find('<');
+				const uint64_t typeTemplateEnd = type.find('>');
+				if (typeTemplateStart != std::string::npos && typeTemplateEnd != std::string::npos)
+				{
+					type = type.substr(0, typeTemplateStart);
+				}
+
+				TypeAliasMap[alias].push_back(type);
+				if (auto iter = TypeAliasMap.find(alias);
+					iter != TypeAliasMap.end())
+				{
+					if (!iter->second.empty())
+					{
+						std::cout << "FilePath: '" << fileData.FilePath << "'" << "Found duplicate 'using' alias: '" << alias << "', type '" << type << "'" << '\n';
+					}
+				}
+			}
+		}
+
 		fileData.Parsed = true;
 		return reflectItem;
 	}
@@ -824,12 +866,29 @@ namespace Reflect::Parser
 			{
 				for (auto& member : reflectedData.Members)
 				{
-					Parser::ReflectContainerData* memberInheritanceContainerData = FindReflectContainerData(member.Type);
-					if (!memberInheritanceContainerData)
+					if (member.IsTemplate)
 					{
-						continue;
+						Parser::ReflectContainerData* templateFirst = FindReflectContainerData(member.TemplateFirstType);
+						Parser::ReflectContainerData* templateSecond = FindReflectContainerData(member.TemplateSecondType);
+
+						if (templateFirst)
+						{
+							member.TemplateFirstType = templateFirst->NameWithNamespace;
+						}
+						if (templateSecond)
+						{
+							member.TemplateSecondType = templateSecond->NameWithNamespace;
+						}
 					}
-					member.NameWithNamespace = memberInheritanceContainerData->NameWithNamespace;
+					else
+					{
+						Parser::ReflectContainerData* memberInheritanceContainerData = FindReflectContainerData(member.Type);
+						if (!memberInheritanceContainerData)
+						{
+							continue;
+						}
+						member.NameWithNamespace = memberInheritanceContainerData->NameWithNamespace;
+					}
 				}
 			}
 		}
@@ -1242,6 +1301,16 @@ namespace Reflect::Parser
 		// Make sure there are no empty chars in the type string.
 		for (const char& c : emptyChars)
 			Util::RemoveCharAll(type, c);
+
+		const uint64_t templateStart = type.find('<');
+		const uint64_t templateEnd = type.find('>');
+		if (templateStart != std::string::npos
+			&& templateEnd != std::string::npos)
+		{
+			memberData.IsTemplate = true;
+			memberData.TemplateFirstType = type.substr(0, templateStart);
+			memberData.TemplateSecondType = type.substr(templateStart + 1, (templateEnd - templateStart) - 1);
+		}
 		memberData.Type = type;
 
 		memberData.RawType = type;
@@ -1551,32 +1620,43 @@ namespace Reflect::Parser
 		{
 			for (auto& reflectedData : file.ReflectData)
 			{
-				if (reflectedData.Name == containerName)
+				std::vector<std::string> compareNames = { std::string(containerName) };
+				if (auto iter = TypeAliasMap.find(std::string(containerName));
+					iter != TypeAliasMap.end())
 				{
-					return &reflectedData;
+					std::copy(iter->second.begin(), iter->second.end(), std::back_inserter(compareNames));
 				}
 
-				std::vector<std::string> reflectDataSplit = Util::SplitString(reflectedData.NameWithNamespace, (char)'::');
-				std::vector<std::string> containerNameSplit = Util::SplitString(std::string(containerName), (char)'::');
-
-				std::reverse(reflectDataSplit.begin(), reflectDataSplit.end());
-				std::reverse(containerNameSplit.begin(), containerNameSplit.end());
-
-				const size_t endNamespaceIdx = std::min(containerNameSplit.size(), reflectDataSplit.size());
-				
-				bool foundReflectData = true;
-				for (size_t i = 0; i < endNamespaceIdx; ++i)
+				for (size_t i = 0; i < compareNames.size(); i++)
 				{
-					if (containerNameSplit[i] != reflectDataSplit[i])
+					const std::string compareName = compareNames[i];
+					if (reflectedData.Name == compareName)
 					{
-						foundReflectData = false;
-						break;
+						return &reflectedData;
 					}
-				}
 
-				if (foundReflectData)
-				{
-					return &reflectedData;
+					std::vector<std::string> reflectDataSplit = Util::SplitString(reflectedData.NameWithNamespace, (char)'::');
+					std::vector<std::string> containerNameSplit = Util::SplitString(std::string(compareName), (char)'::');
+
+					std::reverse(reflectDataSplit.begin(), reflectDataSplit.end());
+					std::reverse(containerNameSplit.begin(), containerNameSplit.end());
+
+					const size_t endNamespaceIdx = std::min(containerNameSplit.size(), reflectDataSplit.size());
+
+					bool foundReflectData = true;
+					for (size_t i = 0; i < endNamespaceIdx; ++i)
+					{
+						if (containerNameSplit[i] != reflectDataSplit[i])
+						{
+							foundReflectData = false;
+							break;
+						}
+					}
+
+					if (foundReflectData)
+					{
+						return &reflectedData;
+					}
 				}
 			}
 		}

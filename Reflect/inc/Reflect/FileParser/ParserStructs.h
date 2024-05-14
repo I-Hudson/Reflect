@@ -6,6 +6,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace Reflect::Parser
 {
@@ -75,6 +76,9 @@ namespace Reflect::Parser
 
 		int TypeSize;
 		bool IsConst;
+		bool IsTemplate = false;
+		std::string TemplateFirstType;
+		std::string TemplateSecondType;
 
 		ReflectTypeNameData()
 			: Type("")

@@ -272,7 +272,11 @@ namespace Reflect::CodeGeneration
 			file << "MemberInfo(" << NEW_LINE;
 
 			TAB_N(lineIndent + 1);
-			if (member.NameWithNamespace.empty())
+			if (member.IsTemplate)
+			{
+				file << "Type::MakeType<::" + member.TemplateFirstType + "<::" + member.TemplateSecondType + ">>(), " << NEW_LINE;
+			}
+			else if (member.NameWithNamespace.empty())
 			{
 				file << "Type::MakeType<" + member.Type + ">(), " << NEW_LINE;
 			}
