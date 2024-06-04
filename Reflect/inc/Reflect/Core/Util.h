@@ -21,6 +21,9 @@ namespace Reflect
 		}
 
 		std::string ValidateTypeName(const std::string& str);
+		static void RemoveChar(std::string& str, const char& c);
+		static void RemoveString(std::string& str, const std::string& remove, bool removeFromback = true);
+		static void RemoveCharAll(std::string& str, const char& c);
 
 		template<typename T>
 		std::string GetTypeName()
@@ -102,7 +105,7 @@ namespace Reflect
 			str.erase(std::remove(str.begin(), str.end(), c), str.end());
 		}
 
-		static void RemoveString(std::string& str, const std::string& remove, bool removeFromback = true)
+		static void RemoveString(std::string& str, const std::string& remove, bool removeFromback)
 		{
 			size_t index = removeFromback ? str.rfind(remove) : str.find(remove);
 			if (index != std::string::npos)
