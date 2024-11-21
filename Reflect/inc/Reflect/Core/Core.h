@@ -2,15 +2,12 @@
 
 #include "Log.h"
 #include "Reflect/Core/Defines.h"
-#include <unordered_map>
-#include <string_view>
-#include <string>
 
 
 namespace Reflect
 {
 	#define REFLECT_MAJOR 4
-	#define REFLECT_MINOR 3
+	#define REFLECT_MINOR 4
 	#define REFLECT_PATCH 2
 
 	namespace Keys
@@ -27,33 +24,6 @@ namespace Reflect
 		constexpr const char* Reflect_CMD_Option_Reflect_Full_EXT = "reflect_full_ext";
 		//constexpr const char* Reflect_CMD_Option_Single_File_EXT = "reflect_single_file_ext";
 	}
-
-	constexpr const char* Reflect_CMD_Options[] =
-	{
-		Keys::Reflect_CMD_Option_PCH_Include
-		, Keys::Reflect_CMD_Option_Reflect_Full_EXT
-		//, Reflect_CMD_Option_Single_File_EXT
-	};
-
-	struct ReflectAddtionalOptions
-	{
-		std::string_view GetOption(std::string_view optionKey) const
-		{
-			if (auto itr = options.find(optionKey.data()); itr != options.end())
-			{
-				return itr->second;
-			}
-			return "";
-		}
-
-		std::unordered_map<std::string, std::string> options =
-		{
-			{ Reflect::Keys::Reflect_CMD_Option_PCH_Include, "" },
-			{ Reflect::Keys::Reflect_CMD_Option_Reflect_Full_EXT, "false" },
-			//{ Reflect::Reflect_CMD_Option_Single_File_EXT, "false" }
-
-		};
-	};
 }
 
 #define REFLECT_GET_VERSION() \

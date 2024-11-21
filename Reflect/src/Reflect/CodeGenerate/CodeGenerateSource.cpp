@@ -2,6 +2,8 @@
 #include "Reflect/CodeGenerate/CodeGenerateHeader.h"
 #include "Reflect/CodeGenerate/CG_Utils.h"
 
+#include "Reflect/Core/Options.h"
+
 #include "Reflect/Core/Core.h"
 #include "Reflect/Instrumentor.h"
 

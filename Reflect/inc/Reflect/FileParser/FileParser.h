@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Reflect/Core/Defines.h"
+#include "Reflect/Core/Options.h"
 #include "Reflect/FileParser/ParserStructs.h"
 
 #include "Reflect/Structs/PropertyMeta.h"

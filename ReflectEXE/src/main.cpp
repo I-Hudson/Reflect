@@ -1,8 +1,12 @@
 #include "Reflect/Reflect.h"
+#include "Reflect/Instrumentor.h"
+#include "Reflect/FileParser/FileParser.h"
+#include "Reflect/CodeGenerate/CodeGenerate.h"
+
 #include <filesystem>
 #include <string_view>
 #include <string.h>
-#pragma optimize("", off)
+
 int main(int argc, char* argv[])
 {
 	REFLECT_PROFILE_BEGIN_SESSION();

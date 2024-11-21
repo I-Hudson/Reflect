@@ -3,8 +3,6 @@
 #include "Reflect/Core/Util.h"
 #include "Reflect/Structs/TypeId.h"
 
-#include <typeinfo>
-
 namespace Reflect
 {
     /// @brief A Type is a representation of a type. This would include the type name, type size and if it is a fundamental type or not. 
