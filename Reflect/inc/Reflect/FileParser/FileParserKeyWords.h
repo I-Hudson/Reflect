@@ -39,6 +39,7 @@ namespace Reflect::Keys
 
 	constexpr const char* PointerTypeIdKey = "__ptr64";
 	constexpr const char* TemplateKey = "template";
+	constexpr const char* TypenameKey = "typename";
 	constexpr const char* OperatorKey = "operator";
 	constexpr const char* FriendKey = "friend";
 

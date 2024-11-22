@@ -153,6 +153,33 @@ namespace Reflect
 
 			return strings;
 		}
+		static std::vector<std::string_view> SplitStringView(std::string_view str, char splitChar)
+		{
+			std::vector<std::string_view> strings;
+			std::string_view temp;
+			uint64_t strStart = 0;
+			uint64_t strEnd = 0;
+
+			for (size_t i = 0; i < str.size(); ++i)
+			{
+				if (str[i] == splitChar)
+				{
+					strings.push_back(str.substr(strStart, strEnd - strStart));
+					++strEnd;
+					strStart = strEnd;
+				}
+				else
+				{
+					++strEnd;
+				}
+			}
+			if (strStart != strEnd)
+			{
+				strings.push_back(str.substr(strStart, strEnd - strStart));
+			}
+
+			return strings;
+		}
 
 		static std::string EReflectValueTypeToString(EReflectValueType mod)
 		{

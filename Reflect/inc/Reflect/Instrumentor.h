@@ -43,7 +43,7 @@ namespace Reflect::Profile
 
 		void BeginSession()
 		{
-			std::cout << "Temp profile started!" << std::endl;
+			std::cout << "Temp profile started!\n";
 
 			std::lock_guard lock(m_Mutex);
 
@@ -54,7 +54,7 @@ namespace Reflect::Profile
 
 			if (m_CurrentSession)
 			{
-				std::cout << "Instrumentor::BeginSession: Session already open." << std::endl;
+				std::cout << "Instrumentor::BeginSession: Session already open.\n";
 				return;
 			}
 			m_CurrentSession = new InstrumentationSession({ "" });
@@ -81,7 +81,7 @@ namespace Reflect::Profile
 			}
 			else
 			{
-				std::cout << "Profile could not be saved to file." << std::endl;
+				std::cout << "Profile could not be saved to file.\n";
 			}
 			std::cout << "Profile has been saved." << std::endl;
 		}
@@ -152,7 +152,7 @@ namespace Reflect::Profile
 				delete m_CurrentSession;
 				m_CurrentSession = nullptr;
 			}
-			std::cout << "Logging has finished. Session: " << std::to_string(m_CurrentSession != nullptr) << std::endl;
+			std::cout << "Logging has finished. Session: " << std::to_string(m_CurrentSession != nullptr) << "\n";
 		}
 	private:
 		std::mutex m_Mutex;

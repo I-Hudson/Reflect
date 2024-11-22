@@ -48,6 +48,9 @@ namespace Reflect::Parser
 		FileParsedData LoadFile(std::ifstream& file);
 
 		bool ParseFile(FileParsedData& fileData);
+		void ParseUsingTags(FileParsedData& fileData);
+
+		bool FileHasReflectData(FileParsedData& fileData, const std::string& keyword, const EReflectType type) const;
 		bool ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const EReflectType type);
 		void ReflectContainer(FileParsedData& fileData);
 		void GetAllCPPIncludes(FileParsedData& fileData);
@@ -102,8 +105,9 @@ namespace Reflect::Parser
 		void CheckStringViewBounds(const FileParsedData& fileData, size_t cursor, std::string_view view);
 		size_t CountNumberOfSinceTop(const FileParsedData& fileData, size_t cursorStart, const char& character);
 
-		std::string PrettyString(std::string str);
+		std::string PrettyString(std::string str) const;
 		ReflectContainerData* FindReflectContainerData(std::string_view containerName);
+		std::string FindFullAliasName(const std::string& aliasName) const;
 
 	private:
 		std::vector<FileParsedData> m_filesParsed;

@@ -61,6 +61,25 @@ namespace Reflect::Parser
 		}
 	};
 
+	struct ReflectTemplateData
+	{
+		ReflectTemplateData(std::string type, std::string identifier)
+			: Type(type)
+			, Identifier(identifier)
+		{ }
+		ReflectTemplateData(std::string type, std::string identifier, std::string defaultValue)
+			: Type(type)
+			, Identifier(identifier)
+			, DefaultValue(defaultValue)
+		{ }
+
+		std::string Type;
+		std::string Identifier;
+		std::string DefaultValue;
+
+		bool HasDefualtValue() const { return DefaultValue.empty(); }
+	};
+
 	struct ReflectTypeNameData
 	{
 		std::string Type;
@@ -77,6 +96,7 @@ namespace Reflect::Parser
 		int TypeSize;
 		bool IsConst;
 		bool IsTemplate = false;
+		std::vector<ReflectTemplateData> TemplateTypes;
 		std::string TemplateFirstType;
 		std::string TemplateSecondType;
 

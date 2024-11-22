@@ -70,9 +70,9 @@ int main(int argc, char* argv[])
 		}
 	}
 	timer.Stop();
-	std::cout << "Reflect micro: " << timer.GetElapsedTimeMicro() << std::endl;
-	std::cout << "Reflect mill: " << timer.GetElapsedTimeMill() << std::endl;
-	std::cout << "Reflect sec: " << timer.GetElapsedTimeSec() << std::endl;
+	std::cout << "Reflect micro: " << timer.GetElapsedTimeMicro() << "\n";
+	std::cout << "Reflect mill: " << timer.GetElapsedTimeMill() << "\n";
+	std::cout << "Reflect sec: " << timer.GetElapsedTimeSec() << "\n";
 	REFLECT_PROFILE_END_SESSION();
 	REFLECT_PROFILE_SAVE_SESSION("ReflectEXE_Profile.json");
 	return 0;
