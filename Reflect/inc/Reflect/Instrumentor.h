@@ -1,4 +1,5 @@
 #pragma once
+#include "Reflect/Core/Defines.h"
 #include "Reflect/Core/Compiler.h"
 
 #include <sstream>
@@ -29,7 +30,7 @@ namespace Reflect::Profile
 		std::string Name;
 	};
 
-	class Instrumentor
+	class REFLECT_API Instrumentor
 	{
 	public:
 		Instrumentor()
@@ -73,7 +74,7 @@ namespace Reflect::Profile
 
 		void SaveSession(const std::string& filePath)
 		{
-			m_OutputStream.open(filePath);
+			m_OutputStream.open(filePath, std::ios::trunc);
 			if (m_OutputStream.is_open())
 			{
 				m_OutputStream << m_dataString;
