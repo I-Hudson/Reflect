@@ -163,6 +163,9 @@ namespace Reflect::Parser
 
 		std::vector<ReflectMemberData> Members;
 		std::vector<Parser::ReflectFunctionData> Functions;
+
+		bool GenerateReflectCode = false;
+		bool HasBeenParsed = false;
 	};
 
 	struct FileParserOptions

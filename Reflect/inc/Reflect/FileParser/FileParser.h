@@ -50,6 +50,12 @@ namespace Reflect::Parser
 		bool ParseFile(FileParsedData& fileData);
 		void ParseUsingTags(FileParsedData& fileData);
 
+		uint64_t FindNextContainer(FileParsedData& fileData) const;
+		uint64_t FindNextReflectContainer(FileParsedData& fileData) const;
+
+		bool ParseContainerReflectProperties(FileParsedData& fileData);
+		bool ParseContainerHeader(FileParsedData& fileData);
+
 		bool FileHasReflectData(FileParsedData& fileData, const std::string& keyword, const EReflectType type) const;
 		bool ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const EReflectType type);
 		void ReflectContainer(FileParsedData& fileData);
@@ -86,6 +92,14 @@ namespace Reflect::Parser
 		bool CheckForComments(FileParsedData& fileData, std::string& line);
 		bool CheckForFriends(FileParsedData& fileData, std::string_view view);
 
+		uint64_t CheckForTemplate(FileParsedData& fileData) const;
+		std::vector<ReflectTemplateData> ParseTemplateData(FileParsedData& fileData) const;
+		uint64_t FindEndOfTemplate(const FileParsedData& fileData, const uint64_t tempalteStartIdx) const;
+
+		bool IsCursorWithinComment(FileParsedData& fileData, uint64_t& cursor, const bool moveCursorToEnd) const;
+
+		const char* GetLastReflectContainerKey(const FileParsedData& fileData) const;
+
 		void GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer);
 
 		Parser::ReflectFunctionData GetFunction(FileParsedData& fileData, const std::vector<std::string>& flags);
@@ -114,6 +128,9 @@ namespace Reflect::Parser
 		std::vector<std::string> m_ignoreStrings;
 		std::vector<std::string> m_directoriesParsed;
 		const ReflectAddtionalOptions* m_options;
+
+		uint64_t m_toalNumberOfContainersParsed = 0;
+		uint64_t m_toalNumberOfContainersToGenerateCode = 0;
 
 		std::unordered_map<std::string, std::vector<std::string>> TypeAliasMap;
 	};
