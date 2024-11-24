@@ -565,16 +565,19 @@ namespace Reflect::Parser
 		Parser::ReflectContainerData& conatinerData = fileData.ReflectData.back();
 
 		size_t generatedBodyLine = fileData.Data.find(Keys::ReflectGeneratedBodykey, fileData.GeneratedBodyLineOffset);
-		if (generatedBodyLine == std::string::npos)
-		{
-			std::cout << "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a'" << fileData.FileName << "'.\n";
-			generatedBodyLine = 0;
-		}
-		else
+		if (generatedBodyLine != std::string::npos)
 		{
 			//assert(generatedBodyLine != -1 && );
 			fileData.GeneratedBodyLineOffset = generatedBodyLine + strlen(Keys::ReflectGeneratedBodykey);
 			conatinerData.ReflectGenerateBodyLine = CountNumberOfSinceTop(fileData, generatedBodyLine, '\n') + 1ull;
+		}
+		else
+		{
+			generatedBodyLine = 0;
+			if (std::find(conatinerData.ContainerProps.begin(), conatinerData.ContainerProps.end(), REFLECT_LOOKUP_ONLY) == conatinerData.ContainerProps.end())
+			{
+				std::cout << "[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a'" << fileData.FileName << "'.\n";
+			}
 		}
 
 		// Set us to the start of the class/struct. We should continue until we find something.
