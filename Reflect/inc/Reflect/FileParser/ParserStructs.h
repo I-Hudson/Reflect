@@ -14,7 +14,8 @@ namespace Reflect::Parser
 	{
 		std::string Name;
 		std::string NameWithNamespace;
-		bool IsReflected = false;
+		bool IsParsed = false;
+		bool HasCodeGenerated = false;
 
 		std::vector<ReflectInheritanceData> Inheritances;
 
@@ -90,6 +91,7 @@ namespace Reflect::Parser
 		EReflectValueModifier ReflectModifier = EReflectValueModifier::None;
 		std::vector<std::string> ContainerProps;
 		std::vector<PropertyMeta> PropertyMetas;
+		std::vector<std::string> IfDefines;
 
 		std::vector<ReflectInheritanceData> TypeInheritance;
 
@@ -179,6 +181,7 @@ namespace Reflect::Parser
 	{
 		std::string Data;
 		size_t Cursor;
+		std::string FullPath;
 		std::string FilePath;
 		std::string FileName;
 		size_t GeneratedBodyLineOffset;
@@ -186,6 +189,9 @@ namespace Reflect::Parser
 
 		std::vector<Parser::ReflectContainerData> ReflectData;
 		bool Parsed = false;
+		// If true. This something has gone wrong in which we can't recover from. If true then all relfect data for this file
+		// will be removed.
+		bool AbortParsing = false;
 		FileParserOptions parserOptions;
 	};
 }

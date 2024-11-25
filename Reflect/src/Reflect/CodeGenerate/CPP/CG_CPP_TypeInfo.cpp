@@ -102,7 +102,7 @@ namespace Reflect::CodeGeneration
 
 		for (const auto& item : data.Inheritance)
 		{
-			if (!item.IsReflected) 
+			if (!item.HasCodeGenerated) 
 			{
 				continue;
 			}
@@ -321,7 +321,7 @@ namespace Reflect::CodeGeneration
 		std::function<void(const Parser::ReflectInheritanceData& data)> writeInheritance =
 			[&](const Parser::ReflectInheritanceData& data)
 			{
-				if (!data.IsReflected)
+				if (!data.HasCodeGenerated)
 				{
 					return;
 				}
@@ -338,7 +338,7 @@ namespace Reflect::CodeGeneration
 
 					for (const Parser::ReflectInheritanceData& d : data.Inheritances)
 					{
-						if (!d.IsReflected)
+						if (!d.HasCodeGenerated)
 						{
 							continue;
 						}

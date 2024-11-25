@@ -1,6 +1,7 @@
 #pragma once
 #include "Reflect/Core/Defines.h"
 #include "Reflect/Core/Compiler.h"
+#include "Reflect/Core/Util.h"
 
 #include <sstream>
 #include <iostream>
@@ -170,6 +171,7 @@ namespace Reflect::Profile
 		InstrumentationTimer(const char* name)
 			: m_Name(name), m_Stopped(false)
 		{
+			Util::RemoveCharAll(m_Name, '\n');
 			m_StartTimepoint = std::chrono::steady_clock::now();
 		}
 
@@ -194,7 +196,7 @@ namespace Reflect::Profile
 			m_Stopped = true;
 		}
 	private:
-		const char* m_Name;
+		std::string m_Name;
 		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
 		std::chrono::time_point<std::chrono::steady_clock> m_StopTimepoint;
 		bool m_Stopped;
@@ -236,12 +238,18 @@ namespace Reflect::Profile
 #define REFLECT_PROFILE_BEGIN_SESSION() Reflect::Profile::Instrumentor::Get().BeginSession()
 #define REFLECT_PROFILE_END_SESSION() Reflect::Profile::Instrumentor::Get().EndSession()
 #define REFLECT_PROFILE_SAVE_SESSION(filePath) Reflect::Profile::Instrumentor::Get().SaveSession(filePath)
+
 #define REFLECT_PROFILE_SCOPE_LINE2(name, line) constexpr auto fixedName##line = Reflect::Profile::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");\
-											   Reflect::Profile::InstrumentationTimer timer##line(fixedName##line.Data)
+											Reflect::Profile::InstrumentationTimer timer##line(fixedName##line.Data)
+
+#define REFLECT_PROFILE_SCOPE_CSTR2(name, line) Reflect::Profile::InstrumentationTimer timer##line(name)
 
 #define REFLECT_PROFILE_FRAME(name) REFLECT_PROFILE_SCOPE(name)
+
 #define REFLECT_PROFILE_SCOPE_LINE(name, line) REFLECT_PROFILE_SCOPE_LINE2(name, line)
+#define REFLECT_PROFILE_SCOPE_CSTR(name) REFLECT_PROFILE_SCOPE_CSTR2(name, __LINE__)
 #define REFLECT_PROFILE_SCOPE(name) REFLECT_PROFILE_SCOPE_LINE(name, __LINE__)
+
 #define REFLECT_PROFILE_FUNCTION() REFLECT_PROFILE_SCOPE(FUNC_SIG)
 #define REFLECT_PROFILE_CATEGORY(name, category) 
 #define REFLECT_PROFILE_THREAD(threadName)
