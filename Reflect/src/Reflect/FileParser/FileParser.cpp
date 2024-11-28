@@ -16,9 +16,27 @@
 #include <functional>
 
 #define EXP_PARSER
+// Load files using multiple threads (Testing shows this doesn't increase performance, disabled by default).
 #define PARSER_LOAD_FILES_MULTITHREADED 0
+// Load and Parse files using multiple threads (Disabled by default).
 #define FILE_PARSER_MULTITHREADED 0
+#ifndef FILE_PARSER_COLLECT_ALL_CONTAINERS
+/* 
+* Parse all classes and structs found in any file regardless if there is a REFLECT_[CLASS / STRUCT] macro for it (Enabled by default).
+* This improves namespace resolving and linking objects which are not defined with their full namespace. 
+* Example: If a member variable is defined as Vector2, but the Vector2 class is defined within namespace Maths, Reflect by default
+* can't link these. There are two options:
+	1. The first option is to use the REFLCET_CLASS macro with REFELCT_LOOKUP_ONLY, which always reflect to find the Vector2 class
+	then parse the namespace it is within knowing about the object.
+	2. The second option is to enable 'FILE_PARSER_COLLECT_ALL_CONTAINERS' (this define is enabled by default). With this option enabled
+	reflect will scan all files within the directory given for all classes/structs and track them (as if they all had 'REFLCET_CLASS(REFELCT_LOOKUP_ONLY)' macro).
+	This always the user of Reflect to not have 'REFLCET_CLASS(REFELCT_LOOKUP_ONLY)' implemented throughout the code base while allowing Reflect to  accurate link objects
+	which have been defined with part of their overall namespaces.
+
+* It is recommanded not to define 'FILE_PARSER_COLLECT_ALL_CONTAINERS' unless there are issues as the default value of 'FILE_PARSER_COLLECT_ALL_CONTAINERS' is enabled.
+*/
 #define FILE_PARSER_COLLECT_ALL_CONTAINERS 1
+#endif
 
 namespace Reflect::Parser
 {
@@ -249,7 +267,7 @@ namespace Reflect::Parser
 		do
 		{
 			const uint64_t nextContainerIdx = FindNextContainer(fileData);
-			if (nextContainerIdx == -1ull)
+			if (nextContainerIdx == -1)
 			{
 				// There is no class/struct. 
 				break;
@@ -263,6 +281,8 @@ namespace Reflect::Parser
 				fileData.Cursor = nextReflectContainerIdx;
 				if (!ParseContainerReflectProperties(fileData))
 				{
+					Log_Error("[FileParser::ParseFile] Unable to parse reflect properties for object in file: '%s'.\n", fileData.FullPath.c_str());
+					fileData.ReflectData.pop_back();
 					continue;
 				}
 			}
@@ -304,33 +324,42 @@ namespace Reflect::Parser
 		}
 #else
 		while (true)
-			/*ReflectContainerHeader(fileData, Keys::RefectStructKey, EReflectType::Struct)
-			|| ReflectContainerHeader(fileData, Keys::RefectClassKey, EReflectType::Class))*/
 		{
-			bool reflectHeader = false;
-			if (FileHasReflectData(fileData, Keys::RefectStructKey, EReflectType::Struct))
-			{
-				ReflectContainerHeader(fileData, Keys::RefectStructKey, EReflectType::Struct);
-				reflectHeader = true;
-			}
-			else if (FileHasReflectData(fileData, Keys::RefectClassKey, EReflectType::Class))
-			{
-				ReflectContainerHeader(fileData, Keys::RefectClassKey, EReflectType::Class);
-				reflectHeader = true;
-			}
-
-			if (reflectHeader)
-			{
-				++m_toalNumberOfContainersParsed;
-				ReflectContainer(fileData);
-				GetAllCPPIncludes(fileData);
-				reflectItem = true;
-				fileData.ReflectData.back().GenerateReflectCode = true;
-			}
-			else
+			EReflectType reflectType = EReflectType::Unknown;
+			const uint64_t reflectContainerIdx = FindNextReflectContainer(fileData, &reflectType);
+			if (reflectContainerIdx == -1)
 			{
 				break;
 			}
+
+			fileData.Cursor = reflectContainerIdx;
+			ReflectContainerData& reflectData = fileData.ReflectData.emplace_back(ReflectContainerData());
+			reflectData.ReflectType = reflectType;
+			reflectData.GenerateReflectCode = true;
+
+			if (!ParseContainerReflectProperties(fileData))
+			{
+				Log_Error("[FileParser::ParseFile] Unable to parse reflect properties for object in file: '%s'.\n", fileData.FullPath.c_str());
+				fileData.ReflectData.pop_back();
+				continue;
+			}
+
+			if (!ParseContainerHeader(fileData))
+			{
+				fileData.ReflectData.pop_back();
+				continue;
+			}
+
+			ReflectContainer(fileData);
+			if (fileData.AbortParsing)
+			{
+				Log_Error("[FileParser::ParseFile] Something has gone wrong parsing file '%s'. All reflect data has been removed. Please fix issues.\n", fileData.FullPath.data());
+				fileData.ReflectData.clear();
+			}
+			GetAllCPPIncludes(fileData);
+			reflectItem = true;
+
+			++m_toalNumberOfContainersParsed;
 		}
 #endif
 		fileData.Parsed = true;
@@ -430,7 +459,7 @@ namespace Reflect::Parser
 					}
 
 					std::string currentAliasAndNamespace;
-					for (int i = aliasNamespaceSplit.size() - 1; i >= 0; i--)
+					for (int i = static_cast<int>(aliasNamespaceSplit.size()) - 1; i >= 0; i--)
 					{
 						currentAliasAndNamespace.insert(0, aliasNamespaceSplit[i] + "::");
 						TypeAliasMap[currentAliasAndNamespace + alias].push_back(aliasNamespace + alias);
@@ -445,8 +474,6 @@ namespace Reflect::Parser
 
 	uint64_t FileParser::FindNextContainer(FileParsedData& fileData) const
 	{
-		FuncStart:
-
 		// Check if we can reflect this class/struct. 
 		// Note: This will catch 'enum class' but as that will not compile it should exist when building so something I'm not worried about at the moment.
 		const uint64_t classIdx = static_cast<size_t>(fileData.Data.find(Keys::ClassKey, fileData.Cursor));
@@ -455,7 +482,7 @@ namespace Reflect::Parser
 			&& structIdx == std::string::npos)
 		{
 			// Can't reflect this class/struct. Return.
-			return -1ull;
+			return -1;
 		}
 
 		const uint64_t containerStartIdx = std::min(classIdx, structIdx);
@@ -483,10 +510,8 @@ namespace Reflect::Parser
 		return containerStartIdx;
 	}
 
-	uint64_t FileParser::FindNextReflectContainer(FileParsedData& fileData) const
+	uint64_t FileParser::FindNextReflectContainer(FileParsedData& fileData, EReflectType* reflectType) const
 	{
-		Parser::ReflectContainerData& containerData = fileData.ReflectData.back();
-
 		// Check if we can reflect this class/struct. 
 		const uint64_t reflectClassIdx = static_cast<size_t>(fileData.Data.find(Keys::RefectClassKey, fileData.Cursor));
 		const uint64_t reflectStructIdx = static_cast<size_t>(fileData.Data.find(Keys::RefectStructKey, fileData.Cursor));
@@ -494,13 +519,18 @@ namespace Reflect::Parser
 			&& reflectStructIdx == std::string::npos)
 		{
 			// Can't reflect this class/struct. Return.
-			return -1ull;
+			return -1;
 		}
 
 		uint64_t relfectCurosrIdx = std::min(reflectClassIdx, reflectStructIdx);
 		if (IsCursorWithinComment(fileData, relfectCurosrIdx, true))
 		{
-			return -1ull;
+			return -1;
+		}
+
+		if (reflectType != nullptr)
+		{
+			*reflectType = reflectClassIdx < reflectStructIdx ? EReflectType::Class : EReflectType::Struct;
 		}
 
 		return relfectCurosrIdx;
@@ -555,7 +585,7 @@ namespace Reflect::Parser
 
 		// Found out if this class/struct is templated.
 		if (uint64_t tempalteIdx = CheckForTemplate(fileData); 
-			tempalteIdx != -1ull)
+			tempalteIdx != -1)
 		{
 			if (IsCursorWithinComment(fileData, tempalteIdx, true))
 			{
@@ -661,216 +691,6 @@ namespace Reflect::Parser
 			}
 		}
 		containerData.NameWithNamespace += containerData.Name;
-
-		return true;
-	}
-
-	bool FileParser::FileHasReflectData(FileParsedData& fileData, const std::string& keyword, const EReflectType type) const
-	{
-		// Check if we can reflect this class/struct. 
-		size_t reflectStart = static_cast<size_t>(fileData.Data.find(keyword, fileData.Cursor));
-		if (reflectStart == std::string::npos)
-		{
-			// Can't reflect this class/struct. Return.
-			return false;
-		}
-		fileData.Cursor = reflectStart;
-		return true;
-	}
-
-	bool FileParser::ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const EReflectType type)
-	{
-		REFLECT_PROFILE_FUNCTION();
-
-		Parser::ReflectContainerData containerData = {};
-
-		containerData.Namespaces = FindAllNamespaces(fileData, fileData.Cursor);
-		containerData.IfDefines = FindAllIfDefines(fileData, fileData.Cursor);
-
-		containerData.ReflectType = type;
-		fileData.Cursor = fileData.Cursor + static_cast<size_t>(keyword.length());
-		// Get the flags passed though the REFLECT macro.
-		containerData.ContainerProps = ReflectFlags(fileData);
-
-		if (containerData.ReflectType == EReflectType::Class)
-		{
-			size_t newPos = (size_t)fileData.Data.find("class", fileData.Cursor);
-			if (newPos != std::string::npos)
-			{
-				fileData.Cursor = newPos;
-				fileData.Cursor += 5;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else if (containerData.ReflectType == EReflectType::Struct)
-		{
-			size_t newPos = (size_t)fileData.Data.find("struct", fileData.Cursor);
-			if (newPos != std::string::npos)
-			{
-				fileData.Cursor = newPos;
-				fileData.Cursor += 6;
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		// Found out if this class/struct is templated.
-		const uint64_t fristSemiColonBeforeTempalte = fileData.Data.rfind(";", fileData.Cursor);
-		const uint64_t fristCloseBracketBeforeTempalte = fileData.Data.rfind("}", fileData.Cursor);
-		const uint64_t templateIndex = fileData.Data.rfind(Keys::TemplateKey, fileData.Cursor);
-
-		const bool fileHasTemplate = templateIndex != std::string::npos;
-		const bool fileTemplateValidSemiColon = fileHasTemplate &&
-			(fristSemiColonBeforeTempalte == std::string::npos || templateIndex > fristSemiColonBeforeTempalte);
-		const bool fileTemplateValidCloseBracket= fileHasTemplate &&
-			(fristCloseBracketBeforeTempalte == std::string::npos || templateIndex > fristCloseBracketBeforeTempalte);
-
-		const bool isTempalted = fileHasTemplate && fileTemplateValidSemiColon && fileTemplateValidCloseBracket;
-		if (isTempalted)
-		{
-			containerData.IsTemplate = true;
-
-			uint64_t templateCursor = templateIndex;
-			const uint64_t tempalteStartIndex = fileData.Data.find_first_of("<", templateCursor);
-			const uint64_t tempalteEndIndex = fileData.Data.find_last_of(">", fileData.Cursor);
-			assert(tempalteStartIndex < tempalteEndIndex && tempalteEndIndex < fileData.Cursor);
-
-			const std::string_view templateValues = std::string_view(fileData.Data.data() + tempalteStartIndex + 1, tempalteEndIndex - (tempalteStartIndex + 1));
-			const std::vector<std::string_view> templateValuesSplit = Util::SplitStringView(templateValues, ',');
-
-			// Process each template argument.
-			for (size_t templateValueIndex = 0; templateValueIndex < templateValuesSplit.size(); ++templateValueIndex)
-			{
-				const std::vector<std::string_view> templateStringSplit = Util::SplitStringView(templateValuesSplit[templateValueIndex], ' ');
-
-				std::string type;
-				std::string identifier;
-				bool hasDefaultValue = false;
-				std::string defaultValue;
-
-				for (size_t templateStringIdx = 0; templateStringIdx < templateStringSplit.size(); ++templateStringIdx)
-				{
-					std::string_view templateString = templateStringSplit[templateStringIdx];
-					if (templateString.empty())
-					{
-						continue;
-					}
-
-					if (hasDefaultValue)
-					{
-						defaultValue = std::string(templateString.data(), templateString.size());
-					}
-					else if (templateString == "=")
-					{
-						hasDefaultValue = true;
-					}
-					if (!type.empty())
-					{
-						identifier = std::string(templateString.data(), templateString.size());
-					}
-					else
-					{
-						type = std::string(templateString.data(), templateString.size());
-					}
-				}
-
-				if (!type.empty() && !identifier.empty())
-				{
-					containerData.TemplateTypes.emplace_back(ReflectTemplateData(type, identifier, defaultValue));
-				}
-			}
-		}
-
-		std::string containerName;
-		char breakChars[] =
-		{
-			':', '{', '\n', ';'
-		};
-
-		while (std::find(std::begin(breakChars), std::end(breakChars), fileData.Data.at(fileData.Cursor)) == std::end(breakChars))
-		{
-			if (fileData.Data.at(fileData.Cursor) != ' ')
-			{
-				containerName += fileData.Data.at(fileData.Cursor);
-			}
-			++fileData.Cursor;
-		}
-
-		if (fileData.Data[fileData.Cursor] == ';')
-		{
-			// Forward delectations are not supported at the moment.
-			return false;
-		}
-
-		for (const std::string str : m_ignoreStrings)
-			Util::RemoveString(containerName, str);
-
-		containerData.Name = containerName;
-		containerData.PrettyName = PrettyString(containerName);
-		containerData.Type = containerName;
-		containerData.TypeSize = DEFAULT_TYPE_SIZE;
-
-		// We are inheriting things.
-		const uint64_t inheritanceIdx = fileData.Data.find(':', fileData.Cursor);
-		const uint64_t containerStatIdx = fileData.Data.find('{', fileData.Cursor);
-		const bool hasInheritance = inheritanceIdx != std::string::npos 
-			&& containerStatIdx != std::string::npos
-			&& inheritanceIdx < containerStatIdx;
-
-		if (hasInheritance)
-		{
-			FindNextChar(fileData, ':');
-			++fileData.Cursor;
-			std::string type;
-			while (fileData.Data.at(fileData.Cursor) != '{')
-			{
-				if (fileData.Data.at(fileData.Cursor) == ',')
-				{
-					Util::RemoveCharAll(type, ' ');
-					Util::RemoveString(type, Keys::PublicKey);
-					Util::RemoveString(type, Keys::ProtectedKey);
-					Util::RemoveString(type, Keys::PrivateKey);
-					containerData.Inheritance.push_back({ type, type });
-					type.clear();
-				}
-				else
-				{
-					type += fileData.Data.at(fileData.Cursor);
-				}
-				++fileData.Cursor;
-			}
-			Util::RemoveCharAll(type, ' ');
-			Util::RemoveCharAll(type, '\n');
-			Util::RemoveCharAll(type, '\t');
-			Util::RemoveCharAll(type, '\r');
-			Util::RemoveString(type, Keys::PublicKey);
-			Util::RemoveString(type, Keys::ProtectedKey);
-			Util::RemoveString(type, Keys::PrivateKey);
-
-			std::string typeWithNamespaces = type;
-			while (type.find("::") != std::string::npos)
-			{
-				uint64_t index = type.find("::");
-				type = type.substr(index + 2);
-			}
-			containerData.Inheritance.push_back({ type, typeWithNamespaces });
-		}
-
-		if (!containerData.Namespaces.empty())
-		{
-			for (const std::string& str : containerData.Namespaces)
-			{
-				containerData.NameWithNamespace += str + "::";
-			}
-		}
-		containerData.NameWithNamespace += containerData.Name;
-		
-		fileData.ReflectData.push_back(containerData);
 
 		return true;
 	}
@@ -1556,8 +1376,8 @@ namespace Reflect::Parser
 		REFLECT_PROFILE_FUNCTION();
 		Log_Info("Linking all inheritances.\n");
 
-		std::function<void(ReflectInheritanceData&, Log::ProgressBar&, uint64_t&)> linkInheritanceFunc =
-			[&linkInheritanceFunc, this](ReflectInheritanceData& inheritanceData, Log::ProgressBar& progressBar, uint64_t& progressBarCount)
+		std::function<void(ReflectInheritanceData&, Log::ProgressBar&, uint32_t&)> linkInheritanceFunc =
+			[&linkInheritanceFunc, this](ReflectInheritanceData& inheritanceData, Log::ProgressBar& progressBar, uint32_t& progressBarCount)
 			{
 				progressBar.SetProgress(++progressBarCount);
 
@@ -1583,7 +1403,7 @@ namespace Reflect::Parser
 		// With the progress bar we do end up searching for inheritances twice (which is not great).
 		// TODO store the number of inheritances in a chain for a container.
 		Log::ProgressBar linkInheritanceProgressBar(GetTotalInheritancesToLink(), "Inheritances Linked", Log::ProgressBar::Options::All);
-		uint64_t progressCount = 0;
+		uint32_t progressCount = 0;
 		linkInheritanceProgressBar.SetProgress(progressCount);
 
 		for (auto& file : m_filesParsed)
@@ -1733,7 +1553,7 @@ namespace Reflect::Parser
 			FileParsedData& parsedData = m_filesParsed[parsedDataIdx];
 			std::vector<const ReflectContainerData*> reflectDataToBeRemoved;
 			
-			for (int refecltDataIdx = parsedData.ReflectData.size() - 1; refecltDataIdx >= 0; --refecltDataIdx)
+			for (int refecltDataIdx = static_cast<int>(parsedData.ReflectData.size()) - 1; refecltDataIdx >= 0; --refecltDataIdx)
 			{
 				progrssBar.SetProgress(++progrssCount);
 
@@ -1839,6 +1659,18 @@ namespace Reflect::Parser
 		REFLECT_PROFILE_FUNCTION();
 		return view == Keys::ReflectGeneratedBodykey 
 			|| view == Keys::ReflectPropertyKey;
+	}
+
+	std::string_view FileParser::GetCurrentLineFromCurosr(const FileParsedData& fileData, const uint64_t cursor) const
+	{
+		const uint64_t previousNewLineIdx = fileData.Data.rfind("\n", cursor);
+		const uint64_t nextNewLineIdx = fileData.Data.find("\n", cursor);
+
+		const uint64_t newLineStartIdx = previousNewLineIdx != std::string::npos ? previousNewLineIdx : 0;
+		const uint64_t newLineEndIdx = nextNewLineIdx != std::string::npos ? nextNewLineIdx : fileData.Data.size();
+
+		std::string_view line = std::string_view(fileData.Data.data() + newLineStartIdx, newLineEndIdx - newLineStartIdx);
+		return line;
 	}
 
 	void FileParser::MoveToEndOfScope(FileParsedData& fileData, const char startScopeChar, const char endScopeChar) const
@@ -1978,7 +1810,7 @@ namespace Reflect::Parser
 			(fristCloseBracketBeforeTempalte == std::string::npos || templateIndex > fristCloseBracketBeforeTempalte);
 
 		const bool isTempalted = hasTemplate && templateValidSemiColon && templateValidCloseBracket;
-		return isTempalted ? templateIndex : -1ull;
+		return isTempalted ? templateIndex : -1;
 	}
 
 	std::vector<ReflectTemplateData> FileParser::ParseTemplateData(FileParsedData& fileData) const
@@ -2082,13 +1914,8 @@ namespace Reflect::Parser
 			|| (previousStartBlockIdx != std::string::npos && previousStartBlockIdx > previousEndBlockIdx);
 
 		// Check if the line the cursor is on has an appending '//' to show it has been commented out.
-		const uint64_t previousNewLineIdx = fileData.Data.rfind("\n", cursor);
-		const uint64_t nextNewLineIdx = fileData.Data.find("\n", cursor);
 
-		const uint64_t newLineStartIdx = previousNewLineIdx != std::string::npos ? previousNewLineIdx : 0;
-		const uint64_t newLineEndIdx = nextNewLineIdx != std::string::npos ? nextNewLineIdx : fileData.Data.size();
-
-		std::string_view line = std::string_view(fileData.Data.data() + newLineStartIdx, newLineEndIdx - newLineStartIdx);
+		std::string_view line = GetCurrentLineFromCurosr(fileData, cursor);
 		const uint64_t commentLineStartIdx = line.find("//");
 
 		const bool cursorWithinCommentLine = commentLineStartIdx < cursor;
@@ -2100,26 +1927,14 @@ namespace Reflect::Parser
 		}
 		else if (cursorWithinCommentLine && moveCursorToEnd)
 		{
-			cursor = nextNewLineIdx;
+			cursor = fileData.Data.find("\n", cursor);
+			if (cursor == std::string::npos)
+			{
+				cursor = fileData.Data.size();
+			}
 		}
 
 		return cursorWithinCommentBlock || cursorWithinCommentLine;
-	}
-
-	const char* FileParser::GetLastReflectContainerKey(const FileParsedData& fileData) const
-	{
-		if (!fileData.ReflectData.empty())
-		{
-			if (fileData.ReflectData.back().ReflectType == EReflectType::Class)
-			{
-				return Keys::ClassKey;
-			}
-			else
-			{
-				return Keys::StructKey;
-			}
-		}
-		return "";
 	}
 
 	void FileParser::GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer) const

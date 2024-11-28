@@ -96,6 +96,12 @@ namespace Reflect
 			, m_options(options)
 		{ }
 
+		ProgressBar::ProgressBar(const uint64_t maxProgress, const std::string & text, const OptionsFlags options)
+			: m_maxProgress(static_cast<uint32_t>(maxProgress))
+			, m_text(text)
+			, m_options(options)
+		{ }
+
 		ProgressBar::~ProgressBar()
 		{ }
 
@@ -167,7 +173,7 @@ namespace Reflect
 
 		uint32_t ProgressBar::GetBarFillWidth() const
 		{
-			const uint64_t barFillWidth = static_cast<uint32_t>(static_cast<float>(m_barWidth) * GetCompletedPercentage());
+			const uint32_t barFillWidth = static_cast<uint32_t>(static_cast<float>(m_barWidth) * GetCompletedPercentage());
 			return barFillWidth;
 		}
 
@@ -203,10 +209,10 @@ namespace Reflect
 			{
 				return 1;
 			}
-			return std::floor(std::log10(n) + 1);
+			return static_cast<uint32_t>(std::floor(std::log10(n) + 1.0));
 		}
 
-		uint64_t ProgressBar::GetMaxPrintStringLength() const
+		uint32_t ProgressBar::GetMaxPrintStringLength() const
 		{
 			const uint64_t maxLogSize = strlen("[")
 				+ m_barWidth
@@ -220,13 +226,13 @@ namespace Reflect
 				+ strlen(" ")
 				+ m_postText.size()
 				+ 1;
-			return maxLogSize;
+			return static_cast<uint32_t>(maxLogSize);
 		}
 
 		void ProgressBar::PrintIntToPrintString(const uint32_t n, uint32_t& printStringIdx)
 		{
 			const uint32_t numberOfDigits = GetNmberOfDigits(n);
-			for (size_t i = 0; i < numberOfDigits; i++)
+			for (uint32_t i = 0; i < numberOfDigits; i++)
 			{
 				const uint32_t digit = GetDigitFromNumber(n, i);
 				const uint32_t idx = printStringIdx + (numberOfDigits - i - 1);
@@ -274,7 +280,7 @@ namespace Reflect
 
 			m_printString[printStringIdx++] = ' ';
 			std::copy(m_text.begin(), m_text.end(), m_printString.begin() + printStringIdx);
-			printStringIdx += m_text.size();
+			printStringIdx += static_cast<uint32_t>(m_text.size());
 
 			if (m_options & Options::DisplayAbsValues)
 			{
@@ -287,7 +293,7 @@ namespace Reflect
 			{
 				m_printString[printStringIdx++] = ' ';
 				std::copy(m_postText.begin(), m_postText.end(), m_printString.begin() + printStringIdx);
-				printStringIdx += m_postText.size();
+				printStringIdx += static_cast<uint32_t>(m_postText.size());
 			}
 
 			m_printString[printStringIdx++] = '\0';

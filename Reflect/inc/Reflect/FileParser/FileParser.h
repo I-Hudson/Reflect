@@ -19,7 +19,7 @@ namespace Reflect
 namespace Reflect::Parser
 {
 	/// <summary>
-	/// Parse a single file. This should extract all the info like functions and variables.
+	/// Given a directory, parse all files within it.
 	/// </summary>
 	class FileParser
 	{
@@ -51,13 +51,11 @@ namespace Reflect::Parser
 		void ParseUsingTags(FileParsedData& fileData);
 
 		uint64_t FindNextContainer(FileParsedData& fileData) const;
-		uint64_t FindNextReflectContainer(FileParsedData& fileData) const;
+		uint64_t FindNextReflectContainer(FileParsedData& fileData, EReflectType* reflectType = nullptr) const;
 
 		bool ParseContainerReflectProperties(FileParsedData& fileData) const;
 		bool ParseContainerHeader(FileParsedData& fileData) const;
 
-		bool FileHasReflectData(FileParsedData& fileData, const std::string& keyword, const EReflectType type) const;
-		bool ReflectContainerHeader(FileParsedData& fileData, const std::string& keyword, const EReflectType type);
 		void ReflectContainer(FileParsedData& fileData) const;
 		void GetAllCPPIncludes(FileParsedData& fileData) const;
 
@@ -83,6 +81,8 @@ namespace Reflect::Parser
 		std::string FindNextWord(const FileParsedData& fileData, size_t& cursor, const std::vector<char>& endChars, bool reverse = false) const;
 		bool IsWordReflectKey(std::string_view view) const;
 
+		std::string_view GetCurrentLineFromCurosr(const FileParsedData& fileData, const uint64_t cursor) const;
+
 		void MoveToEndOfScope(FileParsedData& fileData, const char startScopeChar, const char endScopeChar) const;
 
 		bool CheckForTypeAlias(std::string_view view) const;
@@ -98,8 +98,6 @@ namespace Reflect::Parser
 		uint64_t FindEndOfTemplate(const FileParsedData& fileData, const uint64_t tempalteStartIdx) const;
 
 		bool IsCursorWithinComment(FileParsedData& fileData, uint64_t& cursor, const bool moveCursorToEnd) const;
-
-		const char* GetLastReflectContainerKey(const FileParsedData& fileData) const;
 
 		void GetReflectNameAndReflectValueTypeAndReflectModifer(std::string& str, std::string& name, EReflectValueType& valueType, EReflectValueModifier& modifer) const;
 

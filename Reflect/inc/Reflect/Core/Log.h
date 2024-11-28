@@ -54,6 +54,7 @@ namespace Reflect
 			
 			ProgressBar();
 			ProgressBar(const uint32_t maxProgress, const std::string& text = "", const OptionsFlags options = Options::None);
+			ProgressBar(const uint64_t maxProgress, const std::string& text = "", const OptionsFlags options = Options::None);
 			~ProgressBar();
 
 			void SetOptions(const OptionsFlags options);
@@ -75,7 +76,7 @@ namespace Reflect
 			uint32_t GetNmberOfDigits(const uint32_t n) const;
 			void PrintIntToPrintString(const uint32_t n, uint32_t& printStringIdx);
 
-			uint64_t GetMaxPrintStringLength() const;
+			uint32_t GetMaxPrintStringLength() const;
 
 			void Print();
 
