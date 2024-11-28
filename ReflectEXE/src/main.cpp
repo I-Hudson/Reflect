@@ -7,8 +7,24 @@
 #include <string_view>
 #include <string.h>
 
+#ifdef _WIN32
+#include "../resource.h"
+#include <Windows.h>
+#endif 
+
 int main(int argc, char* argv[])
 {
+#ifdef _WIN32
+	HWND hWnd = GetConsoleWindow();
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	if (hWnd && hInstance)
+	{
+		HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+	}
+#endif
+
 	REFLECT_PROFILE_BEGIN_SESSION();
 	Reflect::Profile::InstrumentationTimer timer("Reflect Timer");
 	{

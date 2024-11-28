@@ -57,5 +57,9 @@ project "ReflectEXE"
         optimize "full"
         kind "ConsoleApp"
 
-        filter { "system:windows", "configurations:Release" }
-            buildoptions "/MT"
+    filter { "system:windows" }
+            files
+            {
+                "Reflect.rc",
+                "resource.h",
+            }
