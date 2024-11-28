@@ -7,9 +7,11 @@
 
 This theme is highly customizable because a lot of things are parameterized with CSS variables.
 
-Just to give you an idea on how flexible the styling is, click this button:
+Just to give you an idea of how flexible the styling is, click this button:
 
 <div class="alter-theme-button" onclick="toggle_alternative_theme()" onkeypress="if (event.keyCode == 13) toggle_alternative_theme()" tabindex=0>Alter theme</div>
+
+<br><hr>
 
 ### Setup
 
@@ -26,15 +28,18 @@ html {
 }
 ```
 
-For dark-mode overrides you have to choose where to put them, depending on wether the dark-mode toggle extension is installed or not:
+For dark-mode overrides, you have to choose where to put them, depending on whether the dark-mode toggle extension is installed or not:
 
-- dark-mode toggle is installed:
+<div class="tabbed">
+
+- <b class="tab-title">dark-mode toggle is installed</b>
     ```css
     html.dark-mode {
         /* define dark-mode variable overrides here if you DO use doxygen-awesome-darkmode-toggle.js */
     }
     ```
-- dark-mode toggle is **NOT** installed. The dark-mode is enabled automatically depending on the system preference:
+- <b class="tab-title">dark-mode toggle is **NOT** installed</b>
+   The dark-mode is enabled automatically depending on the system preference:
     ```css
     @media (prefers-color-scheme: dark) {
         html:not(.light-mode) {
@@ -42,6 +47,8 @@ For dark-mode overrides you have to choose where to put them, depending on wethe
         }
     }
     ```
+
+</div>
 
 ### Available variables
 
@@ -73,7 +80,7 @@ All variables are defined at the beginning of the stylesheet.
 | **Code Fragment Colors**:<br>Color-Scheme of multiline codeblocks                                                                                             |||
 | `--fragment-background`             | <code style="background:#F8F9FA;color:black">#F8F9FA</code> | <code style="background:#282c34;color:white">#282c34</code> |
 | `--fragment-foreground`             | <code style="background:#37474F;color:white">#37474F</code> | <code style="background:#dbe4eb;color:black">#dbe4eb</code> |
-| **Arrow Opacity**:<br>By default the arrows in the sidebar are only visible on hover. You can override this behaviour so they are visible all the time.       |||
+| **Arrow Opacity**:<br>By default the arrows in the sidebar are only visible on hover. You can override this behavior so they are visible all the time.       |||
 | `--side-nav-arrow-opacity`          | `0`                                                         |                                                             |
 | `--side-nav-arrow-hover-opacity`    | `0.9`                                                       |                                                             |
 | ...and many more                                                                                                                                              |||
@@ -85,11 +92,11 @@ If you miss a configuration option or find a bug, please consider [opening an is
 
 The theme overrides most colors with the `--primary-color-*` variables.
 
-But there is a few small images and graphics that the theme cannot adjust or replace. To make these blend in better with
+But there are a few small images and graphics that the theme cannot adjust or replace. To make these blend in better with
 the rest, it is recommended to adjust the [doxygen color settings](https://www.doxygen.nl/manual/customize.html#minor_tweaks_colors) 
-to something that matches the chosen color-scheme.
+to something that matches the chosen color scheme.
 
-For the default color-scheme, these values work out quite well:
+For the default color scheme, these values work out quite well:
 
 ```
 # Doxyfile
@@ -100,11 +107,15 @@ HTML_COLORSTYLE_GAMMA  = 113
 
 ## Share your customizations
 
-If you customized the theme with custom colors, spacings, font-sizes, etc. and you want to share your creation with others, you can to this [here](https://github.com/jothepro/doxygen-awesome-css/discussions/13).
+If you have customized the theme with custom colors, spacings, font-sizes, etc. and you want to share your creation with others, you can do this [here](https://github.com/jothepro/doxygen-awesome-css/discussions/13).
 
 I am always curious to learn about how you made the theme look even better!
 
-<span class="next_section_button">
 
-Read Next: [Tips & Tricks](tricks.md)
-</span>
+<div class="section_buttons">
+
+| Previous                    |                       Next |
+|:----------------------------|---------------------------:|
+| [Extensions](extensions.md) | [Tips & Tricks](tricks.md) |
+
+</div>
