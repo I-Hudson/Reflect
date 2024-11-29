@@ -131,7 +131,7 @@ namespace Reflect
 			{
 				// Shrink the post text so it fits on one line on the console.
 				const uint32_t delta = printStringLength - consoleWidth;
-				m_postText.resize(m_postText.size() - delta);
+				m_postText.resize(consoleWidth);
 			}
 			Print();
 		}

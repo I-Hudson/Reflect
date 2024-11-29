@@ -81,6 +81,12 @@ namespace Reflect::Parser
 		bool HasDefualtValue() const { return DefaultValue.empty(); }
 	};
 
+	struct ReflectIfDefineData
+	{
+		std::string Data;
+		uint64_t Line;
+	};
+
 	struct ReflectTypeNameData
 	{
 		std::string Type;
@@ -91,7 +97,7 @@ namespace Reflect::Parser
 		EReflectValueModifier ReflectModifier = EReflectValueModifier::None;
 		std::vector<std::string> ContainerProps;
 		std::vector<PropertyMeta> PropertyMetas;
-		std::vector<std::string> IfDefines;
+		std::vector<ReflectIfDefineData> IfDefines;
 
 		std::vector<ReflectInheritanceData> TypeInheritance;
 
@@ -159,7 +165,7 @@ namespace Reflect::Parser
 		std::string PrettyName;
 		std::vector<ReflectInheritanceData> Inheritance;
 		std::vector<std::string> Namespaces;
-		std::vector<std::string> IfDefines;
+		std::vector<ReflectIfDefineData> IfDefines;
 		EReflectType ReflectType;
 		size_t ReflectGenerateBodyLine;
 

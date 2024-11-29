@@ -841,7 +841,7 @@ namespace Reflect::Parser
 				}
 
 				// Get any '#if'/'#ifdef'/'#if defined(' before the REFLECT_PROPERTY macro.
-				std::vector<std::string> ifDefinesBeforeReflectProperty = FindAllIfDefines(fileData, fileData.Cursor);
+				std::vector<ReflectIfDefineData> ifDefinesBeforeReflectProperty = FindAllIfDefines(fileData, fileData.Cursor);
 
 				fileData.Cursor += (size_t)strlen(Keys::ReflectPropertyKey);
 				reflectPropertyMetas = ReflectPropertyMetas(fileData);
@@ -903,12 +903,12 @@ namespace Reflect::Parser
 					property = &conatinerData.Functions.back();
 				}
 
-				std::vector<std::string> ifDefinesAfterReflectProperty = FindAllIfDefines(fileData, fileData.Cursor);
+				std::vector<ReflectIfDefineData> ifDefinesAfterReflectProperty = FindAllIfDefines(fileData, fileData.Cursor);
 
-				if (!ifDefinesBeforeReflectProperty.empty() && !ifDefinesAfterReflectProperty.empty())
+				if (ifDefinesBeforeReflectProperty.size() != ifDefinesAfterReflectProperty.size())
 				{
 					Log_Error("[FileParser::ReflectContainer] There is a mismatch between a '#if', '#ifdef', '#if defined' between a REFLECT_PROPERTY");
-					Log_Error("and either a member or function it is associated with, File: '%s', Property: '%s'.\n", fileData.FullPath.c_str(), property->Name.c_str());
+					Log_Error(" and either a member or function it is associated with, File: '%s', Property: '%s'.\n", fileData.FullPath.c_str(), property->Name.c_str());
 
 					// TODO: Instead of clearing the defines (so nothing should compile until fixed). Maybe defines should be stored as where in the file
 					// they are allowing for filtering here. We could store the cursor position of the define and filter them via that.
@@ -1009,10 +1009,10 @@ namespace Reflect::Parser
 		return "";
 	}
 
-	std::vector<std::string> FileParser::FindAllIfDefines(FileParsedData fileData, size_t reflectStart) const
+	std::vector<ReflectIfDefineData> FileParser::FindAllIfDefines(FileParsedData fileData, size_t reflectStart) const
 	{
 		fileData.Cursor = 0;
-		std::stack<std::string> ifDefines;
+		std::stack<ReflectIfDefineData> ifDefines;
 
 		while (fileData.Cursor < reflectStart)
 		{
@@ -1079,10 +1079,11 @@ namespace Reflect::Parser
 			{
 				define = "#if " + define;
 			}
-			ifDefines.push(define);
+			uint64_t lineNumber = CountNumberOfSinceTop(fileData, fileData.Cursor, '\n');
+			ifDefines.push(ReflectIfDefineData { define, lineNumber });
 		}
 
-		std::vector<std::string> result;
+		std::vector<ReflectIfDefineData> result;
 		while (!ifDefines.empty())
 		{
 			result.push_back(ifDefines.top());

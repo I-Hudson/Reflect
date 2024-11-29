@@ -121,7 +121,7 @@ TEST_CASE("Legacy property inheritance")
 #endif
 
 #ifdef REFLECT_TYPE_INFO_ENABLED
-TEST_CASE("TypeInfo registy")
+TEST_CASE("TypeInfo registry")
 {
 	ClassHolder classHolder;
 	Reflect::TypeInfoRegistry& registy = Reflect::TypeInfoRegistry::Instance();

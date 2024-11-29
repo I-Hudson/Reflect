@@ -1,4 +1,5 @@
 #include "Reflect/Reflect.h"
+#include "Reflect/Core/Log.h"
 #include "Reflect/Instrumentor.h"
 #include "Reflect/FileParser/FileParser.h"
 #include "Reflect/CodeGenerate/CodeGenerate.h"
@@ -11,6 +12,40 @@
 #include "../resource.h"
 #include <Windows.h>
 #endif 
+
+const char* CommandPrefixInfo[3] = { "Commands are defined with the prefix '-'", "Example '-Help'", "" };
+const char* CommandNoValueInfo[3] = { "Commands without the '=<Values>' subfix must be in the format of '-CommandId", "'-DontCloseOnFinish'", "" };
+const char* CommandValueInfo[3] = { "Commands with the '=<Values>' subfix must be in the format of '-CommandId'='Value1' 'Value2' ...", "-Directories='LocalHeaders' '../Vendor/Headers'", "" };
+
+const char* CommandHelp[3] =				{ "-Help", "-Help", "Print all commands." };
+const char* CommandDontCloseOnFinish[3] =	{ "-DontCloseOnFinish", "-DontCloseOnFinish", "Don't close the app after Reflect has finished parsing and code generation." };
+const char* CommandDirectories[3] =			{ "-Directories", "Directories=<Values>", "Define multiple directories to parse." };
+const char* CommandIgnoreWords[3] =			{ "-IgnoreWords", "-IgnoreWords=<Values>", "Define words to ignore when parsing (Example: defines used for __declspec(dllexport) and __declspec(dllimport))." };
+const char* CommandExit[3] =				{ "-Exit", "-Exit", "Exit the application." };
+
+#define COMMAND_GET_ID(Command) Command[0]
+#define COMMAND_GET_EXAMPLE(Command) Command[1]
+#define COMMAND_GET_DESCRIPTION(Command) Command[2]
+
+#define COMMAND_LOG_VALUES(CommandArray) \
+{ CommandArray[0], { CommandArray[1], CommandArray[2]} }
+
+const std::unordered_map<const char*, std::vector<const char*>> Commands =
+{
+	COMMAND_LOG_VALUES(CommandPrefixInfo),
+	COMMAND_LOG_VALUES(CommandNoValueInfo),
+	COMMAND_LOG_VALUES(CommandValueInfo),
+
+	COMMAND_LOG_VALUES(CommandHelp),
+	COMMAND_LOG_VALUES(CommandDontCloseOnFinish),
+	COMMAND_LOG_VALUES(CommandDirectories),
+	COMMAND_LOG_VALUES(CommandIgnoreWords),
+	COMMAND_LOG_VALUES(CommandExit),
+};
+#undef COMMAND_LOG_VALUES
+
+std::unordered_map<std::string, std::vector<std::string>> ParseInputToCommands(const std::string& input);
+void RunReflect(const std::unordered_map<std::string, std::vector<std::string>>& commands);
 
 int main(int argc, char* argv[])
 {
@@ -25,17 +60,107 @@ int main(int argc, char* argv[])
 	}
 #endif
 
+	std::cout << R"(
+ ____       __ _           _   
+|  _ \ ___ / _| | ___  ___| |_ 
+| |_) / _ \ |_| |/ _ \/ __| __|
+|  _ <  __/  _| |  __/ (__| |_ 
+|_| \_\___|_| |_|\___|\___|\__|
+
+Use '-Help' for a list of all commands. Commands are case sensitive.)" << "\n\n\n";
+
+	std::string cmdArguments;
+	for (size_t i = 1; i < argc; i++)
+	{
+		cmdArguments += argv[i];
+		cmdArguments += " ";
+	}
+	std::unordered_map<std::string, std::vector<std::string>> commands = ParseInputToCommands(cmdArguments);
+
+	bool shouldExit = !(commands.find(COMMAND_GET_ID(CommandDontCloseOnFinish)) != commands.end());
+	RunReflect(commands);
+
+	while (!shouldExit)
+	{
+		std::string input;
+		std::cin >> input;
+
+		commands = ParseInputToCommands(input);
+		RunReflect(commands);
+
+		if (commands.find(COMMAND_GET_ID(CommandHelp)) != commands.end())
+		{
+			Log_Info("\n");
+			Log_Info("/**************\n");
+			Log_Info("All commands, example usage and description of commands are below.\n");
+			Log_Info("[Id] [Usage] [Description].\n");
+			for (const auto& kvp : Commands)
+			{
+				Log_Info("%s, %s, %s\n\n", kvp.first, kvp.second[0], kvp.second[1]);
+			}
+			Log_Info("/**************\n");
+		}
+		if (commands.find(COMMAND_GET_ID(CommandExit)) != commands.end())
+		{
+			shouldExit = true;
+		}
+	}
+}
+
+std::unordered_map<std::string, std::vector<std::string>> ParseInputToCommands(const std::string& input)
+{
+	std::vector<std::string> inputSplit = Reflect::Util::SplitString(input, ' ');
+
+	std::unordered_map<std::string, std::vector<std::string>> commands;
+
+	// Parse the initial arguments passed into the application. 
+	std::string commandId;
+	for (size_t i = 0; i < inputSplit.size(); i++)
+	{
+		std::string str = inputSplit[i];
+		if (str.empty())
+		{
+			continue;
+		}
+
+		const bool strIsCommandId = !str.empty() && str[0] == '-';
+		if (strIsCommandId)
+		{
+			commandId = str.substr(0, str.find('='));
+			commands[commandId];
+
+			const uint64_t valuePos = str.find("=");
+			if (valuePos != std::string::npos)
+			{
+				commands[commandId].push_back(str.substr(valuePos + 1));
+			}
+		}
+		else if (!commandId.empty())
+		{
+			commands[commandId].push_back(str);
+		}
+		else
+		{
+			Log_Error("[Reflect] No command for value '%s'.\n", str);
+		}
+	}
+	return commands;
+}
+
+void RunReflect(const std::unordered_map<std::string, std::vector<std::string>>& commands)
+{
 	REFLECT_PROFILE_BEGIN_SESSION();
 	Reflect::Profile::InstrumentationTimer timer("Reflect Timer");
 	{
 		REFLECT_PROFILE_SCOPE("MAIN");
 
-		Reflect::Parser::FileParser parser;
-		Reflect::CodeGeneration::CodeGenerate codeGenerate;
-		Reflect::ReflectAddtionalOptions options = { };
-
 		std::vector<std::string> directories;
-		for (size_t i = 0; i < argc; ++i)
+		if (const auto iter = commands.find(COMMAND_GET_ID(CommandDirectories));
+			iter != commands.end())
+		{
+			std::copy(iter->second.begin(), iter->second.end(), std::back_inserter(directories));
+		}
+		/*for (size_t i = 0; i < argc; ++i)
 		{
 			bool foundPath = false;
 			try
@@ -48,7 +173,8 @@ int main(int argc, char* argv[])
 				}
 			}
 			catch (std::error_code)
-			{ }
+			{
+			}
 
 			if (!foundPath)
 			{
@@ -60,10 +186,21 @@ int main(int argc, char* argv[])
 					itr->second = arg.substr(arg.find('=') + 1);
 				}
 			}
+		}*/
+
+		std::vector<std::string> ignoreStrings;
+		if (const auto iter = commands.find(COMMAND_GET_ID(CommandIgnoreWords));
+			iter != commands.end())
+		{
+			std::copy(iter->second.begin(), iter->second.end(), std::back_inserter(ignoreStrings));
 		}
 
 		if (directories.size() > 0)
 		{
+			Reflect::Parser::FileParser parser;
+			Reflect::CodeGeneration::CodeGenerate codeGenerate;
+			Reflect::ReflectAddtionalOptions options = { };
+
 			std::ifstream iFile(Reflect::Keys::ReflectIgnoreStringsFileName);
 			if (iFile.is_open())
 			{
@@ -75,8 +212,11 @@ int main(int argc, char* argv[])
 				data.resize(size);
 				iFile.read(data.data(), size);
 				iFile.close();
-				parser.SetIgnoreStrings(Reflect::Util::SplitString(data.data(), '\n'));
+
+				const std::vector<std::string> ignoreStringsFile = Reflect::Util::SplitString(data.data(), '\n');
+				std::move(ignoreStringsFile.begin(), ignoreStringsFile.end(), std::back_inserter(ignoreStrings));
 			}
+			parser.SetIgnoreStrings(ignoreStrings);
 
 			for (auto& dir : directories)
 			{
@@ -91,5 +231,6 @@ int main(int argc, char* argv[])
 	std::cout << "Reflect sec: " << timer.GetElapsedTimeSec() << "\n";
 	REFLECT_PROFILE_END_SESSION();
 	REFLECT_PROFILE_SAVE_SESSION("ReflectEXE_Profile.json");
-	return 0;
+
+	Reflect::Log::Message(Reflect::Log::ConsoleColour::Light_Green, Reflect::Log::ConsoleColour::Black, "Reflect has finished.\n");
 }

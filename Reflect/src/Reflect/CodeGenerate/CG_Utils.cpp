@@ -61,15 +61,15 @@ namespace Reflect::CodeGeneration
 
     void CG_Utils::WriteIfDefines(const Parser::ReflectContainerData& data, std::ofstream& file)
     {
-        for (std::string define : data.IfDefines)
+        for (const Parser::ReflectIfDefineData& define : data.IfDefines)
         {
-            file << define << '\n';
+            file << define.Data << '\n';
         }
     }
 
     void CG_Utils::WriteEndIfDefines(const Parser::ReflectContainerData& data, std::ofstream& file)
     {
-        for (const std::string& define : data.IfDefines)
+        for (const Parser::ReflectIfDefineData& define : data.IfDefines)
         {
             file << "#endif" << '\n';
         }
