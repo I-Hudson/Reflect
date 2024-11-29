@@ -24,7 +24,7 @@ set zipArchive=""
 IF "%version%" == "" (
     set zipArchive="%cd%\BuiltZips\Reflect_Lib.zip"
 ) ELSE (
-    set zipArchive="%cd%\BuiltZips\Reflect_Lib%version%.zip"
+    set zipArchive="%cd%\BuiltZips\Reflect_Lib_%version%.zip"
 )
 
 echo Building zip with version number %version%
