@@ -18,13 +18,9 @@ if exist "%cd%/%tempZipFolderName%/" (
 call "BuildProject.bat"
 
 echo Copying files from "%exeLocation%" to "%cd%/%tempZipFolderName%/"
-xcopy /i "%exeLocation%\*.*" "%cd%/%tempZipFolderName%/"
+xcopy /i /y "%exeLocation%\*.exe" "%cd%/%tempZipFolderName%/"
 
 cd "%cd%/%tempZipFolderName%"
-
-echo Removing .pdb and profile json file
-del /q "ReflectEXE.pdb"
-del /q "ReflectEXE_Profile.json"
 
 echo Renaming exe to Reflect.exe
 ren ReflectEXE.exe Reflect.exe

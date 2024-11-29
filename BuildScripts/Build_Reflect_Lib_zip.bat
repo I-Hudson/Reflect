@@ -17,14 +17,22 @@ echo "%libraryFilesDebug%"
 echo "%libraryFilesDebug%"
 
 xcopy /s /e /y /i "%headerFiles%\*.*" "%cd%/%tempZipFolderName%%/inc/"
-xcopy /i "%libraryFilesDebug%\*.*" "%cd%/%tempZipFolderName%/lib/x64/Debug"
-xcopy /i "%libraryFilesRelease%\*.*" "%cd%/%tempZipFolderName%/lib/x64/Release"
+xcopy /i /y "%libraryFilesDebug%\*.*" "%cd%/%tempZipFolderName%/lib/x64/Debug/*.lib"
+xcopy /i /y "%libraryFilesRelease%\*.*" "%cd%/%tempZipFolderName%/lib/x64/Release/*.lib"
 
+set zipArchive=""
 IF "%version%" == "" (
-    7z a BuiltZips/Reflect_Lib.zip "%cd%/%tempZipFolderName%/*"
+    set zipArchive="%cd%\BuiltZips\Reflect_Lib.zip"
 ) ELSE (
-    7z a BuiltZips/Reflect_Lib_%version%.zip "%cd%/%tempZipFolderName%/*"
+    set zipArchive="%cd%\BuiltZips\Reflect_Lib%version%.zip"
 )
+
+echo Building zip with version number %version%
+if exist %zipArchive% (
+    echo Removing already existing zip
+    del /q %zipArchive%
+)
+7z a %zipArchive% "%cd%/%tempZipFolderName%/*"
 
 del /f /s /q "%cd%/tempZipFolder" 1>nul
 RMDIR /s /q "%cd%/tempZipFolder"
