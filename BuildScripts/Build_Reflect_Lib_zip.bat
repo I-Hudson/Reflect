@@ -1,6 +1,10 @@
 @echo off
 
-set /p version="Eneter version number or enter to continue: "
+set version=%~1
+
+if "%version%" == "" (
+    set /p version="Enter version number or enter to continue: "
+)
 
 SET PATH=%PATH%;"C:\Program Files\7-Zip"
 set headerFiles=%cd%\..\Reflect\inc

@@ -1,13 +1,34 @@
 @echo off
 
-set currentDisk=%cd:~0,2%
-set currentDir=%cd%
+set VS_2022_Preview=C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE
+set VS_2022_Community=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE
+set VS_2019_Community=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE
 
-cd /d C:
-cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE"
+set VSDir=""
+if exist %VS_2022_Preview% (
+	echo Using VS 2022 Preview
+	set VSDir=%VS_2022_Preview%
+	GOTO BUILD
+)
+if exist %VS_2022_Preview% (
+	echo Using VS 2022 Community
+	set VSDir=%VS_2022_Community%
+	GOTO BUILD
+)
+if exist %VS_2022_Preview% (
+	echo Using VS 2019 Community
+	set VSDir=%VS_2019_Community%
+	GOTO BUILD
+)
+GOTO END
 
-call devenv.exe "F:\Users\Documents\SourceControl\Github\C++ Porjects\Reflect\Reflect.sln" /build Debug
-call devenv.exe "F:\Users\Documents\SourceControl\Github\C++ Porjects\Reflect\Reflect.sln" /build Release
+:BUILD
+echo Building Debug Windows x64
+call "%VSDir%\devenv.exe" "..\Reflect.sln" /build Debug
+echo Building Release Windows x64
+call "%VSDir%\devenv.exe" "..\Reflect.sln" /build Release
 
-cd /d %currentDisk%
-cd "%currentDir%"
+echo Finshed building
+GOTO END
+
+:END
