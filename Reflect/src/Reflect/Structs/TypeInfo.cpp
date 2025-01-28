@@ -33,6 +33,11 @@ namespace Reflect
             && m_objectInstance != nullptr;
     }
 
+    bool TypeInfo::HasObjectInstance() const
+    {
+        return m_objectInstance != nullptr;
+    }
+
     TypeId TypeInfo::GetTypeId() const
     {
         return m_type.GetTypeId();

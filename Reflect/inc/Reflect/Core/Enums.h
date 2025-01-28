@@ -50,12 +50,11 @@ namespace Reflect
 		FAILED,
 
 		CAST_FAILED,
-		INVALID_OWNER_OBJECT,
-		INVALID_FUNCTION_POINTER,
-		INVALID_MEMBER,
+		INVALID_OWNER_OBJECT,			// There is not a valid owner object instance pointer
+		INVALID_FUNCTION_POINTER,		// There is not a valid function pointer
 
-		FUNCTION_INVALID_ARGS,
-		FUNCTION_INVALID_RETURN_TYPE,
+		FUNCTION_INVALID_ARGS,			// The arguments are not valid for the invoked function
+		FUNCTION_INVALID_RETURN_TYPE,	// The return type is not the same as the function's
 	};
 	REFLECT_API const char* ReflectReturnCodeToString(const EReflectReturnCode& code);
 }

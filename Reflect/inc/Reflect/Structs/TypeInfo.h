@@ -14,7 +14,11 @@ namespace Reflect
         ~TypeInfo();
 
         operator bool() const;
+        /// @brief Checks for if the type is valid and there is a valid object instance
+        /// @return bool
         bool IsValid() const;
+
+        bool HasObjectInstance() const;
 
         TypeId GetTypeId() const;
         Type GetType() const;

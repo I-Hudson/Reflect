@@ -71,7 +71,7 @@ namespace Reflect
 
     bool FunctionInfo::VerifyObjectInstance() const
     {
-        return m_objectInstance != nullptr;;
+        return m_objectInstance != nullptr;
     }
 
     bool FunctionInfo::VerifyFunctionPointer() const

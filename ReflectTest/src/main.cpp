@@ -134,6 +134,11 @@ TEST_CASE("Get type info no owner")
 {
 	Player player;
 	Reflect::TypeInfo typeinfo = Player::GetStaticTypeInfo();
+	CHECK(!typeinfo.IsValid());
+	CHECK(!typeinfo);
+	CHECK(!typeinfo.HasObjectInstance());
+
+	CHECK(typeinfo.GetType().IsValid());
 	CHECK(!typeinfo.GetType().GetPrettyTypeName().empty());
 }
 
@@ -141,10 +146,9 @@ TEST_CASE("Get type info with owner")
 {
 	Player player;
 	Reflect::TypeInfo typeinfo = player.GetTypeInfo();
+	CHECK(typeinfo.IsValid());
 	CHECK(typeinfo);
-
-	Reflect::MemberInfo member = typeinfo.GetMemberInfo("vec");
-	//member->ModifyValue(vec3(789.45f));
+	CHECK(typeinfo.HasObjectInstance());
 }
 
 TEST_CASE("Type info construct")
@@ -154,11 +158,72 @@ TEST_CASE("Type info construct")
 	//delete constructed;
 }
 
-TEST_CASE("Type info invoke invalid owner function")
+TEST_CASE("Function info invoke, return invalid_owner_object")
 {
 	Reflect::TypeInfo typeinfo = Player::GetStaticTypeInfo();
 	Reflect::FunctionInfo getOnlineFriendsCount = typeinfo.GetFunctionInfo("GetOnlineFriendsCount");
 	CHECK(getOnlineFriendsCount.Invoke() == Reflect::EReflectReturnCode::INVALID_OWNER_OBJECT);
+}
+
+TEST_CASE("Function info invoke, return invalid_function_pointer")
+{
+#if 0
+	Player player;
+	Reflect::TypeInfo typeinfo = player.GetTypeInfo();
+
+	Reflect::FunctionInfo getOnlineFriendsCount = typeinfo.GetFunctionInfo("FAKE_FUCNTION");
+	CHECK(getOnlineFriendsCount.Invoke() == Reflect::EReflectReturnCode::INVALID_FUNCTION_POINTER);
+#endif
+}
+
+TEST_CASE("Member info invoke, return invalid_member")
+{
+#if 0
+#endif
+}
+
+TEST_CASE("Function info invoke, return invalid_function_pointer")
+{
+	Player player;
+	Reflect::TypeInfo typeinfo = player.GetTypeInfo();
+
+	Reflect::FunctionInfo getOnlineFriendsCount = typeinfo.GetFunctionInfo("GetOnlineFriendsCount");
+	CHECK(getOnlineFriendsCount.Invoke() == Reflect::EReflectReturnCode::FUNCTION_INVALID_ARGS);
+}
+
+TEST_CASE("Function info invoke, return function_invalid_return_type")
+{
+	Player player;
+	Reflect::TypeInfo typeinfo = player.GetTypeInfo();
+
+	Reflect::FunctionInfoArgs funcArgs;
+	int maxCount = 10;
+	funcArgs.AddArg(&maxCount);
+
+	Reflect::FunctionInfo getOnlineFriendsCount = typeinfo.GetFunctionInfo("GetOnlineFriendsCount");
+	bool returnValue = false;
+	CHECK(getOnlineFriendsCount.Invoke(&returnValue, funcArgs) == Reflect::EReflectReturnCode::FUNCTION_INVALID_RETURN_TYPE);
+}
+
+TEST_CASE("Member info IsValid")
+{
+	Player player;
+	Reflect::TypeInfo typeinfo = player.GetTypeInfo();
+
+	Reflect::MemberInfo playerId = typeinfo.GetMemberInfo("Id");
+	CHECK(!playerId.IsValid());
+}
+
+TEST_CASE("Member info get member pointer")
+{
+	Player player;
+	Reflect::TypeInfo typeinfo = player.GetTypeInfo();
+
+	Reflect::MemberInfo playerId = typeinfo.GetMemberInfo("IdReflected");
+	CHECK(playerId.GetMemberPointer() != nullptr);
+	std::string* idPtr = playerId.GetMemberPointer<std::string>();
+	CHECK(idPtr != nullptr);
+	CHECK(*idPtr == "IdReflected");
 }
 
 TEST_CASE("Type info call func with 1 arg and return")

@@ -23,7 +23,6 @@ namespace Reflect
 
 			case EReflectReturnCode::INVALID_OWNER_OBJECT: return "ReflectFuncReturnCode - Invalid Owner Pointer";
 			case EReflectReturnCode::INVALID_FUNCTION_POINTER: return "ReflectFuncReturnCode - Invalid Function Pointer";
-			case EReflectReturnCode::INVALID_MEMBER: return "ReflectFuncReturnCode - Invalid Member";
 
 			case EReflectReturnCode::FUNCTION_INVALID_ARGS: return "ReflectFuncReturnCode - Function Invalid Args";
 			case EReflectReturnCode::FUNCTION_INVALID_RETURN_TYPE: return "ReflectFuncReturnCode - Function Invalid Return Type";

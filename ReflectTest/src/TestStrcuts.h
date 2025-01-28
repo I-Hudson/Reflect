@@ -94,6 +94,8 @@ class C
 			std::string* GetIdPtr();
 
 		std::string Id = { };
+		REFLECT_PROPERTY();
+		std::string IdReflected = "IdReflected";
 
 		REFLECT_PROPERTY(EditorOnly, Public)
 			int Friends = 7;

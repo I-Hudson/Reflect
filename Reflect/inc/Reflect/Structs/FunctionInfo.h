@@ -71,6 +71,12 @@ namespace Reflect
         EReflectReturnCode Invoke() const;
         EReflectReturnCode Invoke(const FunctionInfoArgs& args) const;
         template<typename TReturnType>
+        EReflectReturnCode Invoke(TReturnType* returnPtr) const
+        {
+            FunctionInfoArgs args;
+            return InternaInvoke(returnPtr, args, Type::MakeType<TReturnType>());
+        }
+        template<typename TReturnType>
         EReflectReturnCode Invoke(TReturnType* returnPtr, const FunctionInfoArgs& args) const
         {
             return InternaInvoke(returnPtr, args, Type::MakeType<TReturnType>());
