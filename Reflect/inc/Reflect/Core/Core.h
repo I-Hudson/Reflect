@@ -8,7 +8,7 @@ namespace Reflect
 {
 	#define REFLECT_MAJOR 5
 	#define REFLECT_MINOR 0
-	#define REFLECT_PATCH 1
+	#define REFLECT_PATCH 2
 
 	namespace Keys
 	{

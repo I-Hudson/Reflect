@@ -100,6 +100,16 @@ namespace Reflect::CodeGeneration
 		file << "\tstd::vector<TypeInfo> GenerateParentTypeInfos(" + GetTypeName(data) + "* objectInstance)\n\t{" << NEW_LINE;
 		file << "\t\tstd::vector<TypeInfo> parentTypeInfos;\n" << NEW_LINE;
 
+		int parentInfoCount = 0;
+		for (const auto& item : data.Inheritance)
+		{
+			if (item.HasCodeGenerated)
+			{
+				++parentInfoCount;
+			}
+		}
+		file << "\t\tparentTypeInfos.reserve("<< parentInfoCount << "); \n" << NEW_LINE;
+
 		for (const auto& item : data.Inheritance)
 		{
 			if (!item.HasCodeGenerated) 
@@ -140,6 +150,7 @@ namespace Reflect::CodeGeneration
 			for (const auto& func : data.Functions)
 			{
 				str += "\t\tstd::vector<Type> " + func.Name + "_Args;" + NEW_LINE;
+				str += "\t\t" + func.Name + "_Args.reserve(" + std::to_string(func.Parameters.size()) + ");" + NEW_LINE;
 				for (const auto& arg : func.Parameters)
 				{
 					str += "\t\t" + func.Name + "_Args.emplace_back(" + generateSingleArg(arg) + ");" + NEW_LINE;
@@ -155,6 +166,7 @@ namespace Reflect::CodeGeneration
 				for (const auto& func : data.Functions)
 				{
 					str += "\t\tstd::vector<std::string> " + func.Name + "_Flags;" + NEW_LINE;
+					str += "\t\t" + func.Name + "_Flags.reserve(" + std::to_string(func.ContainerProps.size()) + ");" + NEW_LINE;
 					for (const auto& arg : func.ContainerProps)
 					{
 						str += "\t\t" + func.Name + "_Flags.emplace_back(\"" + arg + "\");" + NEW_LINE;
@@ -170,6 +182,7 @@ namespace Reflect::CodeGeneration
 				for (const auto& func : data.Functions)
 				{
 					str += "\t\tstd::vector<PropertyMeta> " + func.Name + "_PropertyMetas;" + NEW_LINE;
+					str += "\t\t" + func.Name + "_PropertyMetas.reserve(" + std::to_string(func.PropertyMetas.size()) + ");" + NEW_LINE;
 					for (const auto& propertyMeta : func.PropertyMetas)
 					{
 						str += "\t\t" + func.Name + "_PropertyMetas.emplace_back(PropertyMeta(\"" + propertyMeta.GetKey() + "\", \"" + propertyMeta.GetValue() + "\"));" + NEW_LINE;
@@ -207,6 +220,8 @@ namespace Reflect::CodeGeneration
 		file << generateFunctionPropertyMetas();
 
 		file << "\t\tstd::vector<FunctionInfo> functionInfos;" << NEW_LINE;
+		file << "\t\tfunctionInfos.reserve(" << data.Functions.size() << ");\n" << NEW_LINE;
+
 		for (const auto& f : data.Functions)
 		{
 			file << "\t\tfunctionInfos.push_back(" + generateSingleFunction(f) + "));" << NEW_LINE;
@@ -219,9 +234,15 @@ namespace Reflect::CodeGeneration
 	{
 		REFLECT_PROFILE_FUNCTION();
 		file << "\tstd::vector<MemberInfo> GenerateMemberInfos(" + GetTypeName(data)  + "* objectInstance)\n\t{" << NEW_LINE;
-		file << "\t\tstd::vector<MemberInfo> memberInfos;\n" << NEW_LINE;
-		file << "\t\tstd::vector<std::string> flags;\n" << NEW_LINE;
-		file << "\t\tstd::vector<PropertyMeta> propertyMeta;\n" << NEW_LINE;
+		file << "\t\tstd::vector<MemberInfo> memberInfos;" << NEW_LINE;
+		file << "\t\tmemberInfos.reserve(" << data.Members.size() << ");" << NEW_LINE;
+
+		file << NEW_LINE;
+
+		file << "\t\tstd::vector<std::string> flags;" << NEW_LINE;
+		file << "\t\tstd::vector<PropertyMeta> propertyMeta;" << NEW_LINE;
+
+		file << NEW_LINE;
 
 		for (const auto& member : data.Members)
 		{
@@ -249,7 +270,11 @@ namespace Reflect::CodeGeneration
 			TAB_N(lineIndent);
 			file << "flags.clear();" << NEW_LINE;
 			TAB_N(lineIndent);
+			file << "propertyMeta.reserve(" << member.ContainerProps.size() << ");" << NEW_LINE;
+			TAB_N(lineIndent);
 			file << "propertyMeta.clear();" << NEW_LINE;
+			TAB_N(lineIndent);
+			file << "propertyMeta.reserve(" << member.PropertyMetas.size() << ");" << NEW_LINE;
 			file << NEW_LINE;
 
 			for (const auto& flag : member.ContainerProps)
