@@ -37,7 +37,7 @@ namespace Reflect
         static TypeInfo GetTypeInfo(void* objectInstance)
         {
             static_assert(std::is_base_of_v<IReflect, T>);
-            return GetTypeInfo(T::GetTypeId(), objectInstance);
+            return GetTypeInfo(T::GetStaticTypeInfo().GetTypeId(), objectInstance);
         }
 
     private:

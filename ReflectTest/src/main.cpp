@@ -125,9 +125,23 @@ TEST_CASE("TypeInfo registry")
 {
 	ClassHolder classHolder;
 	Reflect::TypeInfoRegistry& registy = Reflect::TypeInfoRegistry::Instance();
-	{
-		Player player;
-	}
+
+	Player p;
+	Reflect::TypeInfo playerTypeInfo = p.GetTypeInfo();
+	CHECK(playerTypeInfo.GetType().IsValid());
+
+	Reflect::Type playerType = Reflect::Type::MakeType<Player>();
+	CHECK(playerType.IsValid());
+	CHECK(playerType == playerTypeInfo.GetType());
+	CHECK(playerType.GetTypeId() == playerTypeInfo.GetType().GetTypeId());
+
+	CHECK(registy.HasTypeInfo(playerType.GetTypeId()));
+
+	Reflect::TypeInfo rPTypeInfo = registy.GetTypeInfo<Player>();
+	CHECK(!rPTypeInfo.IsValid());
+	CHECK(!rPTypeInfo.HasObjectInstance());
+	CHECK(rPTypeInfo.GetType() == playerTypeInfo);
+	CHECK(rPTypeInfo.GetType().GetTypeId() == playerTypeInfo.GetTypeId());
 }
 
 TEST_CASE("Get type info no owner")

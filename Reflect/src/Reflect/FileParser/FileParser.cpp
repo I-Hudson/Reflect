@@ -1415,11 +1415,6 @@ namespace Reflect::Parser
 				std::thread thread = std::thread([&]()
 				{
 #endif
-					if (reflectedData.NameWithNamespace == "Insight::Graphics::TextureDrawData_DX12")
-					{
-						int asd = 0;
-					}
-
 					REFLECT_PROFILE_SCOPE_CSTR(reflectedData.NameWithNamespace.c_str());
 					// Go through all our struct/class inheritance
 					for (auto& inheritanceItem : reflectedData.Inheritance)
