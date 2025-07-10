@@ -544,7 +544,7 @@ namespace Reflect::Parser
 		if (fileData.Data.find(reflectContainerKey, fileData.Cursor) != fileData.Cursor)
 		{
 			Log_Error("[FileParser::ParseContainerReflectProperties] Cursor is expected to be at a REFLECT_[CLASS/STRUCT] macro. This is not the case. File:");
-			Log_Error("'%s' will not be completely reflected.\n", fileData.FileName);
+			Log_Error("'%s' will not be completely reflected.\n", fileData.FileName.c_str());
 			return false;
 		}
 
@@ -568,7 +568,7 @@ namespace Reflect::Parser
 		if (containerStartIdx == std::string::npos)
 		{
 			Log_Error("[FileParser::ParseContainerHeader] Expected to find '%d'. This is not the case. File:", containerKey);
-			Log_Error("'%s' will not be completely reflected.\n", fileData.FileName);
+			Log_Error("'%s' will not be completely reflected.\n", fileData.FileName.c_str());
 			return false;
 		}
 
@@ -723,7 +723,7 @@ namespace Reflect::Parser
 			generatedBodyLine = 0;
 			if (std::find(conatinerData.ContainerProps.begin(), conatinerData.ContainerProps.end(), REFLECT_LOOKUP_ONLY) == conatinerData.ContainerProps.end())
 			{
-				Log_Warn("[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a'%s'.\n", fileData.FileName);
+				Log_Warn("[FileParser::ReflectContainer] 'REFLECT_GENERATED_BODY()' is missing from a'%s'.\n", fileData.FileName.c_str());
 			}
 		}
 
@@ -2437,7 +2437,7 @@ namespace Reflect::Parser
 			}
 			else
 			{
-				Log_Warn("[FileParser::FindFullAliasName] Unable to get full name for alias of '%s' as there is more than on possible result.\n", aliasName);
+				Log_Warn("[FileParser::FindFullAliasName] Unable to get full name for alias of '%s' as there is more than on possible result.\n", aliasName.c_str());
 			}
 		}
 

@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 			Log_Info("[Id] [Usage] [Description].\n");
 			for (const auto& kvp : Commands)
 			{
-				Log_Info("%s, %s, %s\n\n", kvp.first, kvp.second[0], kvp.second[1]);
+				Log_Info("%s, %s, %s\n\n", kvp.first.c_str(), kvp.second[0], kvp.second[1]);
 			}
 			Log_Info("/**************\n");
 		}
