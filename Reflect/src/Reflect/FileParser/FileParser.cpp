@@ -1551,7 +1551,10 @@ namespace Reflect::Parser
 			
 			for (int refecltDataIdx = static_cast<int>(parsedData.ReflectData.size()) - 1; refecltDataIdx >= 0; --refecltDataIdx)
 			{
-				progrssBar.SetProgress(++progrssCount);
+				if (!parsedData.Parsed)
+				{
+					progrssBar.SetProgress(++progrssCount);
+				}
 
 				const ReflectContainerData& reflectData = parsedData.ReflectData[refecltDataIdx];
 				if (auto iter = std::find(reflectData.ContainerProps.begin(), reflectData.ContainerProps.end(), REFLECT_LOOKUP_ONLY);

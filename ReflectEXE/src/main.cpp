@@ -17,13 +17,14 @@ const char* CommandPrefixInfo[3] = { "Commands are defined with the prefix '-'",
 const char* CommandNoValueInfo[3] = { "Commands without the '=<Values>' subfix must be in the format of '-CommandId", "'-DontCloseOnFinish'", "" };
 const char* CommandValueInfo[3] = { "Commands with the '=<Values>' subfix must be in the format of '-CommandId'='Value1' 'Value2' ...", "-Directories='LocalHeaders' '../Vendor/Headers'", "" };
 
-const char* CommandHelp[3] =				{ "-Help", "-Help", "Print all commands." };
-const char* CommandVersion[3] =				{ "-Version", "-Version", "Display the current version." };
-const char* CommandDontCloseOnFinish[3] =	{ "-DontCloseOnFinish", "-DontCloseOnFinish", "Don't close the app after Reflect has finished parsing and code generation." };
-const char* CommandDirectories[3] =			{ "-Directories", "Directories=<Values>", "Define multiple directories to parse." };
-const char* CommandIgnoreWords[3] =			{ "-IgnoreWords", "-IgnoreWords=<Values>", "Define words to ignore when parsing (Example: defines used for __declspec(dllexport) and __declspec(dllimport))." };
-const char* CommandEnableProfileStats[3] =	{ "-EnableProfileStats", "-EnableProfileStats", "Enable profiling stats." };
-const char* CommandExit[3] =				{ "-Exit", "-Exit", "Exit the application." };
+const char* CommandHelp[3] =						{ "-Help", "-Help", "Print all commands." };
+const char* CommandVersion[3] =						{ "-Version", "-Version", "Display the current version." };
+const char* CommandDontCloseOnFinish[3] =			{ "-DontCloseOnFinish", "-DontCloseOnFinish", "Don't close the app after Reflect has finished parsing and code generation." };
+const char* CommandDirectories[3] =					{ "-Directories", "Directories=<Values>", "Define multiple directories to parse." };
+const char* CommandParseNoReflectDirectories[3] =	{ "-ParseNoReflectDirectories", "ParseDirectories=<Values>", "Define multiple directories to parse but not Reflect." };
+const char* CommandIgnoreWords[3] =					{ "-IgnoreWords", "-IgnoreWords=<Values>", "Define words to ignore when parsing (Example: defines used for __declspec(dllexport) and __declspec(dllimport))." };
+const char* CommandEnableProfileStats[3] =			{ "-EnableProfileStats", "-EnableProfileStats", "Enable profiling stats." };
+const char* CommandExit[3] =						{ "-Exit", "-Exit", "Exit the application." };
 
 #define COMMAND_GET_ID(Command) Command[0]
 #define COMMAND_GET_EXAMPLE(Command) Command[1]
@@ -41,6 +42,7 @@ const std::unordered_map<std::string, std::vector<const char*>> Commands =
 	COMMAND_LOG_VALUES(CommandHelp),
 	COMMAND_LOG_VALUES(CommandDontCloseOnFinish),
 	COMMAND_LOG_VALUES(CommandDirectories),
+	COMMAND_LOG_VALUES(CommandParseNoReflectDirectories),
 	COMMAND_LOG_VALUES(CommandIgnoreWords),
 	COMMAND_LOG_VALUES(CommandExit),
 };
@@ -163,6 +165,13 @@ std::unordered_map<std::string, std::vector<std::string>> ParseInputToCommands(c
 
 void RunReflect(const std::unordered_map<std::string, std::vector<std::string>>& commands)
 {
+	std::vector<std::string> parseDirectoriesNoReflect;
+	if (const auto iter = commands.find(COMMAND_GET_ID(CommandParseNoReflectDirectories));
+		iter != commands.end())
+	{
+		std::copy(iter->second.begin(), iter->second.end(), std::back_inserter(parseDirectoriesNoReflect));
+	}
+
 	std::vector<std::string> directories;
 	if (const auto iter = commands.find(COMMAND_GET_ID(CommandDirectories));
 		iter != commands.end())
@@ -232,6 +241,14 @@ void RunReflect(const std::unordered_map<std::string, std::vector<std::string>>&
 		Reflect::Profile::InstrumentationTimer timer("Reflect Timer");
 		REFLECT_PROFILE_BEGIN_SESSION();
 		REFLECT_PROFILE_SCOPE("MAIN");
+
+		for (auto& dir : parseDirectoriesNoReflect)
+		{
+			Reflect::Parser::FileParserOptions fileParserOptions = { };
+			fileParserOptions.DoNotReflect = true;
+
+			parser.ParseDirectory(dir, &options, fileParserOptions);
+		}
 
 		for (auto& dir : directories)
 		{
